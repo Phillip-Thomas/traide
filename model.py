@@ -83,13 +83,25 @@ class DQN(nn.Module):
 class SimpleTradeEnv:
     def __init__(self, data, window_size=10):
         self.data = data
-        self.raw_prices = self.data['Close'].values
         
-        # Normalize prices to handle different scales across tickers
-        self.price_scale = self.raw_prices[window_size] if self.raw_prices[window_size] != 0 else 1.0
-        self.prices = self.raw_prices / self.price_scale
-        
+        # Store raw prices for Open, High, Low, and Close
+        self.raw_open = self.data['Open'].values
+        self.raw_high = self.data['High'].values
+        self.raw_low = self.data['Low'].values
+        self.raw_close = self.data['Close'].values
+        self.raw_volume = self.data['Volume'].values
         self.window_size = window_size
+        
+        # Normalize all prices using the Close price at the starting point
+        scale = self.raw_close[window_size] if self.raw_close[window_size] != 0 else 1.0
+        self.open_prices = self.raw_open / scale
+        self.high_prices = self.raw_high / scale
+        self.low_prices = self.raw_low / scale
+        self.close_prices = self.raw_close / scale
+
+        scale_vol = self.raw_volume[window_size] if self.raw_volume[window_size] != 0 else 1.0
+        self.volume = self.raw_volume / scale_vol
+        
         self.reset()
 
     def reset(self):
@@ -102,20 +114,25 @@ class SimpleTradeEnv:
         return self._get_state()
 
     def _get_state(self):
-        # Price window (using normalized prices)
-        window = self.prices[self.idx - self.window_size:self.idx]
-        window_returns = np.diff(window) / window[:-1]  # Price returns
+        # Create windows for each price type over the specified window_size
+        window_open = self.open_prices[self.idx - self.window_size:self.idx]
+        window_high = self.high_prices[self.idx - self.window_size:self.idx]
+        window_low  = self.low_prices[self.idx - self.window_size:self.idx]
+        window_close = self.close_prices[self.idx - self.window_size:self.idx]
+        window_volume = self.volume[self.idx - self.window_size:self.idx]
+        # Concatenate them to form the price window (the order is arbitrary)
+        price_window = np.concatenate([window_open, window_high, window_low, window_close])
         
-        # Technical indicators
+        # Compute technical indicators from the close window
+        window_returns = np.diff(window_close) / window_close[:-1]
         volatility = np.std(window_returns)
         momentum = np.mean(window_returns[-3:])
-        trend = (window[-1] - window[0]) / window[0]
+        trend = (window_close[-1] - window_close[0]) / window_close[0]
         
-        # Portfolio state
-        portfolio_value = self.cash if self.position == 0 else self.shares * self.prices[self.idx]
-        unrealized_gain = (self.prices[self.idx] / self.entry_price - 1) if self.position == 1 and self.entry_price else 0
+        # Portfolio state features
+        portfolio_value = self.cash if self.position == 0 else self.shares * self.close_prices[self.idx]
+        unrealized_gain = (self.close_prices[self.idx] / self.entry_price - 1) if (self.position == 1 and self.entry_price) else 0
         
-        # Combine all features
         technical_features = np.array([
             volatility,
             momentum, 
@@ -125,10 +142,12 @@ class SimpleTradeEnv:
             unrealized_gain
         ])
         
-        return np.concatenate([window, technical_features])
+        # Final state: concatenation of the price window and the technical features
+        return np.concatenate([price_window, window_volume, technical_features])
+
 
     def _get_reward(self, action):
-        current_price = self.prices[self.idx]
+        current_price = self.close_prices[self.idx]
         reward = 0.0
         
         if action == 1 and self.position == 0:  # Buy
@@ -139,7 +158,7 @@ class SimpleTradeEnv:
             
             # Additional reward shaping
             if profit > 0:
-                reward *= 1.1  # Bonus for profitable trades
+                reward *= 1.2  # Bonus for profitable trades
             if profit < -0.02:
                 reward *= 1.2  # Larger penalty for significant losses
                 
@@ -148,35 +167,28 @@ class SimpleTradeEnv:
     def step(self, action):
         if action == 1 and self.position == 0:  # Buy
             self.position = 1
-            self.entry_price = self.prices[self.idx]
+            self.entry_price = self.close_prices[self.idx]
             self.shares = self.cash / self.entry_price
             self.cash = 0
         elif action == 2 and self.position == 1:  # Sell
             self.position = 0
-            self.cash = self.shares * self.prices[self.idx]
+            self.cash = self.shares * self.close_prices[self.idx]
             self.shares = 0
             self.entry_price = None
 
         self.idx += 1
-        if self.idx >= len(self.prices):
+        if self.idx >= len(self.close_prices):
             if self.position == 1:
-                self.cash = self.shares * self.prices[-1]
+                self.cash = self.shares * self.close_prices[-1]
                 self.shares = 0
                 self.position = 0
             return self._get_state(), 0, True
 
         reward = self._get_reward(action)
-        portfolio_value = self.cash if self.position == 0 else self.shares * self.prices[self.idx]
+        portfolio_value = self.cash if self.position == 0 else self.shares * self.close_prices[self.idx]
         self.max_portfolio_value = max(portfolio_value, self.max_portfolio_value)
         
         return self._get_state(), reward, False
-
-    @staticmethod
-    def get_state_size(window_size):
-        """Calculate input size for the neural network"""
-        price_window = window_size     # Price history window
-        extra_features = 6            # volatility, momentum, trend, position, portfolio_value, unrealized_gain
-        return price_window + extra_features
     
 class ReplayBuffer:
     def __init__(self, capacity=10000):
@@ -250,7 +262,9 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         for ticker, data in val_data_dict.items()
     }
     
-    
+    # List to store average excess return for each episode
+    episode_excess_returns = []
+
     for episode in range(n_episodes):
         # Randomly select a ticker for this episode
         ticker = random.choice(list(train_envs.keys()))
@@ -303,6 +317,10 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
             print(f"  Trades: {avg_num_trades}")
             print(f"  Avg Excess Return: {avg_excess_return:.2f}%")
             
+            # Save this episode's avg excess retur
+            episode_excess_returns.append(avg_excess_return)
+
+
             if avg_excess_return > best_excess_return:
                 best_val_profit = avg_profit
                 best_excess_return = avg_excess_return
@@ -319,6 +337,14 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         
         epsilon = max(0.01, epsilon * 0.985)
     
+    # After training, write all episode excess returns to a single file with a timestamp in the filename.
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    results_file = os.path.join("results", f"episode_excess_returns_{timestamp}.txt")
+    with open(results_file, "w") as f:
+        for ep, excess in enumerate(episode_excess_returns, start=1):
+            f.write(f"Episode {ep}: Average Excess Return: {excess:.2f}%\n")
+    print(f"Saved episode results to {results_file}")
+
     return {'final_model': policy_net, 'best_model': best_model}
 
 def validate_model(model, env, device):
@@ -330,8 +356,8 @@ def validate_model(model, env, device):
     accumulated_reward = 0
     
     # Calculate buy and hold return
-    buy_and_hold_shares = initial_value / env.prices[env.window_size]
-    buy_and_hold_value = buy_and_hold_shares * env.prices[-1]
+    buy_and_hold_shares = initial_value / env.close_prices[env.window_size]
+    buy_and_hold_value = buy_and_hold_shares * env.close_prices[-1]
     buy_and_hold_return = (buy_and_hold_value - initial_value) / initial_value
     
     while not done:
@@ -339,9 +365,9 @@ def validate_model(model, env, device):
         action = model(state_tensor).max(1)[1].item()
         
         if action == 1 and env.position == 0:
-            entry_price = env.prices[env.idx]
+            entry_price = env.close_prices[env.idx]
         elif action == 2 and env.position == 1:
-            exit_price = env.prices[env.idx]
+            exit_price = env.close_prices[env.idx]
             trades.append((exit_price - entry_price) / entry_price)
             entry_price = None
             
@@ -359,10 +385,17 @@ def validate_model(model, env, device):
     }
 
 def get_state_size(window_size):
-    """Calculate input size for the neural network"""
-    price_window = window_size     # Price history window
-    extra_features = 6            # volatility, momentum, trend, position, portfolio_value, unrealized_gain
-    return price_window + extra_features
+        """
+        With volume included:
+         - OHLC: window_size * 4
+         - Volume: window_size
+         - Extra features: 6
+        """
+        price_window = window_size * 4
+        volume_window = window_size
+        extra_features = 6
+        return price_window + volume_window + extra_features
+
 
 # ---------------------------------------------
 # 1) Load the all-time best model at startup

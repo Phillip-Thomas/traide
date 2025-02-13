@@ -7,7 +7,7 @@ from datetime import datetime
 import yfinance as yf
 
 # Import from your main script
-from model import DQN, SimpleTradeEnv, get_state_size, get_market_data
+from model import DQN, SimpleTradeEnv, get_state_size, get_market_data_multi
 
 def visualize_trades(model, env, device):
     """
@@ -23,7 +23,7 @@ def visualize_trades(model, env, device):
     current_position = 0
     
     while not done:
-        prices.append(env.prices[env.idx])
+        prices.append(env.close_prices[env.idx])
         
         # Get model's action
         state_tensor = torch.FloatTensor([state]).to(device)
@@ -36,7 +36,7 @@ def visualize_trades(model, env, device):
         if env.position == 0:
             portfolio_values.append(env.cash)
         else:
-            portfolio_values.append(env.shares * env.prices[env.idx])
+            portfolio_values.append(env.shares * env.close_prices[env.idx])
             
         # Take step in environment
         state, _, done = env.step(action)
@@ -95,7 +95,7 @@ def plot_trading_signals(data, prices, signals, portfolio_values):
     
     # Save the plot
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    plt.savefig(f'trading_visualization_{timestamp}.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'visualizations/trading_visualization_{timestamp}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def main():
@@ -109,14 +109,19 @@ def main():
         
     checkpoint = torch.load(BEST_CHECKPOINT_FILE)
     
-    # Get validation data
-    full_data = get_market_data(symbol="SPY", period="730d", interval="1h")
-    if full_data is None:
-        print("Failed to fetch market data")
+    full_data_dict = get_market_data_multi()
+
+    if not full_data_dict:
+        print("No data available for training. Exiting.")
         return
-        
-    split_idx = int(len(full_data) * 0.7)
-    val_data = full_data[split_idx:].copy()
+
+    # Split data for each ticker
+    train_data_dict = {}
+    val_data_dict = {}
+    for ticker, data in full_data_dict.items():
+        split_idx = int(len(data) * 0.7)
+        train_data_dict[ticker] = data[:split_idx].copy()
+        val_data_dict[ticker] = data[split_idx:].copy()
     
     # Initialize model
     window_size = 10
@@ -125,12 +130,13 @@ def main():
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
     
+    print(f"data: {val_data_dict['SPY']}")
     # Create environment and get trading signals
-    env = SimpleTradeEnv(val_data, window_size=window_size)
+    env = SimpleTradeEnv(val_data_dict['SPY'], window_size=window_size)
     prices, signals, portfolio_values = visualize_trades(model, env, device)
     
     # Create visualization
-    plot_trading_signals(val_data, prices, signals, portfolio_values)
+    plot_trading_signals(val_data_dict['SPY'], prices, signals, portfolio_values)
     
     # Print performance metrics
     final_return = (portfolio_values[-1] - portfolio_values[0]) / portfolio_values[0] * 100
