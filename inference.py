@@ -10,38 +10,47 @@ import yfinance as yf
 from model import DQN, SimpleTradeEnv, get_state_size, get_market_data_multi
 
 def visualize_trades(model, env, device):
-    """
-    Run the model through the environment and record all trading actions and performance
-    """
     state = env.reset()
     done = False
     
-    # Initialize tracking variables
     prices = []
-    signals = []  # 0: hold, 1: buy, 2: sell
+    signals = []
     portfolio_values = []
-    current_position = 0
     
     while not done:
         prices.append(env.close_prices[env.idx])
         
-        # Get model's action
+        # Convert state to tensor
         state_tensor = torch.FloatTensor([state]).to(device)
-        action = model(state_tensor).max(1)[1].item()
         
-        # Record the action
+        # 1) Get valid actions from the environment
+        valid_actions = env.get_valid_actions()
+
+        # 2) Get Q-values
+        q_values = model(state_tensor)[0]
+
+        # 3) Mask out invalid actions
+        mask = torch.full_like(q_values, float('-inf'))
+        for a in valid_actions:
+            mask[a] = q_values[a]
+        
+        # 4) Take the argmax from masked Q-values
+        action = torch.argmax(mask).item()
+        
+        # Record the raw action for plotting
         signals.append(action)
         
-        # Calculate portfolio value
+        # Record portfolio value
         if env.position == 0:
             portfolio_values.append(env.cash)
         else:
             portfolio_values.append(env.shares * env.close_prices[env.idx])
-            
-        # Take step in environment
+        
+        # Step in environment
         state, _, done = env.step(action)
     
     return np.array(prices), np.array(signals), np.array(portfolio_values)
+
 
 def plot_trading_signals(data, prices, signals, portfolio_values):
     """
@@ -124,7 +133,7 @@ def main():
         val_data_dict[ticker] = data[split_idx:].copy()
     
     # Initialize model
-    window_size = 10
+    window_size = 48
     input_size = get_state_size(window_size)
     model = DQN(input_size).to(device)
     model.load_state_dict(checkpoint['model_state_dict'])

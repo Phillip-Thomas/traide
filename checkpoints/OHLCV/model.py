@@ -7,8 +7,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-import pdb
 from datetime import datetime
 from typing import List, Tuple
 import random
@@ -20,14 +18,17 @@ def get_market_data_multi(tickers=None, period="730d", interval="1h"):
     """
     if tickers is None:
         tickers = [
-            "SPY",
-            # "QQQ", "IWM", "DIA", "XLK", "XLF", "XLE", "EEM", "GLD", "TLT",
-            # "VTI", "VOO", "IWB", "IJH", "IJR", "EFA", "VNQ", "DBC", "USO", "AGG",
-            # "BND", "LQD", "MBB", "TIP", "SHY", "IEI", "IJNK", "EMB", "IAU", "GDX",
-            # "SLV", "PDBC", "ICLN", "KRE", "XLY", "XLC", "XLI", "XLB", "XLV", "XLU",
-            # "XBI", "SMH", "SOXX", "VGT", "ARKK", "ARKG", "ARKQ", "ARKW", "TAN", "ICF"
+            "SPY",  # S&P 500
+            # "QQQ",  # Nasdaq
+            # "IWM",  # Russell 2000
+            # "DIA",  # Dow Jones
+            # "XLK",  # Technology
+            # "XLF",  # Financials
+            # "XLE",  # Energy
+            # "EEM",  # Emerging Markets
+            # "GLD",  # Gold
+            # "TLT",  # 20+ Year Treasury
         ]
-
     
     data_dict = {}
     for symbol in tickers:
@@ -47,37 +48,37 @@ class DQN(nn.Module):
     def __init__(self, input_size):
         super().__init__()
         self.feature_net = nn.Sequential(
-            nn.Linear(input_size, 64),
+            nn.Linear(input_size, 128),
+            nn.LayerNorm(128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
             nn.LayerNorm(64),
             nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.LayerNorm(32),
+            nn.Linear(64, 64),
+            nn.LayerNorm(64),
             nn.ReLU(),
         )
         
-        self.lstm = nn.LSTM(input_size=32, hidden_size=16, num_layers=1, batch_first=True)
+        self.lstm = nn.LSTM(input_size=64, hidden_size=32, num_layers=2, batch_first=True)
         
         self.value_net = nn.Sequential(
-            nn.Linear(16, 3)
+            nn.Linear(32, 32),
+            nn.LayerNorm(32),
+            nn.ReLU(),
+            nn.Linear(32, 3)
         )
         
-        # Initialize weights with smaller values
+        # Initialize weights
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                nn.init.orthogonal_(m.weight, gain=0.5)
+                nn.init.orthogonal_(m.weight, gain=1.414)
                 nn.init.constant_(m.bias, 0.0)
     
-    def forward(self, x, h=None):
-        B, T, D = x.shape
-        x_2d = x.view(B*T, D)
-        features_2d = self.feature_net(x_2d)
-        features_3d = features_2d.view(B, T, 32)
-        
-        lstm_out, (h_n, c_n) = self.lstm(features_3d, h)
-        out = lstm_out[:, -1, :]
-        
-        return self.value_net(out), (h_n, c_n)
-
+    def forward(self, x):
+        features = self.feature_net(x).unsqueeze(1)
+        self.lstm.flatten_parameters()
+        lstm_out, _ = self.lstm(features)
+        return self.value_net(lstm_out[:, -1, :])
 
 class SimpleTradeEnv:
     def __init__(self, data, window_size=10):
@@ -110,7 +111,6 @@ class SimpleTradeEnv:
         self.shares = 0
         self.entry_price = None
         self.max_portfolio_value = self.cash
-        self.baseline_price = self.open_prices[self.idx - self.window_size]
         return self._get_state()
     
     def get_valid_actions(self):
@@ -137,51 +137,46 @@ class SimpleTradeEnv:
 
 
     def _get_reward(self, action):
-        reward = 0
-        if (action == 1 and self.position == 1) or (action == 2 and self.position == 0):
-            return -0.001  # Invalid action penalty
-                
         current_price = self.close_prices[self.idx]
-        buying_fee = 0.001
-        selling_fee = 0.0015
+        buying_fee = 0.0015   # 0.15%
+        selling_fee = 0.0025  # 0.25%
+
+        # Look at recent price history (last 5 periods)
+        recent_window = self.close_prices[self.idx - 5:self.idx + 1]
         
-        # Calculate short-term and long-term trends
-        short_window = 5
-        long_window = 20
-        short_trend = np.mean(self.close_prices[max(self.idx - short_window, 0):self.idx])
-        long_trend = np.mean(self.close_prices[max(self.idx - long_window, 0):self.idx])
+        # Calculate if current price is relatively low/high compared to recent prices
+        is_local_dip = current_price < np.mean(recent_window) * 0.99  # Price is 1% below recent average
+        is_local_peak = current_price > np.mean(recent_window) * 1.01  # Price is 1% above recent average
         
         if action == 1 and self.position == 0:  # Buy
             reward = -buying_fee
-            # Reward for buying in uptrend
-            if current_price > short_trend and short_trend > long_trend:
-                reward += 0.001
+            if is_local_dip:
+                reward += 0.002  # Bonus for buying dips
+            return reward
         elif action == 2 and self.position == 1:  # Sell
+            # Use raw entry price since the fee was already applied at buy time.
             effective_sale = current_price * (1 - selling_fee)
             profit = (effective_sale - self.entry_price) / self.entry_price
-            reward = profit
-            # Additional reward for profitable trades
-            if profit > 0:
-                reward *= 1.2  # 20% bonus for profitable trades
-        else:  # Hold
-            # Small opportunity cost for holding
-            if self.position == 1:
-                profit_if_sold = (current_price - self.entry_price) / self.entry_price
-                if profit_if_sold > 0.01:  # If missing out on >1% profit
-                    reward = -0.0002
-            else:
-                if current_price > short_trend and short_trend > long_trend:
-                    reward = -0.0002  # Missing potential uptrend
-
+            reward = np.tanh(5 * profit)
+        
+            if is_local_peak:
+                reward += 0.002  # Bonus for selling peaks
+            return reward
+        else:
+            reward = 0.0
         return reward
+
 
     def step(self, action):
 
+        if self.position == 1 and action == 1:  # Trying to buy while in position
+            action = 0  # Force to HOLD
+        elif self.position == 0 and action == 2:  # Trying to sell without position
+            action = 0  # Force to HOLD
 
         # Enforce that a buy is only allowed if we're not already in a position.
         if action == 1:
             if self.position == 0:  # Only execute buy if not already bought
-                # print("buy")
                 self.position = 1
                 self.entry_price = self.close_prices[self.idx]
                 self.shares = self.cash / self.close_prices[self.idx]
@@ -192,7 +187,6 @@ class SimpleTradeEnv:
 
         elif action == 2:
             if self.position == 1:  # Only execute sell if we have a position
-                # print("sell")
                 self.position = 0
                 self.cash = self.shares * self.close_prices[self.idx]
                 self.shares = 0
@@ -219,83 +213,46 @@ class SimpleTradeEnv:
 
     
 class ReplayBuffer:
-    def __init__(self, capacity=1000):
-        self.episodes = []
+    def __init__(self, capacity=10000):
+        self.buffer = []
         self.capacity = capacity
-
+        self.position = 0
+        
+    def push(self, state, action, reward, next_state, done):
+        if len(self.buffer) < self.capacity:
+            self.buffer.append(None)
+        self.buffer[self.position] = (state, action, reward, next_state, done)
+        self.position = (self.position + 1) % self.capacity
+        
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size)
+        states, actions, rewards, next_states, dones = map(np.array, zip(*batch))
+        return (torch.FloatTensor(states), torch.LongTensor(actions),
+                torch.FloatTensor(rewards), torch.FloatTensor(next_states),
+                torch.FloatTensor(dones))
+        
     def __len__(self):
-        return len(self.episodes)
-    
-    def push_episode(self, episode):
-        """An episode is a list of (state, action, reward, next_state, done) tuples."""
-        if len(self.episodes) >= self.capacity:
-            self.episodes.pop(0)
-        self.episodes.append(episode)
-    
-    def sample(self, batch_size, seq_len):
-        batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones = [], [], [], [], []
-        
-        # Keep sampling until we have batch_size sequences
-        while len(batch_states) < batch_size:
-            episode = random.choice(self.episodes)
-            if len(episode) < seq_len:
-                continue  # Skip episodes that are too short
-            start = random.randint(0, len(episode) - seq_len)
-            seq = episode[start : start + seq_len]
-            states, actions, rewards, next_states, dones = zip(*seq)
-            batch_states.append(np.array(states))
-            batch_actions.append(np.array(actions))
-            batch_rewards.append(np.array(rewards))
-            batch_next_states.append(np.array(next_states))
-            batch_dones.append(np.array(dones))
-        
-        return (torch.FloatTensor(np.array(batch_states)),
-                torch.LongTensor(np.array(batch_actions)),
-                torch.FloatTensor(np.array(batch_rewards)),
-                torch.FloatTensor(np.array(batch_next_states)),
-                torch.FloatTensor(np.array(batch_dones)))
-
-
+        return len(self.buffer)
 
 def train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device):
-    seq_states, seq_actions, seq_rewards, seq_next_states, seq_dones = \
-        memory.sample(batch_size, seq_len=4)
-    
-    seq_states = seq_states.to(device)
-    seq_actions = seq_actions.to(device)
-    seq_rewards = seq_rewards.to(device)
-    seq_next_states = seq_next_states.to(device)
-    seq_dones = seq_dones.to(device)
+    states, actions, rewards, next_states, dones = memory.sample(batch_size)
+    states, actions = states.to(device), actions.to(device)
+    rewards, next_states, dones = rewards.to(device), next_states.to(device), dones.to(device)
 
-    # produce Q-values for only the last step:
-    current_q_values, _ = policy_net(seq_states)  # shape [B, 3]
-    
-    # gather using the final action:
-    last_actions = seq_actions[:, -1]  # shape [B]
-    current_q_values = current_q_values.gather(1, last_actions.unsqueeze(1))
+    current_q_values = policy_net(states).gather(1, actions.unsqueeze(1))
     
     with torch.no_grad():
-        # same logic for next_state Q
-        next_q_values, _ = policy_net(seq_next_states)
-        last_next_actions = next_q_values.max(1)[1].unsqueeze(1)
-        # or do the same with target_net
-        next_q_values_target, _ = target_net(seq_next_states)
-        max_q_of_next = next_q_values_target.gather(1, last_next_actions)
-        
-        last_dones = seq_dones[:, -1].unsqueeze(1)
-        max_q_of_next[last_dones.bool()] = 0.0
-        
-        last_rewards = seq_rewards[:, -1].unsqueeze(1)
-        target_q_values = last_rewards + gamma * max_q_of_next
-    
+        next_actions = policy_net(next_states).max(1)[1].unsqueeze(1)
+        next_q_values = target_net(next_states).gather(1, next_actions)
+        next_q_values[dones.bool().unsqueeze(1)] = 0.0
+        target_q_values = rewards.unsqueeze(1) + gamma * next_q_values
+
     loss = F.smooth_l1_loss(current_q_values, target_q_values)
-    print(f"Loss: {loss.item()}")
     optimizer.zero_grad()
     loss.backward()
-    torch.nn.utils.clip_grad_norm_(policy_net.parameters(), .1)
+    torch.nn.utils.clip_grad_norm_(policy_net.parameters(), 1.0)
     optimizer.step()
     return loss.item()
-
 
 # Update the train_dqn function to use the new checkpoint saving
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, optimizer=None, initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
@@ -305,12 +262,10 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     target_net.load_state_dict(policy_net.state_dict())
     if optimizer is None:
         print(f"optimizer: new")
-        optimizer = optim.Adam(policy_net.parameters(), lr=0.000005)
+        optimizer = optim.Adam(policy_net.parameters(), lr=0.00001)
     else:
         print(f"optimizer: {optimizer}")
         optimizer = optimizer
-
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.9)
 
     memory = ReplayBuffer(100000)
     window_size = 48
@@ -339,17 +294,9 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                                
         state = train_env.reset()
         done = False
-
-        episode_transitions = []
         
         while not done:
-            state_tensor = (
-                torch.from_numpy(np.array(state))  # shape (241,)
-                .float()
-                .unsqueeze(0)                      # -> (1, 241)
-                .unsqueeze(0)                      # -> (1, 1, 241)
-                .to(device)
-            )
+            state_tensor = torch.from_numpy(np.array([state])).float().to(device)
 
             valid_actions = train_env.get_valid_actions()
 
@@ -358,25 +305,23 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 action = random.choice(valid_actions)
             else:
                 # mask out invalid actions from Q-values
-                q_values, _ = policy_net(state_tensor)  # shape [1,3]
-                q_values = q_values.squeeze(0)         # shape [3]
-                # Then apply your mask
+                q_values = policy_net(state_tensor)[0]  # shape (3,)
+                
+                # One easy approach is to set Q-values of invalid actions to a very large negative number
                 mask = torch.full_like(q_values, float('-inf'))
+                # Overwrite the mask positions that are valid
                 for a in valid_actions:
                     mask[a] = q_values[a]     
 
                 action = torch.argmax(mask).item()
             
             next_state, reward, done = train_env.step(action)
-            episode_transitions.append((state, action, reward, next_state, done))
+            memory.push(state, action, reward, next_state, float(done))
             state = next_state
-                
-        memory.push_episode(episode_transitions)
-
-        if len(memory) >= batch_size:
-            for _ in range(16):
-                train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
-
+            
+            if len(memory) >= batch_size:
+                for _ in range(2):
+                    train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
         
         if episode % 1 == 0:
 
@@ -403,10 +348,8 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
             avg_num_trades = np.mean([m['num_trades'] for m in val_metrics_all])
             # the average percent difference between profit and buy and hold return
             avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 for m in val_metrics_all])
-            avg_accumulated_reward = np.mean([m['accumulated_reward'] for m in val_metrics_all])
-
+            
             print(f"\nAverage Metrics Across All Tickers:")
-            print(f"  Accumulated Reward: {avg_accumulated_reward}")
             print(f"  Profit: {avg_profit*100:.2f}%")
             print(f"  Win Rate: {avg_win_rate*100:.1f}%")
             print(f"  Trades: {avg_num_trades}")
@@ -430,18 +373,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
             
             policy_net.train()
         
-        epsilon_start = 1.0
-        epsilon_end = 0.01
-        epsilon_decay = 0.995  # More gradual decay
-
-        # Replace the epsilon update logic with:
-        if episode <10:  # Force more exploration in first few episodes
-            epsilon = 1.0
-        else:
-            epsilon = epsilon_end + (epsilon_start - epsilon_end) * \
-                    math.exp(-1. * (episode - 10) / 20)
-
-        scheduler.step()
+        epsilon = max(0.01, epsilon * 0.95)
     
     # After training, write all episode excess returns to a single file with a timestamp in the filename.
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -467,19 +399,10 @@ def validate_model(model, env, device):
     buy_and_hold_return = (buy_and_hold_value - initial_value) / initial_value
     
     while not done:
-        state_tensor = (
-            torch.from_numpy(np.array(state))  # shape (241,)
-            .float()
-            .unsqueeze(0)                      # -> (1, 241)
-            .unsqueeze(0)                      # -> (1, 1, 241)
-            .to(device)
-        )
+        state_tensor = torch.from_numpy(np.array([state])).float().to(device)
 
         valid_actions = env.get_valid_actions()
         q_values = model(state_tensor)[0]
-
-        q_values, _ = model(state_tensor)  # shape = [1, 3]
-        q_values = q_values.squeeze(0)     # now shape = [3]
 
         mask = torch.full_like(q_values, float('-inf'))
         for a in valid_actions:
@@ -496,7 +419,7 @@ def validate_model(model, env, device):
         state, reward, done = env.step(action)
         accumulated_reward += reward
     
-    final_value = env.cash if env.position == 0 else env.shares * env.close_prices[env.idx]
+    final_value = env.cash if env.position == 0 else env.shares * env.prices[env.idx]
     return {
         'profit': (final_value - initial_value) / initial_value,
         'num_trades': len(trades),
@@ -605,8 +528,8 @@ def main():
         train_data_dict, 
         val_data_dict, 
         input_size,
-        n_episodes=50,
-        batch_size=4,
+        n_episodes=1000,
+        batch_size=128,
         gamma=0.99,
         optimizer=None,
         initial_best_profit=initial_best_profit,
