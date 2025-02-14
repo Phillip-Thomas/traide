@@ -21,11 +21,11 @@ def get_market_data_multi(tickers=None, period="730d", interval="1h"):
     if tickers is None:
         tickers = [
             "SPY",
-            # "QQQ", "IWM", "DIA", "XLK", "XLF", "XLE", "EEM", "GLD", "TLT",
-            # "VTI", "VOO", "IWB", "IJH", "IJR", "EFA", "VNQ", "DBC", "USO", "AGG",
-            # "BND", "LQD", "MBB", "TIP", "SHY", "IEI", "IJNK", "EMB", "IAU", "GDX",
-            # "SLV", "PDBC", "ICLN", "KRE", "XLY", "XLC", "XLI", "XLB", "XLV", "XLU",
-            # "XBI", "SMH", "SOXX", "VGT", "ARKK", "ARKG", "ARKQ", "ARKW", "TAN", "ICF"
+            "QQQ", "IWM", "DIA", "XLK", "XLF", "XLE", "EEM", "GLD", "TLT",
+            "VTI", "VOO", "IWB", "IJH", "IJR", "EFA", "VNQ", "DBC", "USO", "AGG",
+            "BND", "LQD", "MBB", "TIP", "SHY", "IEI", "IJNK", "EMB", "IAU", "GDX",
+            "SLV", "PDBC", "ICLN", "KRE", "XLY", "XLC", "XLI", "XLB", "XLV", "XLU",
+            "XBI", "SMH", "SOXX", "VGT", "ARKK", "ARKG", "ARKQ", "ARKW", "TAN", "ICF"
         ]
 
     
@@ -139,39 +139,48 @@ class SimpleTradeEnv:
     def _get_reward(self, action):
         reward = 0
         if (action == 1 and self.position == 1) or (action == 2 and self.position == 0):
-            return -0.001  # Invalid action penalty
-                
+            return -0.001
+
         current_price = self.close_prices[self.idx]
         buying_fee = 0.001
         selling_fee = 0.0015
         
-        # Calculate short-term and long-term trends
-        short_window = 5
-        long_window = 20
-        short_trend = np.mean(self.close_prices[max(self.idx - short_window, 0):self.idx])
-        long_trend = np.mean(self.close_prices[max(self.idx - long_window, 0):self.idx])
+        # Calculate trend over multiple timeframes
+        short_window = min(10, self.idx)
+        long_window = min(20, self.idx)
+        
+        short_trend = (current_price - self.close_prices[self.idx - short_window]) / self.close_prices[self.idx - short_window]
+        long_trend = (current_price - self.close_prices[self.idx - long_window]) / self.close_prices[self.idx - long_window]
+        
+        # Trend confidence (agreement between timeframes)
+        trend_confidence = 1.0 + abs(short_trend * long_trend)
         
         if action == 1 and self.position == 0:  # Buy
             reward = -buying_fee
-            # Reward for buying in uptrend
-            if current_price > short_trend and short_trend > long_trend:
-                reward += 0.001
+            if short_trend > 0 and long_trend > 0:
+                reward += 0.0005 * trend_confidence
+            
         elif action == 2 and self.position == 1:  # Sell
             effective_sale = current_price * (1 - selling_fee)
             profit = (effective_sale - self.entry_price) / self.entry_price
-            reward = profit
-            # Additional reward for profitable trades
-            if profit > 0:
-                reward *= 1.2  # 20% bonus for profitable trades
+            
+            # Scale profit based on holding duration
+            holding_duration = self.idx - self.entry_idx
+            duration_scale = min(1.5, 1.0 + (holding_duration / 100))
+            
+            reward = profit * trend_confidence * duration_scale
+            
+            if short_trend < 0 and long_trend < 0:
+                reward += 0.0005 * trend_confidence
+                
         else:  # Hold
-            # Small opportunity cost for holding
+            # Penalize holding against trend more strongly in strong trends
             if self.position == 1:
-                profit_if_sold = (current_price - self.entry_price) / self.entry_price
-                if profit_if_sold > 0.01:  # If missing out on >1% profit
-                    reward = -0.0002
+                if short_trend < -0.001 and long_trend < -0.001:
+                    reward = -0.0002 * trend_confidence
             else:
-                if current_price > short_trend and short_trend > long_trend:
-                    reward = -0.0002  # Missing potential uptrend
+                if short_trend > 0.001 and long_trend > 0.001:
+                    reward = -0.0002 * trend_confidence
 
         return reward
 
@@ -237,9 +246,31 @@ class ReplayBuffer:
         
         # Keep sampling until we have batch_size sequences
         while len(batch_states) < batch_size:
-            episode = random.choice(self.episodes)
+            # Calculate total return for each episode
+            episode_returns = []
+            for episode in self.episodes:
+                total_return = sum(transition[2] for transition in episode)  # Sum rewards
+                episode_returns.append(total_return)
+                
+            # Convert to probabilities
+            max_return = max(episode_returns)
+            min_return = min(episode_returns)
+            if max_return == min_return:
+                probs = [1.0 / len(self.episodes)] * len(self.episodes)
+            else:
+                # Normalize to [0,1] and add small epsilon
+                probs = [(r - min_return) / (max_return - min_return) + 0.01 for r in episode_returns]
+                # Normalize to sum to 1
+                total = sum(probs)
+                probs = [p/total for p in probs]
+                
+            # Sample episode based on returns
+            episode_idx = random.choices(range(len(self.episodes)), weights=probs, k=1)[0]
+            episode = self.episodes[episode_idx]
+            
             if len(episode) < seq_len:
-                continue  # Skip episodes that are too short
+                continue
+
             start = random.randint(0, len(episode) - seq_len)
             seq = episode[start : start + seq_len]
             states, actions, rewards, next_states, dones = zip(*seq)
@@ -258,44 +289,57 @@ class ReplayBuffer:
 
 
 def train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device):
-    seq_states, seq_actions, seq_rewards, seq_next_states, seq_dones = \
-        memory.sample(batch_size, seq_len=4)
-    
-    seq_states = seq_states.to(device)
-    seq_actions = seq_actions.to(device)
-    seq_rewards = seq_rewards.to(device)
-    seq_next_states = seq_next_states.to(device)
-    seq_dones = seq_dones.to(device)
+   # Track losses for averaging
+   losses = []
+   for _ in range(16):  # Do 16 training iterations
+       seq_states, seq_actions, seq_rewards, seq_next_states, seq_dones = \
+           memory.sample(batch_size, seq_len=4)
+       
+       seq_states = seq_states.to(device)
+       seq_actions = seq_actions.to(device)
+       seq_rewards = seq_rewards.to(device)
+       seq_next_states = seq_next_states.to(device)
+       seq_dones = seq_dones.to(device)
 
-    # produce Q-values for only the last step:
-    current_q_values, _ = policy_net(seq_states)  # shape [B, 3]
-    
-    # gather using the final action:
-    last_actions = seq_actions[:, -1]  # shape [B]
-    current_q_values = current_q_values.gather(1, last_actions.unsqueeze(1))
-    
-    with torch.no_grad():
-        # same logic for next_state Q
-        next_q_values, _ = policy_net(seq_next_states)
-        last_next_actions = next_q_values.max(1)[1].unsqueeze(1)
-        # or do the same with target_net
-        next_q_values_target, _ = target_net(seq_next_states)
-        max_q_of_next = next_q_values_target.gather(1, last_next_actions)
-        
-        last_dones = seq_dones[:, -1].unsqueeze(1)
-        max_q_of_next[last_dones.bool()] = 0.0
-        
-        last_rewards = seq_rewards[:, -1].unsqueeze(1)
-        target_q_values = last_rewards + gamma * max_q_of_next
-    
-    loss = F.smooth_l1_loss(current_q_values, target_q_values)
-    print(f"Loss: {loss.item()}")
-    optimizer.zero_grad()
-    loss.backward()
-    torch.nn.utils.clip_grad_norm_(policy_net.parameters(), .1)
-    optimizer.step()
-    return loss.item()
+       # produce Q-values for only the last step:
+       current_q_values, _ = policy_net(seq_states)  # shape [B, 3]
+       
+       # gather using the final action:
+       last_actions = seq_actions[:, -1]  # shape [B]
+       current_q_values = current_q_values.gather(1, last_actions.unsqueeze(1))
+       
+       with torch.no_grad():
+           # same logic for next_state Q
+           next_q_values, _ = policy_net(seq_next_states)
+           last_next_actions = next_q_values.max(1)[1].unsqueeze(1)
+           # or do the same with target_net
+           next_q_values_target, _ = target_net(seq_next_states)
+           max_q_of_next = next_q_values_target.gather(1, last_next_actions)
+           
+           last_dones = seq_dones[:, -1].unsqueeze(1)
+           max_q_of_next[last_dones.bool()] = 0.0
+           
+           last_rewards = seq_rewards[:, -1].unsqueeze(1)
+           target_q_values = last_rewards + gamma * max_q_of_next
+       
+       loss = F.smooth_l1_loss(current_q_values, target_q_values)
+       if torch.isnan(loss):
+           print('Warning: NaN loss, skipping update')
+           continue  # Skip this iteration entirely
+       
+       losses.append(loss.item())
+       optimizer.zero_grad()
+       loss.backward()
+       torch.nn.utils.clip_grad_norm_(policy_net.parameters(), .1)
+       optimizer.step()
 
+   if losses:  # Only calculate average if we have valid losses
+       avg_loss = sum(losses) / len(losses)
+       print(f"Average Loss: {avg_loss:.8f}")
+       return avg_loss
+   else:
+       print("Warning: No valid losses in batch")
+       return 0.0
 
 # Update the train_dqn function to use the new checkpoint saving
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, optimizer=None, initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
@@ -374,7 +418,6 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         memory.push_episode(episode_transitions)
 
         if len(memory) >= batch_size:
-            for _ in range(16):
                 train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
 
         
@@ -605,7 +648,7 @@ def main():
         train_data_dict, 
         val_data_dict, 
         input_size,
-        n_episodes=50,
+        n_episodes=1000,
         batch_size=4,
         gamma=0.99,
         optimizer=None,

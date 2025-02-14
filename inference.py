@@ -20,33 +20,36 @@ def visualize_trades(model, env, device):
     while not done:
         prices.append(env.close_prices[env.idx])
         
-        # Convert state to tensor
-        state_tensor = torch.FloatTensor([state]).to(device)
+        # Convert state to tensor and match training format
+        state_tensor = (
+            torch.from_numpy(np.array(state))
+            .float()
+            .unsqueeze(0)
+            .unsqueeze(0)
+            .to(device)
+        )
         
-        # 1) Get valid actions from the environment
         valid_actions = env.get_valid_actions()
 
-        # 2) Get Q-values
-        q_values = model(state_tensor)[0]
+        # Get Q-values with new format
+        q_values, _ = model(state_tensor)  # shape [1,3]
+        q_values = q_values.squeeze(0)     # shape [3]
 
-        # 3) Mask out invalid actions
+        # Mask invalid actions
         mask = torch.full_like(q_values, float('-inf'))
         for a in valid_actions:
             mask[a] = q_values[a]
         
-        # 4) Take the argmax from masked Q-values
         action = torch.argmax(mask).item()
         
-        # Record the raw action for plotting
         signals.append(action)
         
-        # Record portfolio value
+        # Calculate portfolio value
         if env.position == 0:
             portfolio_values.append(env.cash)
         else:
             portfolio_values.append(env.shares * env.close_prices[env.idx])
         
-        # Step in environment
         state, _, done = env.step(action)
     
     return np.array(prices), np.array(signals), np.array(portfolio_values)
@@ -118,45 +121,70 @@ def main():
         
     checkpoint = torch.load(BEST_CHECKPOINT_FILE)
     
+    # Get market data
     full_data_dict = get_market_data_multi()
-
     if not full_data_dict:
-        print("No data available for training. Exiting.")
+        print("No data available. Exiting.")
         return
 
-    # Split data for each ticker
-    train_data_dict = {}
-    val_data_dict = {}
-    for ticker, data in full_data_dict.items():
-        split_idx = int(len(data) * 0.7)
-        train_data_dict[ticker] = data[:split_idx].copy()
-        val_data_dict[ticker] = data[split_idx:].copy()
-    
-    # Initialize model
+    # Initialize model with same parameters as training
     window_size = 48
     input_size = get_state_size(window_size)
     model = DQN(input_size).to(device)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
-    
-    print(f"data: {val_data_dict['SPY']}")
-    # Create environment and get trading signals
-    env = SimpleTradeEnv(val_data_dict['SPY'], window_size=window_size)
-    prices, signals, portfolio_values = visualize_trades(model, env, device)
-    
-    # Create visualization
-    plot_trading_signals(val_data_dict['SPY'], prices, signals, portfolio_values)
-    
-    # Print performance metrics
-    final_return = (portfolio_values[-1] - portfolio_values[0]) / portfolio_values[0] * 100
-    buy_hold_return = (prices[-1] - prices[0]) / prices[0] * 100
-    n_trades = np.sum(signals != 0)
-    
-    print("\nPerformance Summary:")
-    print(f"Strategy Return: {final_return:.2f}%")
-    print(f"Buy & Hold Return: {buy_hold_return:.2f}%")
-    print(f"Number of Trades: {n_trades}")
-    print(f"Average Trade Duration: {len(prices)/n_trades:.1f} periods")
+
+    while True:
+        # Print available tickers
+        tickers = list(full_data_dict.keys())
+        print("\nAvailable tickers:")
+        for i, ticker in enumerate(tickers):
+            print(f"{i+1}. {ticker}")
+        print("0. Exit")
+            
+        # Get user selection
+        while True:
+            try:
+                selection = int(input("\nSelect a ticker (enter number, 0 to exit): ")) - 1
+                if selection == -1:  # Exit
+                    print("Exiting...")
+                    return
+                if 0 <= selection < len(tickers):
+                    selected_ticker = tickers[selection]
+                    break
+                print("Invalid selection. Please try again.")
+            except ValueError:
+                print("Please enter a number.")
+
+        # Split data for selected ticker
+        data = full_data_dict[selected_ticker]
+        split_idx = int(len(data) * 0.7)
+        val_data = data[split_idx:].copy()
+        
+        # Create environment and get trading signals
+        env = SimpleTradeEnv(val_data, window_size=window_size)
+        prices, signals, portfolio_values = visualize_trades(model, env, device)
+        
+        # Create visualization
+        plot_trading_signals(val_data, prices, signals, portfolio_values)
+        
+        # Print performance metrics
+        final_return = (portfolio_values[-1] - portfolio_values[0]) / portfolio_values[0] * 100
+        buy_hold_return = (prices[-1] - prices[0]) / prices[0] * 100
+        n_trades = np.sum(signals != 0)
+        win_rate = np.mean([t > 0 for t in np.diff(portfolio_values)[signals[:-1] == 2]]) * 100 if n_trades > 0 else 0
+        
+        print(f"\nPerformance Summary for {selected_ticker}:")
+        print(f"Strategy Return: {final_return:.2f}%")
+        print(f"Buy & Hold Return: {buy_hold_return:.2f}%")
+        print(f"Excess Return: {final_return - buy_hold_return:.2f}%")
+        print(f"Number of Trades: {n_trades}")
+        print(f"Win Rate: {win_rate:.1f}%")
+        print(f"Average Trade Duration: {len(prices)/max(1, n_trades):.1f} periods")
+        
+        input("\nPress Enter to continue...")
 
 if __name__ == "__main__":
+    # Create visualizations directory if it doesn't exist
+    os.makedirs("visualizations", exist_ok=True)
     main()
