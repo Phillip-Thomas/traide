@@ -184,65 +184,42 @@ class SimpleTradeEnv:
         buying_fee = 0.001
         selling_fee = 0.0015
         
-        # Calculate price relative to recent range
-        lookback = min(20, self.idx)
-        recent_high = max(self.high_prices[self.idx - lookback:self.idx])
-        recent_low = min(self.low_prices[self.idx - lookback:self.idx])
-        price_position = (current_price - recent_low) / (recent_high - recent_low) if recent_high != recent_low else 0.5
+        # Calculate trend over multiple timeframes
+        short_window = min(10, self.idx)
+        long_window = min(20, self.idx)
         
-        # Calculate volatility
-        returns = np.diff(self.close_prices[self.idx - lookback:self.idx]) / self.close_prices[self.idx - lookback:self.idx-1]
-        volatility = np.std(returns) if len(returns) > 0 else 0
+        short_trend = (current_price - self.close_prices[self.idx - short_window]) / self.close_prices[self.idx - short_window]
+        long_trend = (current_price - self.close_prices[self.idx - long_window]) / self.close_prices[self.idx - long_window]
+        
+        # Trend confidence (agreement between timeframes)
+        trend_confidence = 1.0 + abs(short_trend * long_trend)
         
         if action == 1 and self.position == 0:  # Buy
-            # Reward buying at lower prices
-            buy_quality = 1 - price_position  # Higher reward for buying closer to recent lows
-            reward = -buying_fee + (0.001 * buy_quality)
-            
-            # Additional reward for buying during high volatility
-            reward += 0.0005 * volatility
-            
-            # Small penalty for buying near recent highs
-            if price_position > 0.8:
-                reward -= 0.0005
+            reward = -buying_fee
+            if short_trend > 0 and long_trend > 0:
+                reward += 0.0005 * trend_confidence
             
         elif action == 2 and self.position == 1:  # Sell
             effective_sale = current_price * (1 - selling_fee)
             profit = (effective_sale - self.entry_price) / self.entry_price
             
-            # Reward selling at higher prices
-            sell_quality = price_position  # Higher reward for selling closer to recent highs
-            
-            # Base reward from profit
-            reward = profit
-            
-            # Additional reward for good selling points
-            reward += 0.001 * sell_quality
-            
-            # Bonus for selling near peak
-            if price_position > 0.9:
-                reward += 0.001
-            
-            # Scale with holding duration but cap it
+            # Scale profit based on holding duration
             holding_duration = self.idx - self.entry_idx
-            duration_scale = min(1.2, 1.0 + (holding_duration / 200))
-            reward *= duration_scale
+            duration_scale = min(1.5, 1.0 + (holding_duration / 100))
             
+            reward = profit * trend_confidence * duration_scale
+            
+            if short_trend < 0 and long_trend < 0:
+                reward += 0.0005 * trend_confidence
+                
         else:  # Hold
+            # Penalize holding against trend more strongly in strong trends
             if self.position == 1:
-                # Smaller penalty for holding near lows
-                if price_position < 0.2:
-                    reward = -0.0002
+                if short_trend < -0.001 and long_trend < -0.001:
+                    reward = -0.0002 * trend_confidence
             else:
-                # Smaller penalty for not buying near lows
-                if price_position < 0.1:
-                    reward = -0.0001
-                    
-            # Add small positive reward for holding during trending moves
-            if len(returns) > 0:
-                momentum = np.mean(returns[-5:]) if len(returns) >= 5 else 0
-                if (self.position == 1 and momentum > 0) or (self.position == 0 and momentum < 0):
-                    reward += 0.0001
+                if short_trend > 0.001 and long_trend > 0.001:
+                    reward = -0.0002 * trend_confidence
 
         return reward
 

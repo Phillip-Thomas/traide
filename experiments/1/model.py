@@ -20,53 +20,14 @@ def get_market_data_multi(tickers=None, period="730d", interval="1h"):
     """
     if tickers is None:
         tickers = [
-            # Core Tech/Growth Leaders (Strong consistent trends)
-            "QQQ",   # Nasdaq 100
-            "XLK",   # Technology Select SPDR
-            "VGT",   # Vanguard Info Tech
-            "SMH",   # Semiconductor ETF
-            "SOXX",  # iShares Semiconductor
-            "IGV",   # iShares Software ETF
-            "FTEC",  # Fidelity MSCI Info Tech
-            "IYW",   # iShares US Technology
-            "QTEC",  # First Trust NASDAQ-100 Tech
-            # "PSJ",   # Invesco Dynamic Software
-
-            # AI/Future Tech (Strong momentum)
-            "AIQ",   # Global X Artificial Intelligence
-            "BOTZ",  # Global X Robotics & AI
-            "ROBO",  # Robotics & Automation
-            # "IRBO",  # iShares Robotics and AI
-            # "THNQ",  # ROBO Global AI ETF
-
-            # Semiconductor Focus (Very strong trend)
-            "SOXQ",  # First Trust NASDAQ Semi
-            "PSI",   # Invesco Dynamic Semi
-            "XSD",   # SPDR S&P Semi
-            "USD",   # ProShares Ultra Semi
-            # "FTXL",  # First Trust Nasdaq Semi
-
-            # Cloud/Cybersecurity (Growing sectors)
-            "WCLD",  # WisdomTree Cloud Computing
-            "SKYY",  # First Trust Cloud Computing
-            "CLOU",  # Global X Cloud Computing
-            "CIBR",  # First Trust Cybersecurity
-            "BUG",   # Global X Cybersecurity
-
-            # Next-Gen Tech (Strong growth)
-            "ARKW",  # ARK Next Gen Internet
-            # "DTEC",  # ALPS Disruptive Tech
-            "KOMP",  # ProShares Genomics
-            # "PTF",   # Invesco DWA Technology
-            # "XITK",  # SPDR FactSet Innovative Tech
-
-            # Broad Tech/Growth (Stable uptrends)
-            "IWF",   # iShares Russell 1000 Growth
-            "VUG",   # Vanguard Growth ETF
-            "SPYG",  # SPDR Portfolio S&P 500 Growth
-            "VONG",  # Vanguard Russell 1000 Growth
-            "SCHG"   # Schwab US Large-Cap Growth
+            "SPY",
+            "QQQ", "IWM", "DIA", "XLK", "XLF", "XLE", "EEM", "GLD", "TLT",
+            "VTI", "VOO", "IWB", "IJH", "IJR", "EFA", "VNQ", "DBC", "USO", "AGG",
+            "BND", "LQD", "MBB", "TIP", "SHY", "IEI", "IJNK", "EMB", "IAU", "GDX",
+            "SLV", "PDBC", "ICLN", "KRE", "XLY", "XLC", "XLI", "XLB", "XLV", "XLU",
+            "XBI", "SMH", "SOXX", "VGT", "ARKK", "ARKG", "ARKQ", "ARKW", "TAN", "ICF"
         ]
+
     
     data_dict = {}
     for symbol in tickers:
@@ -184,65 +145,42 @@ class SimpleTradeEnv:
         buying_fee = 0.001
         selling_fee = 0.0015
         
-        # Calculate price relative to recent range
-        lookback = min(20, self.idx)
-        recent_high = max(self.high_prices[self.idx - lookback:self.idx])
-        recent_low = min(self.low_prices[self.idx - lookback:self.idx])
-        price_position = (current_price - recent_low) / (recent_high - recent_low) if recent_high != recent_low else 0.5
+        # Calculate trend over multiple timeframes
+        short_window = min(10, self.idx)
+        long_window = min(20, self.idx)
         
-        # Calculate volatility
-        returns = np.diff(self.close_prices[self.idx - lookback:self.idx]) / self.close_prices[self.idx - lookback:self.idx-1]
-        volatility = np.std(returns) if len(returns) > 0 else 0
+        short_trend = (current_price - self.close_prices[self.idx - short_window]) / self.close_prices[self.idx - short_window]
+        long_trend = (current_price - self.close_prices[self.idx - long_window]) / self.close_prices[self.idx - long_window]
+        
+        # Trend confidence (agreement between timeframes)
+        trend_confidence = 1.0 + abs(short_trend * long_trend)
         
         if action == 1 and self.position == 0:  # Buy
-            # Reward buying at lower prices
-            buy_quality = 1 - price_position  # Higher reward for buying closer to recent lows
-            reward = -buying_fee + (0.001 * buy_quality)
-            
-            # Additional reward for buying during high volatility
-            reward += 0.0005 * volatility
-            
-            # Small penalty for buying near recent highs
-            if price_position > 0.8:
-                reward -= 0.0005
+            reward = -buying_fee
+            if short_trend > 0 and long_trend > 0:
+                reward += 0.0005 * trend_confidence
             
         elif action == 2 and self.position == 1:  # Sell
             effective_sale = current_price * (1 - selling_fee)
             profit = (effective_sale - self.entry_price) / self.entry_price
             
-            # Reward selling at higher prices
-            sell_quality = price_position  # Higher reward for selling closer to recent highs
-            
-            # Base reward from profit
-            reward = profit
-            
-            # Additional reward for good selling points
-            reward += 0.001 * sell_quality
-            
-            # Bonus for selling near peak
-            if price_position > 0.9:
-                reward += 0.001
-            
-            # Scale with holding duration but cap it
+            # Scale profit based on holding duration
             holding_duration = self.idx - self.entry_idx
-            duration_scale = min(1.2, 1.0 + (holding_duration / 200))
-            reward *= duration_scale
+            duration_scale = min(1.5, 1.0 + (holding_duration / 100))
             
+            reward = profit * trend_confidence * duration_scale
+            
+            if short_trend < 0 and long_trend < 0:
+                reward += 0.0005 * trend_confidence
+                
         else:  # Hold
+            # Penalize holding against trend more strongly in strong trends
             if self.position == 1:
-                # Smaller penalty for holding near lows
-                if price_position < 0.2:
-                    reward = -0.0002
+                if short_trend < -0.001 and long_trend < -0.001:
+                    reward = -0.0002 * trend_confidence
             else:
-                # Smaller penalty for not buying near lows
-                if price_position < 0.1:
-                    reward = -0.0001
-                    
-            # Add small positive reward for holding during trending moves
-            if len(returns) > 0:
-                momentum = np.mean(returns[-5:]) if len(returns) >= 5 else 0
-                if (self.position == 1 and momentum > 0) or (self.position == 0 and momentum < 0):
-                    reward += 0.0001
+                if short_trend > 0.001 and long_trend > 0.001:
+                    reward = -0.0002 * trend_confidence
 
         return reward
 
@@ -402,29 +340,29 @@ def train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, de
    else:
        print("Warning: No valid losses in batch")
        return 0.0
-   
-
 
 # Update the train_dqn function to use the new checkpoint saving
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, optimizer=None, initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     policy_net = DQN(input_size).to(device)
     target_net = DQN(input_size).to(device)
     target_net.load_state_dict(policy_net.state_dict())
     if optimizer is None:
         print(f"optimizer: new")
-        optimizer = optim.Adam(policy_net.parameters(), lr=0.0000005)
+        optimizer = optim.Adam(policy_net.parameters(), lr=0.00005)
     else:
         print(f"optimizer: {optimizer}")
         optimizer = optimizer
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.9)
+
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.9)
+
     memory = ReplayBuffer(100000)
     window_size = 48
     epsilon = 1.0
     best_val_profit = initial_best_profit
     best_excess_return = initial_best_excess  # Add this line
     best_model = None
+
     # Create environments for all tickers
     train_envs = {
         ticker: SimpleTradeEnv(data, window_size=window_size) 
@@ -434,52 +372,9 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         ticker: SimpleTradeEnv(data, window_size=window_size)
         for ticker, data in val_data_dict.items()
     }
+    
     # List to store average excess return for each episode
     episode_excess_returns = []
-    patience = 100  # Episodes to wait before reset
-    episodes_without_improvement = 0
-    reset_count = 0
-    max_resets = 50  # Maximum number of resets before stopping
-    # Add at the start of train_dqn:
-    current_file_path = os.path.abspath(__file__)
-    last_avg_loss = 0.0  # To track the average loss
-
-    def quick_evaluate_seed(seed, train_data_dict, val_data_dict, input_size):
-        random.seed(seed)
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        
-        # Initialize model and run one episode
-        policy_net = DQN(input_size).to(device)
-        
-        # Run validation
-        val_metrics_all = []
-        for val_ticker, val_env in val_envs.items():
-            val_metrics = validate_model(policy_net, val_env, device)
-            val_metrics_all.append(val_metrics)
-        
-        avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 for m in val_metrics_all])
-        return avg_excess_return
-
-    def find_good_seed(threshold=0.0, max_attempts=100):
-        print("Searching for promising seed...")
-        for attempt in range(max_attempts):
-            seed = random.randint(0, 2**32)
-            excess_return = quick_evaluate_seed(seed, train_data_dict, val_data_dict, input_size)
-            print(f"Seed {seed}: {excess_return:.2f}% excess return")
-            
-            if excess_return > threshold:
-                print(f"Found promising seed {seed} with {excess_return:.2f}% excess return")
-                return seed
-                
-        print(f"No seed found above threshold after {max_attempts} attempts")
-        return None
-    
-    good_seed = find_good_seed()
-    if good_seed:
-        random.seed(good_seed)
-        torch.manual_seed(good_seed)
-        np.random.seed(good_seed)
 
     for episode in range(n_episodes):
         # Randomly select a ticker for this episode
@@ -523,7 +418,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         memory.push_episode(episode_transitions)
 
         if len(memory) >= batch_size:
-                last_avg_loss = train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
+                train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
 
         
         if episode % 1 == 0:
@@ -565,75 +460,18 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
 
 
             if avg_excess_return > best_excess_return:
-                print(f"\nNew best model! Episode {episode + 1}, Excess Return: {avg_excess_return:.2f}%")
                 best_val_profit = avg_profit
                 best_excess_return = avg_excess_return
                 best_model = copy.deepcopy(policy_net)
-                episodes_without_improvement = 0 
-
                 save_new_global_best(best_model, optimizer, {
                     'profit': avg_profit,
                     'win_rate': avg_win_rate,
                     'excess_return': avg_excess_return,  # Add this line
                     'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
                 }, best_val_profit)
-
-                # Save detailed experiment
-                save_experiment(
-                    model=best_model,
-                    optimizer=optimizer,
-                    metrics={
-                        'profit': avg_profit,
-                        'win_rate': avg_win_rate,
-                        'excess_return': avg_excess_return,
-                        'num_trades': avg_num_trades,
-                        'accumulated_reward': avg_accumulated_reward,
-                        'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
-                    },
-                    seed=good_seed,
-                    avg_loss=last_avg_loss,
-                    current_file_path=current_file_path
-                )
-
-            else:
-                episodes_without_improvement += 1
+                print(f"\nNew best model! Episode {episode + 1}, Excess Return: {avg_excess_return:.2f}%")
             
-            if episodes_without_improvement >= patience:
-                reset_count += 1
-                print(f"\nNo improvement for {patience} episodes. Performing reset {reset_count}/{max_resets}")
-                
-                if reset_count >= max_resets:
-                    print("Maximum resets reached. Stopping training.")
-                    break
-                    
-                # Soft reset: Keep best weights but reset other training components
-                if best_model is not None:
-                    policy_net.load_state_dict(best_model.state_dict())
-                    target_net.load_state_dict(best_model.state_dict())
-                
-                # Reset training components
-                epsilon = 1.0  # Reset exploration
-                memory = ReplayBuffer(100000)  # Fresh replay buffer
-                optimizer = optim.Adam(policy_net.parameters(), lr=0.0000005)  # Fresh optimizer
-                scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.9)
-                
-                # Reset counter
-                episodes_without_improvement = 0
-                
-                # Change random seed
-                good_seed = find_good_seed()
-                if good_seed:
-                    random.seed(good_seed)
-                    torch.manual_seed(good_seed)
-                    np.random.seed(good_seed)
-
-                
-                print(f"Reset complete. New seed: {good_seed}")
-                continue
-
             policy_net.train()
-
-
         
         epsilon_start = 1.0
         epsilon_end = 0.01
@@ -657,87 +495,6 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     print(f"Saved episode results to {results_file}")
 
     return {'final_model': policy_net, 'best_model': best_model}
-
-
-
-def save_experiment(model, optimizer, metrics, seed, avg_loss, current_file_path):
-    """
-    Save experiment results including model checkpoint, current code state, and metrics log.
-    
-    Args:
-        model: The PyTorch model
-        optimizer: The optimizer
-        metrics: Dictionary containing performance metrics
-        seed: The random seed used
-        avg_loss: The average training loss
-        current_file_path: Path to the current running script
-    """
-    # Create timestamp for experiment folder
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    experiment_dir = os.path.join("experiments", timestamp)
-    os.makedirs(experiment_dir, exist_ok=True)
-    
-    # 1. Save model checkpoint
-    checkpoint = {
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'metrics': metrics,
-        'seed': seed,
-        'timestamp': timestamp,
-    }
-    checkpoint_path = os.path.join(experiment_dir, "checkpoint.pt")
-    torch.save(checkpoint, checkpoint_path)
-    
-    # 2. Copy current model.py file
-    try:
-        shutil.copy2(current_file_path, os.path.join(experiment_dir, "model.py"))
-    except Exception as e:
-        print(f"Warning: Could not copy model.py file: {e}")
-    
-    # 3. Create and save detailed log
-    log_content = f"""Experiment Log - {timestamp}
-        ===============================
-
-        Model Performance Metrics
-        -----------------------
-        Average Excess Return: {metrics['excess_return']:.2f}%
-        Average Profit: {metrics['profit']*100:.2f}%
-        Average Win Rate: {metrics['win_rate']*100:.1f}%
-        Average Number of Trades: {metrics.get('num_trades', 'N/A')}
-        Accumulated Reward: {metrics.get('accumulated_reward', 'N/A')}
-
-        Training Parameters
-        ------------------
-        Initial Seed: {seed}
-        Learning Rate: {optimizer.param_groups[0]['lr']:.8f}
-        Average Loss: {avg_loss:.8f}
-
-        Per-Ticker Performance
-        ---------------------
-        """
-    
-    # Add per-ticker metrics if available
-    if 'per_ticker_metrics' in metrics:
-        for ticker, ticker_metrics in metrics['per_ticker_metrics'].items():
-            log_content += f"\n{ticker}:\n"
-            log_content += f"  Profit: {ticker_metrics['profit']*100:.2f}%\n"
-            log_content += f"  Win Rate: {ticker_metrics['win_rate']*100:.1f}%\n"
-            log_content += f"  Trades: {ticker_metrics['num_trades']}\n"
-            log_content += f"  Excess Return: {(ticker_metrics['profit'] - ticker_metrics['buy_and_hold_return'])*100:.2f}%\n"
-    
-    # Save log file
-    log_path = os.path.join(experiment_dir, "experiment_log.txt")
-    with open(log_path, "w") as f:
-        f.write(log_content)
-    
-    print(f"\nExperiment saved to: {experiment_dir}")
-    print(f"  - Checkpoint: {checkpoint_path}")
-    print(f"  - Log: {log_path}")
-    print(f"  - Model Code: {os.path.join(experiment_dir, 'model.py')}")
-    
-    return experiment_dir
-
-
 
 def validate_model(model, env, device):
     state = env.reset()
@@ -892,7 +649,7 @@ def main():
         val_data_dict, 
         input_size,
         n_episodes=1000,
-        batch_size=1,
+        batch_size=4,
         gamma=0.99,
         optimizer=None,
         initial_best_profit=initial_best_profit,
