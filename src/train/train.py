@@ -177,18 +177,18 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
     Run a single training step in parallel across all available GPUs with multi-CPU data preparation
     """
     try:
-        # Create process pool for batch preprocessing
-        num_workers = min(len(devices) * 2, mp.cpu_count())
-        sub_batch_size = batch_size // len(devices)
+        # Use more CPU workers for preprocessing
+        num_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores
+        sub_batch_size = batch_size // (len(devices) * 2)  # Smaller batches for more parallelism
         
-        # Process batches in parallel
+        # Process batches in parallel with more workers
         with create_process_pool(num_workers) as pool:
-            # Submit preprocessing jobs
+            # Submit more preprocessing jobs for better CPU utilization
             preprocessing_results = []
-            for dev_idx in range(len(devices)):
+            for dev_idx in range(len(devices) * 2):  # Double the number of batches
                 result = pool.apply_async(
                     preprocess_batch_worker,
-                    (memory, sub_batch_size, 10, dev_idx)
+                    (memory, sub_batch_size, 10, dev_idx % len(devices))
                 )
                 preprocessing_results.append(result)
             
@@ -204,7 +204,7 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                     device = devices[device_idx]
                     torch.cuda.set_device(device)
                     
-                    # Move batch to GPU
+                    # Move batch to GPU with non-blocking transfers
                     gpu_batch = {
                         k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v
                         for k, v in batch.items()
@@ -231,7 +231,8 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                     if loss > 0:
                         gpu_losses.append(loss)
                     
-                    torch.cuda.synchronize(device)
+                    # Asynchronous GPU operations
+                    torch.cuda.current_stream(device).synchronize()
                     
                     # Clean up GPU memory
                     del gpu_batch
@@ -245,7 +246,7 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                     import traceback
                     traceback.print_exc()
                     continue
-        
+
         # Average losses and synchronize models
         if gpu_losses:
             avg_loss = np.mean(gpu_losses)
@@ -540,6 +541,10 @@ def parallel_validation(policy_net, val_envs, devices, input_size):
                 
     return val_metrics_all
 
+def create_trade_env(data, window_size):
+    """Helper function to create trading environment"""
+    return SimpleTradeEnv(data, window_size=window_size)
+
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, 
               initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
     
@@ -562,7 +567,9 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         devices = [torch.device('cpu')]
         main_device = devices[0]
         
+    # Enable cuDNN benchmarking and deterministic operations
     torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = False  # Allow non-deterministic ops for better performance
     
     # Initialize networks for each GPU
     print("Initializing networks...")
@@ -587,7 +594,8 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         
         print(f"Initialized network on {device}")
     
-    memory = PrioritizedReplayBuffer(50000)
+    # Use a larger memory buffer for better sampling
+    memory = PrioritizedReplayBuffer(100000)  # Increased from 50000
     
     # Training state
     window_size = 48
@@ -599,12 +607,29 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     best_model = None
     last_avg_loss = 0
     
-    # Environment setup
+    # Environment setup with parallel initialization
     print("Setting up environments...")
-    train_envs = {ticker: SimpleTradeEnv(data, window_size=window_size) 
-                  for ticker, data in train_data_dict.items()}
-    val_envs = {ticker: SimpleTradeEnv(data, window_size=window_size)
-                for ticker, data in val_data_dict.items()}
+    num_cpu_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores
+    with create_process_pool(num_cpu_workers) as pool:
+        # Initialize environments in parallel
+        train_env_futures = [
+            pool.apply_async(create_trade_env, (data, window_size))
+            for data in train_data_dict.values()
+        ]
+        val_env_futures = [
+            pool.apply_async(create_trade_env, (data, window_size))
+            for data in val_data_dict.values()
+        ]
+        
+        train_envs = {
+            ticker: future.get() 
+            for ticker, future in zip(train_data_dict.keys(), train_env_futures)
+        }
+        val_envs = {
+            ticker: future.get() 
+            for ticker, future in zip(val_data_dict.keys(), val_env_futures)
+        }
+    
     print(f"Created {len(train_envs)} training environments and {len(val_envs)} validation environments")
     
     # Training loop state
@@ -640,11 +665,12 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 device_idx = i % len(devices)
                 device_tickers[device_idx].append(ticker)
             
-            # Process environments in parallel
-            with create_process_pool(min(len(devices) * 2, mp.cpu_count())) as pool:
+            # Process environments in parallel with better CPU utilization
+            num_env_workers = min(mp.cpu_count(), 32)  # Use up to 32 CPU cores for environment processing
+            with create_process_pool(num_env_workers) as pool:
                 futures = []
                 
-                # Submit environment processing jobs
+                # Submit environment processing jobs in smaller batches
                 for dev_idx, device_ticker_list in enumerate(device_tickers):
                     for ticker in device_ticker_list:
                         future = pool.apply_async(
@@ -655,49 +681,63 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                         )
                         futures.append(future)
                 
-                # Collect results
+                # Collect results with better error handling
+                collected_transitions = []
+                collected_rewards = []
+                collected_trades = []
+                
                 for future in futures:
                     try:
                         result = future.get(timeout=30.0)
                         if result is not None:
                             transitions, reward, trades = result
-                            all_transitions.extend(transitions)
-                            episode_reward += reward
-                            trades_info.extend(trades)
+                            collected_transitions.extend(transitions)
+                            collected_rewards.append(reward)
+                            collected_trades.extend(trades)
                     except mp.TimeoutError:
                         print(f"Timeout waiting for environment result")
                         continue
                     except Exception as e:
                         print(f"Error collecting result: {str(e)}")
                         continue
+                
+                all_transitions = collected_transitions
+                episode_reward = sum(collected_rewards)
+                trades_info = collected_trades
             
             print(f"Collected {len(all_transitions)} total transitions")
             
-            # Store experience and train
+            # Store experience and train with parallel processing
             if all_transitions:
                 print("Storing transitions in memory...")
-                num_workers = min(len(devices) * 2, mp.cpu_count())
-                stored_transitions = parallel_store_transitions(all_transitions, num_workers, devices)
+                num_store_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores for storage
+                stored_transitions = parallel_store_transitions(all_transitions, num_store_workers, devices)
                 if stored_transitions:
-                    # Keep transitions on CPU in memory
-                    processed_transitions = []
-                    for state, action, reward, next_state, done in stored_transitions:
-                        processed_transitions.append((
-                            torch.from_numpy(state).float(),  # Store on CPU
-                            action,
-                            reward,
-                            torch.from_numpy(next_state).float(),  # Store on CPU
-                            done
-                        ))
-                    memory.push_episode(processed_transitions)
+                    # Process transitions in parallel batches
+                    batch_size = 1000  # Process in smaller batches
+                    for i in range(0, len(stored_transitions), batch_size):
+                        batch = stored_transitions[i:i + batch_size]
+                        processed_transitions = []
+                        for state, action, reward, next_state, done in batch:
+                            processed_transitions.append((
+                                torch.from_numpy(state).float(),  # Store on CPU
+                                action,
+                                reward,
+                                torch.from_numpy(next_state).float(),  # Store on CPU
+                                done
+                            ))
+                        memory.push_episode(processed_transitions)
 
             if len(memory) >= batch_size:
                 print("Training on collected experience...")
                 losses = []
                 
-                # Multiple training steps per episode
-                for step in range(4):
-                    print(f"Training step {step + 1}/4")
+                # Multiple training steps per episode with parallel processing
+                num_train_workers = min(mp.cpu_count(), 8)  # Use up to 8 CPU cores for training
+                train_steps = 4
+                
+                for step in range(train_steps):
+                    print(f"Training step {step + 1}/{train_steps}")
                     loss = train_step_parallel(
                         policy_nets,
                         target_nets,
@@ -800,7 +840,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                             target_nets[dev_idx].load_state_dict(best_model.state_dict())
                     
                     optimizer, _ = get_optimizer(policy_nets[0], lr=3e-4 * (0.9 ** reset_count))
-                    memory = PrioritizedReplayBuffer(50000)
+                    memory = PrioritizedReplayBuffer(100000)
                     epsilon = epsilon_start
                     episodes_without_improvement = 0
                     
