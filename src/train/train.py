@@ -47,7 +47,7 @@ def compute_loss(q_values, next_q_values, batch, gamma):
 
 def train_batch(policy_net, target_net, optimizer, batch, batch_size, gamma, device, memory):
     """
-    Modified to accept preprocessed batch directly
+    Modified to accept preprocessed batch directly and ensure GPU training
     """
     try:
         torch.cuda.set_device(device)
@@ -65,13 +65,13 @@ def train_batch(policy_net, target_net, optimizer, batch, batch_size, gamma, dev
             end_idx = min(i + chunk_size, batch_size)
             chunk_slice = slice(i, end_idx)
             
-            # Process chunk
-            states = batch['states'][chunk_slice].reshape(-1, feature_size)
-            next_states = batch['next_states'][chunk_slice].reshape(-1, feature_size)
-            actions = batch['actions'][chunk_slice].reshape(-1)
-            rewards = batch['rewards'][chunk_slice].reshape(-1)
-            dones = batch['dones'][chunk_slice].reshape(-1)
-            weights = batch['weights'][chunk_slice].repeat_interleave(seq_len)
+            # Move data to GPU
+            states = batch['states'][chunk_slice].reshape(-1, feature_size).to(device, non_blocking=True)
+            next_states = batch['next_states'][chunk_slice].reshape(-1, feature_size).to(device, non_blocking=True)
+            actions = batch['actions'][chunk_slice].reshape(-1).to(device, non_blocking=True)
+            rewards = batch['rewards'][chunk_slice].reshape(-1).to(device, non_blocking=True)
+            dones = batch['dones'][chunk_slice].reshape(-1).to(device, non_blocking=True)
+            weights = batch['weights'][chunk_slice].repeat_interleave(seq_len).to(device, non_blocking=True)
             
             # N-step returns
             n_step = 3
@@ -79,17 +79,19 @@ def train_batch(policy_net, target_net, optimizer, batch, batch_size, gamma, dev
             for i in range(1, n_step):
                 discounted_rewards += (gamma ** i) * rewards.roll(-i, dims=0) * (1 - dones.roll(-i, dims=0))
 
-            with torch.no_grad(), torch.cuda.amp.autocast():
-                next_q_values, _ = policy_net(next_states)
-                next_actions = next_q_values.max(1)[1]
-                target_q_values, _ = target_net(next_states)
-                next_q = target_q_values.gather(1, next_actions.unsqueeze(1)).squeeze(1)
-                targets = discounted_rewards + (gamma ** n_step) * (1 - dones) * next_q
+            with torch.amp.autocast('cuda'):
+                # Forward pass on GPU
+                with torch.no_grad():
+                    next_q_values, _ = policy_net(next_states)
+                    next_actions = next_q_values.max(1)[1]
+                    target_q_values, _ = target_net(next_states)
+                    next_q = target_q_values.gather(1, next_actions.unsqueeze(1)).squeeze(1)
+                    targets = discounted_rewards + (gamma ** n_step) * (1 - dones) * next_q
 
-            with torch.cuda.amp.autocast():
+                # Training step on GPU
                 q_values, _ = policy_net(states)
                 if random.random() < 0.1:
-                    noise = torch.randn_like(q_values) * 0.1
+                    noise = torch.randn_like(q_values, device=device) * 0.1
                     q_values += noise
                 
                 q_value = q_values.gather(1, actions.unsqueeze(1)).squeeze(1)
@@ -104,12 +106,13 @@ def train_batch(policy_net, target_net, optimizer, batch, batch_size, gamma, dev
             total_loss += weighted_loss.item()
             num_chunks += 1
 
-            # Update priorities
+            # Update priorities (move to CPU for numpy operations)
             sequence_losses = loss.view(-1, seq_len).mean(dim=1)
             memory.update_priorities(batch['indices'][chunk_slice], sequence_losses.detach().cpu().numpy())
 
-            # Clear memory
+            # Clear GPU memory
             del states, next_states, actions, rewards, dones, weights, q_values, loss
+            del next_q_values, next_actions, target_q_values, next_q, targets
             torch.cuda.empty_cache()
 
         torch.cuda.synchronize(device)
@@ -145,11 +148,20 @@ def preprocess_batch_worker(memory, batch_size, seq_len, device_idx):
     Worker process to prepare batches for GPU training
     """
     try:
-        # Sample batch on CPU
+        # Sample batch on CPU and ensure all tensors are CPU tensors
         batch = memory.sample(batch_size, seq_len=seq_len, device='cpu')
+        
+        # Verify all tensors are on CPU
+        for key in batch:
+            if isinstance(batch[key], torch.Tensor):
+                if batch[key].is_cuda:
+                    batch[key] = batch[key].cpu()
+        
         return device_idx, batch
     except Exception as e:
         print(f"Error in preprocess worker: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return None
 
 def create_process_pool(num_workers):
@@ -190,9 +202,15 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                     device = devices[device_idx]
                     torch.cuda.set_device(device)
                     
-                    # Move batch to GPU and train
-                    batch = {k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v 
-                            for k, v in batch.items()}
+                    # Move batch to GPU
+                    gpu_batch = {
+                        k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v
+                        for k, v in batch.items()
+                    }
+                    
+                    # Ensure models are on correct device
+                    policy_nets[device_idx] = policy_nets[device_idx].to(device)
+                    target_nets[device_idx] = target_nets[device_idx].to(device)
                     
                     policy_nets[device_idx].train()
                     target_nets[device_idx].train()
@@ -201,11 +219,11 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                         policy_nets[device_idx],
                         target_nets[device_idx],
                         optimizers[device_idx],
-                        batch,
+                        gpu_batch,
                         sub_batch_size,
                         gamma,
                         device,
-                        memory  # Pass memory to train_batch
+                        memory
                     )
                     
                     if loss > 0:
@@ -213,11 +231,17 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                     
                     torch.cuda.synchronize(device)
                     
+                    # Clean up GPU memory
+                    del gpu_batch
+                    torch.cuda.empty_cache()
+                    
                 except mp.TimeoutError:
                     print(f"Timeout waiting for preprocessing result")
                     continue
                 except Exception as e:
                     print(f"Error processing batch: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
                     continue
         
         # Average losses and synchronize models
@@ -323,10 +347,69 @@ def validate_model(model, env, device):
         'buy_and_hold_return': buy_and_hold_return
     }
 
+def store_transitions_worker(transitions_chunk, device_idx):
+    """
+    Worker process to store transitions in memory with proper CPU/GPU handling
+    """
+    try:
+        device = torch.device(f'cuda:{device_idx}' if torch.cuda.is_available() else 'cpu')
+        # Process transitions on CPU first
+        processed_transitions = []
+        for transition in transitions_chunk:
+            # Ensure tensors are on CPU and detached
+            if isinstance(transition[0], torch.Tensor):
+                state = transition[0].detach().cpu().numpy()
+                next_state = transition[3].detach().cpu().numpy()
+            else:
+                state = transition[0]
+                next_state = transition[3]
+            
+            processed_transitions.append((
+                state,
+                transition[1],  # action
+                transition[2],  # reward
+                next_state,
+                transition[4]   # done
+            ))
+        return processed_transitions
+    except Exception as e:
+        print(f"Error in store transitions worker: {str(e)}")
+        return None
+
+def parallel_store_transitions(all_transitions, num_workers, devices):
+    """
+    Store transitions in parallel across multiple processes with proper CPU/GPU handling
+    """
+    if not all_transitions:
+        return []
+        
+    # Calculate optimal chunk size
+    chunk_size = max(1, min(len(all_transitions) // num_workers, 1000))
+    chunks = [all_transitions[i:i + chunk_size] for i in range(0, len(all_transitions), chunk_size)]
+    
+    results = []
+    with create_process_pool(num_workers) as pool:
+        for idx, chunk in enumerate(chunks):
+            device_idx = idx % len(devices)
+            result = pool.apply_async(store_transitions_worker, (chunk, device_idx))
+            results.append(result)
+            
+        stored_transitions = []
+        for result in results:
+            try:
+                transitions = result.get(timeout=30.0)
+                if transitions is not None:
+                    # Keep transitions as numpy arrays until needed
+                    stored_transitions.extend(transitions)
+            except Exception as e:
+                print(f"Error collecting stored transitions: {str(e)}")
+                continue
+                
+    return stored_transitions
+
 def run_env_episode(env, policy_net_state_dict, epsilon, temperature, input_size, device='cpu', max_steps=1000):
     """
-    Run a single episode in an environment.
-    Can run on either CPU or GPU depending on device parameter.
+    Run a single episode in an environment with proper CPU/GPU handling
     """
     try:
         # Create a new policy network instance
@@ -351,31 +434,20 @@ def run_env_episode(env, policy_net_state_dict, epsilon, temperature, input_size
         
         while not done and steps < max_steps:
             try:
-                # Process on specified device
+                # Convert state to tensor and move to device
                 state_tensor = torch.from_numpy(np.array(state)).float().to(device)
                 
                 if random.random() < epsilon:
                     action = random.choice(env.get_valid_actions())
-                    # Clean up tensors for random action
-                    if device.type == 'cuda':
-                        del state_tensor
-                        torch.cuda.empty_cache()
                 else:
-                    with torch.no_grad():
-                        state_input = state_tensor.unsqueeze(0).unsqueeze(0)
-                        q_values, _ = policy_net(state_input)
-                        q_values = q_values.squeeze()
-                        q_values = q_values / temperature
+                    with torch.no_grad(), torch.amp.autocast('cuda'):
+                        q_values, _ = policy_net(state_tensor.unsqueeze(0))
+                        q_values = q_values.squeeze() / temperature
                         valid_actions = env.get_valid_actions()
                         mask = torch.full_like(q_values, float('-inf'))
                         for a in valid_actions:
                             mask[a] = q_values[a]
                         action = torch.argmax(mask).item()
-                        
-                        # Clean up tensors for policy action
-                        if device.type == 'cuda':
-                            del state_tensor, state_input, q_values, mask
-                            torch.cuda.empty_cache()
                 
                 # Track trades
                 if action == 1 and env.position == 0:
@@ -388,11 +460,23 @@ def run_env_episode(env, policy_net_state_dict, epsilon, temperature, input_size
                 next_state, reward, done = env.step(action)
                 if next_state is None:
                     raise ValueError("Environment step returned None state")
-                    
-                transitions.append((state, action, reward, next_state, done))
+                
+                # Store state as numpy array to avoid CUDA IPC issues
+                transitions.append((
+                    state_tensor.detach().cpu().numpy(),
+                    action,
+                    reward,
+                    np.array(next_state, dtype=np.float32),
+                    done
+                ))
+                
                 state = next_state
                 episode_reward += reward
                 steps += 1
+                
+                # Clean up GPU tensors
+                del state_tensor
+                torch.cuda.empty_cache()
                     
             except Exception as step_error:
                 print(f"Error during environment step: {str(step_error)}")
@@ -400,8 +484,7 @@ def run_env_episode(env, policy_net_state_dict, epsilon, temperature, input_size
         
         # Clean up
         del policy_net
-        if device.type == 'cuda':
-            torch.cuda.empty_cache()
+        torch.cuda.empty_cache()
             
         return transitions, episode_reward, trades_info
 
@@ -411,50 +494,11 @@ def run_env_episode(env, policy_net_state_dict, epsilon, temperature, input_size
         traceback.print_exc()
         raise
 
-def store_transitions_worker(transitions_chunk):
-    """
-    Worker process to store transitions in memory
-    """
-    try:
-        memory_chunk = PrioritizedReplayBuffer(len(transitions_chunk))
-        memory_chunk.push_episode(transitions_chunk)
-        return transitions_chunk  # Return the transitions directly
-    except Exception as e:
-        print(f"Error in store transitions worker: {str(e)}")
-        return None
-
 def calculate_std(rewards):
     """
     Standalone function for calculating standard deviation
     """
     return np.std(rewards) if rewards else 0.0
-
-def parallel_store_transitions(all_transitions, num_workers):
-    """
-    Store transitions in parallel across multiple processes
-    """
-    if not all_transitions:
-        return []
-        
-    chunk_size = max(1, len(all_transitions) // num_workers)
-    chunks = [all_transitions[i:i + chunk_size] for i in range(0, len(all_transitions), chunk_size)]
-    
-    results = []
-    with create_process_pool(num_workers) as pool:
-        for chunk in chunks:
-            result = pool.apply_async(store_transitions_worker, (chunk,))
-            results.append(result)
-            
-        stored_transitions = []
-        for result in results:
-            try:
-                transitions = result.get(timeout=30.0)
-                if transitions is not None:
-                    stored_transitions.extend(transitions)
-            except Exception as e:
-                print(f"Error collecting stored transitions: {str(e)}")
-                
-    return stored_transitions
 
 def process_validation_worker(policy_net_state_dict, val_env, device_idx, input_size):
     """
@@ -631,9 +675,20 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
             if all_transitions:
                 print("Storing transitions in memory...")
                 num_workers = min(len(devices) * 2, mp.cpu_count())
-                stored_transitions = parallel_store_transitions(all_transitions, num_workers)
+                stored_transitions = parallel_store_transitions(all_transitions, num_workers, devices)
                 if stored_transitions:
-                    memory.push_episode(stored_transitions)
+                    # Convert transitions to tensors on main device before pushing to memory
+                    device = devices[0]
+                    processed_transitions = []
+                    for state, action, reward, next_state, done in stored_transitions:
+                        processed_transitions.append((
+                            torch.from_numpy(state).float().to(device),
+                            action,
+                            reward,
+                            torch.from_numpy(next_state).float().to(device),
+                            done
+                        ))
+                    memory.push_episode(processed_transitions)
 
             if len(memory) >= batch_size:
                 print("Training on collected experience...")
