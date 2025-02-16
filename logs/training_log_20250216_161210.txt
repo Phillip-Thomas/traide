@@ -1045,3 +1045,371 @@ Episode   12
   Epsilon:   0.8926
   Loss:      0.0160
   Trades:    884 (Win Rate:  48.3%)
+
+Episode   13
+  Returns: -2.9490 (Avg: -2.9326)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0822
+  Epsilon:   0.8842
+  Loss:      0.0110
+  Trades:    881 (Win Rate:  49.5%)
+
+Episode   14
+  Returns: -2.8130 (Avg: -2.9247)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.0693
+  Epsilon:   0.8759
+  Loss:      0.0126
+  Trades:    845 (Win Rate:  49.2%)
+
+Episode   15
+  Returns: -2.8700 (Avg: -2.9213)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.0414
+  Epsilon:   0.8677
+  Loss:      0.0111
+  Trades:    872 (Win Rate:  49.0%)
+
+Validation Results (Episode 15)
+  Excess Return:  -21.55%
+  Profit:           6.13%
+  Win Rate:        51.98%
+  Trades:            334
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:    8.34%
+      Win Rate:  53.4%
+      Trades:   352
+    XLK:
+      Profit:   14.77%
+      Win Rate:  52.3%
+      Trades:   377
+    VGT:
+      Profit:   23.36%
+      Win Rate:  55.8%
+      Trades:   355
+    SMH:
+      Profit:    6.38%
+      Win Rate:  53.5%
+      Trades:   359
+    SOXX:
+      Profit:    3.99%
+      Win Rate:  53.4%
+      Trades:   382
+    IGV:
+      Profit:   12.83%
+      Win Rate:  52.0%
+      Trades:   377
+    FTEC:
+      Profit:   17.47%
+      Win Rate:  56.4%
+      Trades:   360
+    IYW:
+      Profit:   11.19%
+      Win Rate:  53.6%
+      Trades:   373
+    QTEC:
+      Profit:   -4.40%
+      Win Rate:  47.4%
+      Trades:    76
+    AIQ:
+      Profit:   12.34%
+      Win Rate:  54.4%
+      Trades:   259
+    BOTZ:
+      Profit:    1.76%
+      Win Rate:  52.5%
+      Trades:   255
+    ROBO:
+      Profit:  -12.82%
+      Win Rate:  50.9%
+      Trades:   346
+    SOXQ:
+      Profit:   -3.01%
+      Win Rate:  49.0%
+      Trades:   286
+    PSI:
+      Profit:   -5.47%
+      Win Rate:  52.8%
+      Trades:   339
+    XSD:
+      Profit:   -1.36%
+      Win Rate:  50.7%
+      Trades:   363
+    USD:
+      Profit:   25.91%
+      Win Rate:  53.9%
+      Trades:   358
+    WCLD:
+      Profit:   10.29%
+      Win Rate:  53.7%
+      Trades:   216
+    SKYY:
+      Profit:   25.71%
+      Win Rate:  55.6%
+      Trades:   390
+    CLOU:
+      Profit:    9.73%
+      Win Rate:  56.0%
+      Trades:   166
+    CIBR:
+      Profit:   19.10%
+      Win Rate:  52.4%
+      Trades:   347
+    BUG:
+      Profit:   13.38%
+      Win Rate:  49.0%
+      Trades:   245
+    ARKW:
+      Profit:   32.89%
+      Win Rate:  54.0%
+      Trades:   378
+    KOMP:
+      Profit:   -1.11%
+      Win Rate:  51.1%
+      Trades:   329
+    PTF:
+      Profit:   -5.54%
+      Win Rate:  52.7%
+      Trades:   317
+    XITK:
+      Profit:    7.13%
+      Win Rate:  53.3%
+      Trades:   199
+    IWF:
+      Profit:    0.75%
+      Win Rate:  53.5%
+      Trades:   355
+    VUG:
+      Profit:    1.66%
+      Win Rate:  52.9%
+      Trades:   350
+    SPYG:
+      Profit:    9.58%
+      Win Rate:  56.1%
+      Trades:   394
+    VONG:
+      Profit:    6.86%
+      Win Rate:  52.6%
+      Trades:   403
+    SCHG:
+      Profit:    4.83%
+      Win Rate:  56.0%
+      Trades:   184
+    AAPL:
+      Profit:   25.43%
+      Win Rate:  53.5%
+      Trades:   385
+    MSFT:
+      Profit:   -2.34%
+      Win Rate:  50.3%
+      Trades:   364
+    GOOGL:
+      Profit:   -3.08%
+      Win Rate:  49.6%
+      Trades:   377
+    AMZN:
+      Profit:  -10.18%
+      Win Rate:  52.7%
+      Trades:   376
+    META:
+      Profit:    7.49%
+      Win Rate:  53.7%
+      Trades:   337
+    NVDA:
+      Profit:   24.91%
+      Win Rate:  53.8%
+      Trades:   377
+    TSLA:
+      Profit:   17.18%
+      Win Rate:  50.4%
+      Trades:   377
+    AMD:
+      Profit:  -34.59%
+      Win Rate:  51.0%
+      Trades:   382
+    INTC:
+      Profit:  -53.70%
+      Win Rate:  51.2%
+      Trades:   201
+    TSM:
+      Profit:    7.24%
+      Win Rate:  50.9%
+      Trades:   371
+    AVGO:
+      Profit:  -16.63%
+      Win Rate:  48.3%
+      Trades:   362
+    QCOM:
+      Profit:    4.69%
+      Win Rate:  52.7%
+      Trades:   385
+    AMAT:
+      Profit:    2.16%
+      Win Rate:  51.5%
+      Trades:   365
+    MU:
+      Profit:  -17.68%
+      Win Rate:  48.5%
+      Trades:   402
+    CRM:
+      Profit:    3.79%
+      Win Rate:  49.1%
+      Trades:   373
+    ADBE:
+      Profit:   -2.52%
+      Win Rate:  50.6%
+      Trades:   356
+    ORCL:
+      Profit:    5.31%
+      Win Rate:  51.4%
+      Trades:   391
+    SNOW:
+      Profit:   -1.30%
+      Win Rate:  50.8%
+      Trades:   358
+    NET:
+      Profit:   19.00%
+      Win Rate:  49.9%
+      Trades:   373
+    PLTR:
+      Profit:   62.45%
+      Win Rate:  57.3%
+      Trades:   255
+    CSCO:
+      Profit:   23.68%
+      Win Rate:  53.2%
+      Trades:   342
+    IBM:
+      Profit:   21.80%
+      Win Rate:  57.9%
+      Trades:   373
+    HPQ:
+      Profit:   42.46%
+      Win Rate:  51.6%
+      Trades:   254
+    DELL:
+      Profit:  -46.25%
+      Win Rate:  48.3%
+      Trades:   379
+    STX:
+      Profit:   -7.85%
+      Win Rate:  50.0%
+      Trades:   380
+    WDC:
+      Profit:   19.82%
+      Win Rate:  48.9%
+      Trades:   378
+    PYPL:
+      Profit:   12.63%
+      Win Rate:  52.0%
+      Trades:   367
+    SQ:
+      Profit:  -15.54%
+      Win Rate:  49.4%
+      Trades:   362
+    SHOP:
+      Profit:   -5.02%
+      Win Rate:  48.8%
+      Trades:   377
+    ABNB:
+      Profit:   16.35%
+      Win Rate:  51.5%
+      Trades:   392
+    UBER:
+      Profit:  -16.60%
+      Win Rate:  48.2%
+      Trades:   382
+    DASH:
+      Profit:   30.24%
+      Win Rate:  51.9%
+      Trades:   376
+    NFLX:
+      Profit:   43.56%
+      Win Rate:  54.9%
+      Trades:   339
+    DIS:
+      Profit:    6.54%
+      Win Rate:  49.5%
+      Trades:   376
+    EA:
+      Profit:   12.69%
+      Win Rate:  47.8%
+      Trades:   385
+    TTWO:
+      Profit:    0.25%
+      Win Rate:  50.8%
+      Trades:   372
+    RBLX:
+      Profit:   -9.86%
+      Win Rate:  56.5%
+      Trades:   285
+    COIN:
+      Profit:  -17.83%
+      Win Rate:  50.3%
+      Trades:   366
+    U:
+      Profit:    9.26%
+      Win Rate:  48.3%
+      Trades:   180
+    PATH:
+      Profit:   32.51%
+      Win Rate:  48.9%
+      Trades:   139
+    AI:
+      Profit:    5.29%
+      Win Rate:  51.7%
+      Trades:   232
+    CRWD:
+      Profit:   15.77%
+      Win Rate:  53.7%
+      Trades:   361
+    ZS:
+      Profit:  -10.52%
+      Win Rate:  52.3%
+      Trades:   363
+--------------------------------------------------------------------------------
+
+Training Update (Episode 15)
+  Learning Rate: 3.00e-04
+  Gradient Norm: 0.1659
+
+Episode   16
+  Returns: -2.8480 (Avg: -2.9169)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.0389
+  Epsilon:   0.8595
+  Loss:      0.0141
+  Trades:    837 (Win Rate:  48.3%)
+
+Episode   17
+  Returns: -2.9320 (Avg: -2.9178)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0395
+  Epsilon:   0.8515
+  Loss:      0.0086
+  Trades:    864 (Win Rate:  48.3%)
+
+Episode   18
+  Returns: -2.8630 (Avg: -2.9149)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.0568
+  Epsilon:   0.8435
+  Loss:      0.0163
+  Trades:    856 (Win Rate:  48.7%)
+
+Episode   19
+  Returns: -2.9150 (Avg: -2.9149)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0595
+  Epsilon:   0.8356
+  Loss:      0.0091
+  Trades:    847 (Win Rate:  48.1%)
