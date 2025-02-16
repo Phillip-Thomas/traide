@@ -1,0 +1,187 @@
+Experiment Log - 20250215_201619
+        ===============================
+
+        Model Performance Metrics
+        -----------------------
+        Average Excess Return: 4.27%
+        Average Profit: 25.79%
+        Average Win Rate: 56.4%
+        Average Number of Trades: 172.0
+        Accumulated Reward: -1.38256428571428
+
+        Training Parameters
+        ------------------
+        Initial Seed: 2387322339
+        Learning Rate: 0.00000100
+        Average Loss: 0.00114675
+
+        Per-Ticker Performance
+        ---------------------
+        
+QQQ:
+  Profit: 25.99%
+  Win Rate: 55.3%
+  Trades: 235
+  Excess Return: 3.63%
+
+XLK:
+  Profit: 23.31%
+  Win Rate: 54.0%
+  Trades: 189
+  Excess Return: 6.60%
+
+VGT:
+  Profit: 31.61%
+  Win Rate: 60.8%
+  Trades: 199
+  Excess Return: 7.75%
+
+SMH:
+  Profit: 1.98%
+  Win Rate: 53.1%
+  Trades: 179
+  Excess Return: -11.01%
+
+SOXX:
+  Profit: 30.87%
+  Win Rate: 60.9%
+  Trades: 174
+  Excess Return: 30.31%
+
+IGV:
+  Profit: 22.22%
+  Win Rate: 56.4%
+  Trades: 78
+  Excess Return: -5.60%
+
+FTEC:
+  Profit: 19.24%
+  Win Rate: 53.5%
+  Trades: 187
+  Excess Return: -4.76%
+
+IYW:
+  Profit: 31.49%
+  Win Rate: 60.7%
+  Trades: 145
+  Excess Return: 7.91%
+
+QTEC:
+  Profit: 12.80%
+  Win Rate: 50.0%
+  Trades: 4
+  Excess Return: 2.01%
+
+AIQ:
+  Profit: 20.35%
+  Win Rate: 57.3%
+  Trades: 246
+  Excess Return: -8.96%
+
+BOTZ:
+  Profit: 16.64%
+  Win Rate: 53.3%
+  Trades: 214
+  Excess Return: 5.98%
+
+ROBO:
+  Profit: 16.90%
+  Win Rate: 54.9%
+  Trades: 255
+  Excess Return: 10.75%
+
+SOXQ:
+  Profit: 12.65%
+  Win Rate: 55.2%
+  Trades: 116
+  Excess Return: 7.35%
+
+PSI:
+  Profit: 46.63%
+  Win Rate: 58.0%
+  Trades: 69
+  Excess Return: 38.50%
+
+XSD:
+  Profit: 5.18%
+  Win Rate: 52.2%
+  Trades: 90
+  Excess Return: -2.97%
+
+USD:
+  Profit: 109.82%
+  Win Rate: 57.8%
+  Trades: 256
+  Excess Return: 71.63%
+
+WCLD:
+  Profit: 12.97%
+  Win Rate: 52.2%
+  Trades: 46
+  Excess Return: -7.91%
+
+SKYY:
+  Profit: 29.77%
+  Win Rate: 56.4%
+  Trades: 241
+  Excess Return: -6.22%
+
+CLOU:
+  Profit: 27.15%
+  Win Rate: 52.6%
+  Trades: 173
+  Excess Return: 5.24%
+
+CIBR:
+  Profit: 30.90%
+  Win Rate: 58.0%
+  Trades: 138
+  Excess Return: 1.95%
+
+BUG:
+  Profit: 13.32%
+  Win Rate: 51.5%
+  Trades: 264
+  Excess Return: -12.78%
+
+ARKW:
+  Profit: 39.61%
+  Win Rate: 56.4%
+  Trades: 204
+  Excess Return: -16.35%
+
+KOMP:
+  Profit: 15.18%
+  Win Rate: 59.5%
+  Trades: 116
+  Excess Return: -1.69%
+
+IWF:
+  Profit: 20.70%
+  Win Rate: 58.1%
+  Trades: 308
+  Excess Return: -4.15%
+
+VUG:
+  Profit: 30.44%
+  Win Rate: 61.3%
+  Trades: 212
+  Excess Return: 5.38%
+
+SPYG:
+  Profit: 25.93%
+  Win Rate: 58.2%
+  Trades: 165
+  Excess Return: -0.94%
+
+VONG:
+  Profit: 25.45%
+  Win Rate: 57.8%
+  Trades: 180
+  Excess Return: 0.62%
+
+SCHG:
+  Profit: 22.91%
+  Win Rate: 63.2%
+  Trades: 133
+  Excess Return: -2.71%

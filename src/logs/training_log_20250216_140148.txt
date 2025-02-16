@@ -1,0 +1,2831 @@
+Training Log - Started at 2025-02-16 14:01:48.418923
+================================================================================
+
+
+Episode    0
+  Returns: -2.9590 (Avg: -2.9590)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  3.2029
+  Epsilon:   1.0000
+  Loss:      0.0000
+
+Validation Results (Episode 0)
+  Excess Return:  -27.69%
+  Profit:          -0.02%
+  Win Rate:         0.71%
+  Trades:              2
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    XLK:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    VGT:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SMH:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SOXX:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    IGV:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    FTEC:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    IYW:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    QTEC:
+      Profit:   -1.15%
+      Win Rate:  51.8%
+      Trades:   166
+    AIQ:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    BOTZ:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    ROBO:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SOXQ:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    PSI:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    XSD:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    USD:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    WCLD:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SKYY:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    CLOU:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    CIBR:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    BUG:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    ARKW:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    KOMP:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    PTF:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    XITK:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    IWF:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    VUG:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SPYG:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    VONG:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SCHG:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AAPL:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    MSFT:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    GOOGL:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AMZN:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    META:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    NVDA:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    TSLA:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AMD:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    INTC:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    TSM:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AVGO:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    QCOM:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AMAT:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    MU:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    CRM:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    ADBE:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    ORCL:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SNOW:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    NET:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    PLTR:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    CSCO:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    IBM:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    HPQ:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    DELL:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    STX:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    WDC:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    PYPL:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SQ:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    SHOP:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    ABNB:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    UBER:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    DASH:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    NFLX:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    DIS:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    EA:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    TTWO:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    RBLX:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    COIN:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    U:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    PATH:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AI:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    CRWD:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    ZS:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+--------------------------------------------------------------------------------
+
+Saved Model Checkpoint (Episode 0)
+  Path: checkpoints/best_model.pt
+  Metrics:
+    profit: -0.0002
+    win_rate:  0.0071
+    num_trades: 2
+    excess_return: -27.6918
+    per_ticker_metrics: {'QQQ': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.22357002395983172)}, 'XLK': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.16708819213337356)}, 'VGT': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.23861523175113986)}, 'SMH': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.12989883611458763)}, 'SOXX': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.005681862359471435)}, 'IGV': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.2781702207316892)}, 'FTEC': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.23994791825664175)}, 'IYW': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.23583779461825172)}, 'QTEC': {'profit': np.float64(-0.011528590940018901), 'num_trades': 166, 'avg_return': np.float64(-3.73699022583473e-05), 'win_rate': np.float64(0.5180722891566265), 'accumulated_reward': -0.46200000000000035, 'buy_and_hold_return': np.float64(0.10792288400927363)}, 'AIQ': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.293166594515587)}, 'BOTZ': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.10652924351513948)}, 'ROBO': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.06159615901315063)}, 'SOXQ': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.05295882170965571)}, 'PSI': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.08121921315168912)}, 'XSD': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.08147384148721182)}, 'USD': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.3819095963042163)}, 'WCLD': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.2088570837630861)}, 'SKYY': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.35989074745452965)}, 'CLOU': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.21911979422659167)}, 'CIBR': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.2895021579118193)}, 'BUG': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.2609774843614383)}, 'ARKW': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.5596230229069084)}, 'KOMP': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.16871376865048981)}, 'PTF': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.3463836346573792)}, 'XITK': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.3128252847547257)}, 'IWF': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.24850322547237114)}, 'VUG': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.25060707490694556)}, 'SPYG': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.26872856428533076)}, 'VONG': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.2483103895871832)}, 'SCHG': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.2561875572132104)}, 'AAPL': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.447159806652182)}, 'MSFT': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.037523275766199404)}, 'GOOGL': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.17538327101583517)}, 'AMZN': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.22593608805998455)}, 'META': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.4211297367982567)}, 'NVDA': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.5648302499983879)}, 'TSLA': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(1.0873287217644618)}, 'AMD': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.3317973434427003)}, 'INTC': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.36515188270549126)}, 'TSM': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.4055563409705121)}, 'AVGO': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.7132141063061468)}, 'QCOM': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.0024449771331347403)}, 'AMAT': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.1849014960184685)}, 'MU': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.2078955975284259)}, 'CRM': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.09969339503818175)}, 'ADBE': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.04657501516851181)}, 'ORCL': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.4159687529174727)}, 'SNOW': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.1983392043850183)}, 'NET': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.8021491872990674)}, 'PLTR': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(4.2826424257922575)}, 'CSCO': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.3209812691885323)}, 'IBM': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.4117932408563758)}, 'HPQ': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.16994260171370068)}, 'DELL': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.07525273101778585)}, 'STX': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.17726226159690128)}, 'WDC': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.05705622283552725)}, 'PYPL': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.20080423865035546)}, 'SQ': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.03463053319508469)}, 'SHOP': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.8081420548381422)}, 'ABNB': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.004194990184861913)}, 'UBER': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.04192097982992804)}, 'DASH': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.5282112779557813)}, 'NFLX': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.6887655420821841)}, 'DIS': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.05359286445552047)}, 'EA': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.004112662368109143)}, 'TTWO': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.38463063584868595)}, 'RBLX': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.6855267264395712)}, 'COIN': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.09334510765024562)}, 'U': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.16923301879895192)}, 'PATH': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(-0.29601695440973785)}, 'AI': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.3530545952258799)}, 'CRWD': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.445827903243168)}, 'ZS': {'profit': 0.0, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': 0, 'buy_and_hold_return': np.float64(0.15812692355051472)}}
+    episode: 0
+    timestamp: 2025-02-16T14:02:59.270695
+--------------------------------------------------------------------------------
+
+Training Update (Episode 0)
+  Learning Rate: 3.00e-04
+  Gradient Norm: 0.0000
+
+Episode    1
+  Returns: -3.0250 (Avg: -2.9920)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  3.2211
+  Epsilon:   0.9905
+  Loss:      0.0000
+
+Episode    2
+  Returns: -2.9520 (Avg: -2.9787)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  3.2010
+  Epsilon:   0.9812
+  Loss:      0.0000
+
+Episode    3
+  Returns: -2.9730 (Avg: -2.9772)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.2234
+  Epsilon:   0.9719
+  Loss:      0.1157
+
+Episode    4
+  Returns: -2.9390 (Avg: -2.9696)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1555
+  Epsilon:   0.9627
+  Loss:      0.0786
+
+Episode    5
+  Returns: -3.0250 (Avg: -2.9788)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.3655
+  Epsilon:   0.9537
+  Loss:      0.1212
+
+Validation Results (Episode 5)
+  Excess Return:   -8.15%
+  Profit:          19.53%
+  Win Rate:        51.78%
+  Trades:            576
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   15.95%
+      Win Rate:  54.6%
+      Trades:   260
+    XLK:
+      Profit:    6.36%
+      Win Rate:  52.8%
+      Trades:   701
+    VGT:
+      Profit:   20.31%
+      Win Rate:  56.2%
+      Trades:   137
+    SMH:
+      Profit:   17.95%
+      Win Rate:  52.2%
+      Trades:   667
+    SOXX:
+      Profit:   17.72%
+      Win Rate:  52.6%
+      Trades:   681
+    IGV:
+      Profit:   16.78%
+      Win Rate:  52.7%
+      Trades:   710
+    FTEC:
+      Profit:   17.93%
+      Win Rate:  55.3%
+      Trades:   725
+    IYW:
+      Profit:   11.95%
+      Win Rate:  53.1%
+      Trades:   729
+    QTEC:
+      Profit:    4.41%
+      Win Rate:  50.1%
+      Trades:   521
+    AIQ:
+      Profit:   22.29%
+      Win Rate:  55.0%
+      Trades:   404
+    BOTZ:
+      Profit:    1.81%
+      Win Rate:  52.9%
+      Trades:   399
+    ROBO:
+      Profit:    0.48%
+      Win Rate:  54.8%
+      Trades:   595
+    SOXQ:
+      Profit:   14.94%
+      Win Rate:  54.7%
+      Trades:   408
+    PSI:
+      Profit:   15.94%
+      Win Rate:  53.8%
+      Trades:   519
+    XSD:
+      Profit:    0.96%
+      Win Rate:  48.4%
+      Trades:   678
+    USD:
+      Profit:   -7.92%
+      Win Rate:  52.5%
+      Trades:   608
+    WCLD:
+      Profit:    2.15%
+      Win Rate:  51.9%
+      Trades:   291
+    SKYY:
+      Profit:   15.25%
+      Win Rate:  52.7%
+      Trades:   729
+    CLOU:
+      Profit:   17.17%
+      Win Rate:  49.1%
+      Trades:   497
+    CIBR:
+      Profit:   14.61%
+      Win Rate:  54.4%
+      Trades:   568
+    BUG:
+      Profit:   15.12%
+      Win Rate:  48.3%
+      Trades:   412
+    ARKW:
+      Profit:   12.17%
+      Win Rate:  50.1%
+      Trades:   714
+    KOMP:
+      Profit:   15.21%
+      Win Rate:  53.9%
+      Trades:   495
+    PTF:
+      Profit:   -6.01%
+      Win Rate:  53.2%
+      Trades:   462
+    XITK:
+      Profit:   30.52%
+      Win Rate:  56.4%
+      Trades:   388
+    IWF:
+      Profit:   19.30%
+      Win Rate:  55.2%
+      Trades:   467
+    VUG:
+      Profit:   16.63%
+      Win Rate:  55.5%
+      Trades:   465
+    SPYG:
+      Profit:   16.13%
+      Win Rate:  54.2%
+      Trades:   688
+    VONG:
+      Profit:   20.79%
+      Win Rate:  53.5%
+      Trades:   724
+    SCHG:
+      Profit:   21.41%
+      Win Rate:  54.7%
+      Trades:   397
+    AAPL:
+      Profit:   27.19%
+      Win Rate:  55.4%
+      Trades:   698
+    MSFT:
+      Profit:    2.38%
+      Win Rate:  51.6%
+      Trades:   316
+    GOOGL:
+      Profit:   19.63%
+      Win Rate:  49.9%
+      Trades:   716
+    AMZN:
+      Profit:   20.63%
+      Win Rate:  51.0%
+      Trades:   719
+    META:
+      Profit:   27.03%
+      Win Rate:  49.4%
+      Trades:   170
+    NVDA:
+      Profit:   84.45%
+      Win Rate:  54.8%
+      Trades:   725
+    TSLA:
+      Profit:  112.80%
+      Win Rate:  53.3%
+      Trades:   599
+    AMD:
+      Profit:  -16.37%
+      Win Rate:  50.4%
+      Trades:   706
+    INTC:
+      Profit:   -3.91%
+      Win Rate:  47.7%
+      Trades:   432
+    TSM:
+      Profit:   35.95%
+      Win Rate:  50.1%
+      Trades:   726
+    AVGO:
+      Profit:   25.98%
+      Win Rate:  49.8%
+      Trades:   723
+    QCOM:
+      Profit:  -28.87%
+      Win Rate:  49.8%
+      Trades:   709
+    AMAT:
+      Profit:   -7.98%
+      Win Rate:  50.4%
+      Trades:   684
+    MU:
+      Profit:  -10.26%
+      Win Rate:  52.4%
+      Trades:   722
+    CRM:
+      Profit:  -13.21%
+      Win Rate:  50.9%
+      Trades:   568
+    ADBE:
+      Profit:  -28.93%
+      Win Rate:  50.6%
+      Trades:   172
+    ORCL:
+      Profit:   77.91%
+      Win Rate:  51.9%
+      Trades:   725
+    SNOW:
+      Profit:   25.44%
+      Win Rate:  47.3%
+      Trades:   713
+    NET:
+      Profit:   47.14%
+      Win Rate:  50.4%
+      Trades:   703
+    PLTR:
+      Profit:  314.13%
+      Win Rate:  52.8%
+      Trades:   485
+    CSCO:
+      Profit:    9.44%
+      Win Rate:  49.4%
+      Trades:   544
+    IBM:
+      Profit:   41.35%
+      Win Rate:  55.2%
+      Trades:   712
+    HPQ:
+      Profit:   30.78%
+      Win Rate:  51.7%
+      Trades:   406
+    DELL:
+      Profit:   17.82%
+      Win Rate:  49.0%
+      Trades:   723
+    STX:
+      Profit:   12.68%
+      Win Rate:  52.5%
+      Trades:   722
+    WDC:
+      Profit:  -22.60%
+      Win Rate:  49.6%
+      Trades:   677
+    PYPL:
+      Profit:   27.84%
+      Win Rate:  49.5%
+      Trades:   673
+    SQ:
+      Profit:    3.27%
+      Win Rate:  49.9%
+      Trades:   673
+    SHOP:
+      Profit:   87.55%
+      Win Rate:  52.5%
+      Trades:   689
+    ABNB:
+      Profit:   26.16%
+      Win Rate:  49.0%
+      Trades:   724
+    UBER:
+      Profit:   20.52%
+      Win Rate:  50.5%
+      Trades:   681
+    DASH:
+      Profit:   -3.90%
+      Win Rate:  49.3%
+      Trades:   728
+    NFLX:
+      Profit:   70.66%
+      Win Rate:  57.1%
+      Trades:    49
+    DIS:
+      Profit:    9.78%
+      Win Rate:  50.6%
+      Trades:   724
+    EA:
+      Profit:  -12.59%
+      Win Rate:  50.4%
+      Trades:   716
+    TTWO:
+      Profit:   -4.92%
+      Win Rate:  49.8%
+      Trades:   727
+    RBLX:
+      Profit:   36.63%
+      Win Rate:  52.5%
+      Trades:   472
+    COIN:
+      Profit:   16.89%
+      Win Rate:  48.9%
+      Trades:   609
+    U:
+      Profit:  -13.14%
+      Win Rate:  45.4%
+      Trades:   480
+    PATH:
+      Profit:  -45.62%
+      Win Rate:  48.2%
+      Trades:   620
+    AI:
+      Profit:   12.05%
+      Win Rate:  52.7%
+      Trades:   433
+    CRWD:
+      Profit:   24.11%
+      Win Rate:  54.9%
+      Trades:   567
+    ZS:
+      Profit:  -18.67%
+      Win Rate:  47.2%
+      Trades:   708
+--------------------------------------------------------------------------------
+
+Saved Model Checkpoint (Episode 5)
+  Path: checkpoints/best_model.pt
+  Metrics:
+    profit:  0.1953
+    win_rate:  0.5178
+    num_trades: 576
+    excess_return: -8.1483
+    per_ticker_metrics: {'QQQ': {'profit': np.float64(0.1594752568325044), 'num_trades': 260, 'avg_return': np.float64(0.0005920493692325316), 'win_rate': np.float64(0.5461538461538461), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.22357002395983172)}, 'XLK': {'profit': np.float64(0.0635969702403345), 'num_trades': 701, 'avg_return': np.float64(0.00010290754352621488), 'win_rate': np.float64(0.5278174037089871), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.16708819213337356)}, 'VGT': {'profit': np.float64(0.20309753088481108), 'num_trades': 137, 'avg_return': np.float64(0.0012613859412448126), 'win_rate': np.float64(0.5620437956204379), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.23861523175113986)}, 'SMH': {'profit': np.float64(0.17953672167434953), 'num_trades': 667, 'avg_return': np.float64(0.00029244118068646026), 'win_rate': np.float64(0.5217391304347826), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.12989883611458763)}, 'SOXX': {'profit': np.float64(0.1772082813006508), 'num_trades': 681, 'avg_return': np.float64(0.00027543650621862756), 'win_rate': np.float64(0.5256975036710719), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.005681862359471435)}, 'IGV': {'profit': np.float64(0.16781641274146608), 'num_trades': 710, 'avg_return': np.float64(0.00023325768155305345), 'win_rate': np.float64(0.5267605633802817), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.2781702207316892)}, 'FTEC': {'profit': np.float64(0.17928003926783842), 'num_trades': 725, 'avg_return': np.float64(0.00024351323314727094), 'win_rate': np.float64(0.5531034482758621), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.23994791825664175)}, 'IYW': {'profit': np.float64(0.11946480305735374), 'num_trades': 729, 'avg_return': np.float64(0.00016680696403164935), 'win_rate': np.float64(0.5308641975308642), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.23583779461825172)}, 'QTEC': {'profit': np.float64(0.044095126459837486), 'num_trades': 521, 'avg_return': np.float64(0.0001048526542178998), 'win_rate': np.float64(0.5009596928982726), 'accumulated_reward': -1.2009999999999785, 'buy_and_hold_return': np.float64(0.10792288400927363)}, 'AIQ': {'profit': np.float64(0.22288365897645712), 'num_trades': 404, 'avg_return': np.float64(0.0005127309446547278), 'win_rate': np.float64(0.5495049504950495), 'accumulated_reward': -1.4489999999999512, 'buy_and_hold_return': np.float64(0.293166594515587)}, 'BOTZ': {'profit': np.float64(0.018095570970863006), 'num_trades': 399, 'avg_return': np.float64(9.231856073452283e-05), 'win_rate': np.float64(0.5288220551378446), 'accumulated_reward': -1.4729999999999486, 'buy_and_hold_return': np.float64(0.10652924351513948)}, 'ROBO': {'profit': np.float64(0.004810857989939299), 'num_trades': 595, 'avg_return': np.float64(2.3824668144510043e-05), 'win_rate': np.float64(0.5478991596638656), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.06159615901315063)}, 'SOXQ': {'profit': np.float64(0.14935377623837964), 'num_trades': 408, 'avg_return': np.float64(0.000417927700173498), 'win_rate': np.float64(0.5465686274509803), 'accumulated_reward': -1.4669999999999492, 'buy_and_hold_return': np.float64(0.05295882170965571)}, 'PSI': {'profit': np.float64(0.1593780596615253), 'num_trades': 519, 'avg_return': np.float64(0.00036150504492497946), 'win_rate': np.float64(0.5375722543352601), 'accumulated_reward': -1.449999999999951, 'buy_and_hold_return': np.float64(0.08121921315168912)}, 'XSD': {'profit': np.float64(0.009554276714319077), 'num_trades': 678, 'avg_return': np.float64(5.1321129910630314e-05), 'win_rate': np.float64(0.4837758112094395), 'accumulated_reward': -1.468999999999949, 'buy_and_hold_return': np.float64(0.08147384148721182)}, 'USD': {'profit': np.float64(-0.07916469856423836), 'num_trades': 608, 'avg_return': np.float64(0.00014169578625761016), 'win_rate': np.float64(0.524671052631579), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.3819095963042163)}, 'WCLD': {'profit': np.float64(0.021483037229746538), 'num_trades': 291, 'avg_return': np.float64(0.0001497327891424656), 'win_rate': np.float64(0.5189003436426117), 'accumulated_reward': -1.4439999999999518, 'buy_and_hold_return': np.float64(0.2088570837630861)}, 'SKYY': {'profit': np.float64(0.15253056800522846), 'num_trades': 729, 'avg_return': np.float64(0.00020950899741522768), 'win_rate': np.float64(0.5267489711934157), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.35989074745452965)}, 'CLOU': {'profit': np.float64(0.1717193892133395), 'num_trades': 497, 'avg_return': np.float64(0.00034282585124062063), 'win_rate': np.float64(0.4909456740442656), 'accumulated_reward': -1.469999999999949, 'buy_and_hold_return': np.float64(0.21911979422659167)}, 'CIBR': {'profit': np.float64(0.14605545336424264), 'num_trades': 568, 'avg_return': np.float64(0.0002529129448469683), 'win_rate': np.float64(0.5440140845070423), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.2895021579118193)}, 'BUG': {'profit': np.float64(0.15118821028240936), 'num_trades': 412, 'avg_return': np.float64(0.00037075089540573446), 'win_rate': np.float64(0.4830097087378641), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.2609774843614383)}, 'ARKW': {'profit': np.float64(0.12168801552708541), 'num_trades': 714, 'avg_return': np.float64(0.00019207317570515845), 'win_rate': np.float64(0.5014005602240896), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.5596230229069084)}, 'KOMP': {'profit': np.float64(0.1520612100159524), 'num_trades': 495, 'avg_return': np.float64(0.00031381300378539417), 'win_rate': np.float64(0.5393939393939394), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.16871376865048981)}, 'PTF': {'profit': np.float64(-0.06008872776982721), 'num_trades': 462, 'avg_return': np.float64(-8.040659308793825e-05), 'win_rate': np.float64(0.5324675324675324), 'accumulated_reward': -1.322999999999965, 'buy_and_hold_return': np.float64(0.3463836346573792)}, 'XITK': {'profit': np.float64(0.3052219075831122), 'num_trades': 388, 'avg_return': np.float64(0.0007237952432504694), 'win_rate': np.float64(0.5644329896907216), 'accumulated_reward': -0.7890000000000006, 'buy_and_hold_return': np.float64(0.3128252847547257)}, 'IWF': {'profit': np.float64(0.19298294669263005), 'num_trades': 467, 'avg_return': np.float64(0.00039611340261919294), 'win_rate': np.float64(0.5524625267665952), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.24850322547237114)}, 'VUG': {'profit': np.float64(0.16631279006378552), 'num_trades': 465, 'avg_return': np.float64(0.0003511608886398849), 'win_rate': np.float64(0.5548387096774193), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.25060707490694556)}, 'SPYG': {'profit': np.float64(0.1612529431211478), 'num_trades': 688, 'avg_return': np.float64(0.00022895676873790988), 'win_rate': np.float64(0.5421511627906976), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.26872856428533076)}, 'VONG': {'profit': np.float64(0.20794605816551104), 'num_trades': 724, 'avg_return': np.float64(0.00027110561655622437), 'win_rate': np.float64(0.5345303867403315), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.2483103895871832)}, 'SCHG': {'profit': np.float64(0.21408424045797259), 'num_trades': 397, 'avg_return': np.float64(0.0004903963343859982), 'win_rate': np.float64(0.5465994962216625), 'accumulated_reward': -1.4729999999999486, 'buy_and_hold_return': np.float64(0.2561875572132104)}, 'AAPL': {'profit': np.float64(0.27193111711799456), 'num_trades': 698, 'avg_return': np.float64(0.0003626411496709745), 'win_rate': np.float64(0.5544412607449857), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.447159806652182)}, 'MSFT': {'profit': np.float64(0.023838621391370385), 'num_trades': 316, 'avg_return': np.float64(0.0001350503112044058), 'win_rate': np.float64(0.5158227848101266), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(-0.037523275766199404)}, 'GOOGL': {'profit': np.float64(0.1962866941476602), 'num_trades': 716, 'avg_return': np.float64(0.0002769133136415646), 'win_rate': np.float64(0.49860335195530725), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.17538327101583517)}, 'AMZN': {'profit': np.float64(0.20632235272746535), 'num_trades': 719, 'avg_return': np.float64(0.0002895432832551208), 'win_rate': np.float64(0.5104311543810849), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.22593608805998455)}, 'META': {'profit': np.float64(0.2703461355636503), 'num_trades': 170, 'avg_return': np.float64(0.0013259683115107541), 'win_rate': np.float64(0.49411764705882355), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.4211297367982567)}, 'NVDA': {'profit': np.float64(0.8445249928637013), 'num_trades': 725, 'avg_return': np.float64(0.0009255871441687285), 'win_rate': np.float64(0.5475862068965517), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.5648302499983879)}, 'TSLA': {'profit': np.float64(1.1280058711403056), 'num_trades': 599, 'avg_return': np.float64(0.0013506275730507892), 'win_rate': np.float64(0.5325542570951586), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(1.0873287217644618)}, 'AMD': {'profit': np.float64(-0.16368192833341677), 'num_trades': 706, 'avg_return': np.float64(-0.0001898817581321121), 'win_rate': np.float64(0.5042492917847026), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(-0.3317973434427003)}, 'INTC': {'profit': np.float64(-0.039055372588453374), 'num_trades': 432, 'avg_return': np.float64(3.6537365151337796e-05), 'win_rate': np.float64(0.47685185185185186), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(-0.36515188270549126)}, 'TSM': {'profit': np.float64(0.35945953570082523), 'num_trades': 726, 'avg_return': np.float64(0.00047050682151236165), 'win_rate': np.float64(0.5013774104683195), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.4055563409705121)}, 'AVGO': {'profit': np.float64(0.25983786182476454), 'num_trades': 723, 'avg_return': np.float64(0.00041293172406608834), 'win_rate': np.float64(0.4979253112033195), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.7132141063061468)}, 'QCOM': {'profit': np.float64(-0.288742636295354), 'num_trades': 709, 'avg_return': np.float64(-0.0004445280845296631), 'win_rate': np.float64(0.4978843441466855), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.0024449771331347403)}, 'AMAT': {'profit': np.float64(-0.07983704421584181), 'num_trades': 684, 'avg_return': np.float64(-6.669972540370644e-05), 'win_rate': np.float64(0.5043859649122807), 'accumulated_reward': -1.46099999999995, 'buy_and_hold_return': np.float64(-0.1849014960184685)}, 'MU': {'profit': np.float64(-0.10261392786899348), 'num_trades': 722, 'avg_return': np.float64(-4.594793236217737e-05), 'win_rate': np.float64(0.5235457063711911), 'accumulated_reward': -1.468999999999949, 'buy_and_hold_return': np.float64(-0.2078955975284259)}, 'CRM': {'profit': np.float64(-0.13213254603557234), 'num_trades': 568, 'avg_return': np.float64(-0.0001698690337568944), 'win_rate': np.float64(0.5088028169014085), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.09969339503818175)}, 'ADBE': {'profit': np.float64(-0.28929001500050444), 'num_trades': 172, 'avg_return': np.float64(-0.0018616954143457435), 'win_rate': np.float64(0.5058139534883721), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(-0.04657501516851181)}, 'ORCL': {'profit': np.float64(0.7790777521339103), 'num_trades': 725, 'avg_return': np.float64(0.0008344135327813937), 'win_rate': np.float64(0.5186206896551724), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.4159687529174727)}, 'SNOW': {'profit': np.float64(0.2543554730217181), 'num_trades': 713, 'avg_return': np.float64(0.0004174019990437707), 'win_rate': np.float64(0.4726507713884993), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.1983392043850183)}, 'NET': {'profit': np.float64(0.4713626502314623), 'num_trades': 703, 'avg_return': np.float64(0.0006137674891626582), 'win_rate': np.float64(0.5035561877667141), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.8021491872990674)}, 'PLTR': {'profit': np.float64(3.1413432962144077), 'num_trades': 485, 'avg_return': np.float64(0.0031919891283705986), 'win_rate': np.float64(0.5278350515463918), 'accumulated_reward': -1.4729999999999486, 'buy_and_hold_return': np.float64(4.2826424257922575)}, 'CSCO': {'profit': np.float64(0.0943782609047421), 'num_trades': 544, 'avg_return': np.float64(0.0001864350436900049), 'win_rate': np.float64(0.4944852941176471), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.3209812691885323)}, 'IBM': {'profit': np.float64(0.4134879889806464), 'num_trades': 712, 'avg_return': np.float64(0.0005108238178466672), 'win_rate': np.float64(0.5519662921348315), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.4117932408563758)}, 'HPQ': {'profit': np.float64(0.3077810444483253), 'num_trades': 406, 'avg_return': np.float64(0.000715868258865756), 'win_rate': np.float64(0.5172413793103449), 'accumulated_reward': -1.4729999999999486, 'buy_and_hold_return': np.float64(0.16994260171370068)}, 'DELL': {'profit': np.float64(0.17815546339127009), 'num_trades': 723, 'avg_return': np.float64(0.0002887356766536641), 'win_rate': np.float64(0.4896265560165975), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(-0.07525273101778585)}, 'STX': {'profit': np.float64(0.1268043910785157), 'num_trades': 722, 'avg_return': np.float64(0.0001925206071701019), 'win_rate': np.float64(0.5249307479224377), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.17726226159690128)}, 'WDC': {'profit': np.float64(-0.22597281319860796), 'num_trades': 677, 'avg_return': np.float64(-0.0003362740402008934), 'win_rate': np.float64(0.4963072378138848), 'accumulated_reward': -1.469999999999949, 'buy_and_hold_return': np.float64(-0.05705622283552725)}, 'PYPL': {'profit': np.float64(0.27842993075860156), 'num_trades': 673, 'avg_return': np.float64(0.00040252397897235035), 'win_rate': np.float64(0.4947994056463596), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.20080423865035546)}, 'SQ': {'profit': np.float64(0.032704086054988535), 'num_trades': 673, 'avg_return': np.float64(0.0001062408769900354), 'win_rate': np.float64(0.49925705794947994), 'accumulated_reward': -1.4269999999999536, 'buy_and_hold_return': np.float64(0.03463053319508469)}, 'SHOP': {'profit': np.float64(0.8754792627628969), 'num_trades': 689, 'avg_return': np.float64(0.0010341002845062394), 'win_rate': np.float64(0.525399129172714), 'accumulated_reward': -1.4669999999999492, 'buy_and_hold_return': np.float64(0.8081420548381422)}, 'ABNB': {'profit': np.float64(0.26162536587967433), 'num_trades': 724, 'avg_return': np.float64(0.0003561872453987536), 'win_rate': np.float64(0.4903314917127072), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(-0.004194990184861913)}, 'UBER': {'profit': np.float64(0.2051646424686453), 'num_trades': 681, 'avg_return': np.float64(0.0003194049542629459), 'win_rate': np.float64(0.5051395007342144), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.04192097982992804)}, 'DASH': {'profit': np.float64(-0.038974432523562474), 'num_trades': 728, 'avg_return': np.float64(-1.970947086198669e-05), 'win_rate': np.float64(0.49313186813186816), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.5282112779557813)}, 'NFLX': {'profit': np.float64(0.7066413130032101), 'num_trades': 49, 'avg_return': np.float64(0.009731436682977974), 'win_rate': np.float64(0.5714285714285714), 'accumulated_reward': -1.468999999999949, 'buy_and_hold_return': np.float64(0.6887655420821841)}, 'DIS': {'profit': np.float64(0.09778722157830466), 'num_trades': 724, 'avg_return': np.float64(0.00013894378582220398), 'win_rate': np.float64(0.505524861878453), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(-0.05359286445552047)}, 'EA': {'profit': np.float64(-0.12590361353618107), 'num_trades': 716, 'avg_return': np.float64(-0.0001469154102377876), 'win_rate': np.float64(0.5041899441340782), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.004112662368109143)}, 'TTWO': {'profit': np.float64(-0.049188691236893844), 'num_trades': 727, 'avg_return': np.float64(-5.125900479201253e-05), 'win_rate': np.float64(0.49793672627235214), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.38463063584868595)}, 'RBLX': {'profit': np.float64(0.36632400823665323), 'num_trades': 472, 'avg_return': np.float64(0.0008606247314695199), 'win_rate': np.float64(0.5254237288135594), 'accumulated_reward': -1.4729999999999486, 'buy_and_hold_return': np.float64(0.6855267264395712)}, 'COIN': {'profit': np.float64(0.1689456730976202), 'num_trades': 609, 'avg_return': np.float64(0.0005824186615862098), 'win_rate': np.float64(0.48932676518883417), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.09334510765024562)}, 'U': {'profit': np.float64(-0.1313935585104118), 'num_trades': 480, 'avg_return': np.float64(-0.00011192248737317123), 'win_rate': np.float64(0.45416666666666666), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(-0.16923301879895192)}, 'PATH': {'profit': np.float64(-0.45620956890335795), 'num_trades': 620, 'avg_return': np.float64(-0.0007964178956278049), 'win_rate': np.float64(0.482258064516129), 'accumulated_reward': -1.4639999999999496, 'buy_and_hold_return': np.float64(-0.29601695440973785)}, 'AI': {'profit': np.float64(0.12053746691794287), 'num_trades': 433, 'avg_return': np.float64(0.00045420681050844695), 'win_rate': np.float64(0.5265588914549654), 'accumulated_reward': -1.469999999999949, 'buy_and_hold_return': np.float64(0.3530545952258799)}, 'CRWD': {'profit': np.float64(0.24111799151662794), 'num_trades': 567, 'avg_return': np.float64(0.0005422338414203831), 'win_rate': np.float64(0.5485008818342152), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.445827903243168)}, 'ZS': {'profit': np.float64(-0.18674356692321703), 'num_trades': 708, 'avg_return': np.float64(-0.0002248637728933248), 'win_rate': np.float64(0.4717514124293785), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.15812692355051472)}}
+    episode: 5
+    timestamp: 2025-02-16T14:04:03.928760
+--------------------------------------------------------------------------------
+
+Training Update (Episode 5)
+  Learning Rate: 3.00e-04
+  Gradient Norm: 1.0000
+
+Episode    6
+  Returns: -2.9780 (Avg: -2.9787)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0993
+  Epsilon:   0.9447
+  Loss:      0.0329
+
+Episode    7
+  Returns: -3.0230 (Avg: -2.9842)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1585
+  Epsilon:   0.9358
+  Loss:      0.0453
+
+Episode    8
+  Returns: -3.1230 (Avg: -2.9997)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0911
+  Epsilon:   0.9270
+  Loss:      0.0248
+
+Episode    9
+  Returns: -3.1010 (Avg: -3.0098)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1042
+  Epsilon:   0.9182
+  Loss:      0.0273
+
+Episode   10
+  Returns: -2.9840 (Avg: -3.0075)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0758
+  Epsilon:   0.9096
+  Loss:      0.0276
+
+Validation Results (Episode 10)
+  Excess Return:   -8.95%
+  Profit:          18.72%
+  Win Rate:        52.47%
+  Trades:            432
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   10.56%
+      Win Rate:  52.0%
+      Trades:   560
+    XLK:
+      Profit:   14.73%
+      Win Rate:  51.5%
+      Trades:   724
+    VGT:
+      Profit:   15.37%
+      Win Rate:  53.0%
+      Trades:   413
+    SMH:
+      Profit:   18.52%
+      Win Rate:  54.7%
+      Trades:   715
+    SOXX:
+      Profit:    9.44%
+      Win Rate:  52.2%
+      Trades:   717
+    IGV:
+      Profit:   22.73%
+      Win Rate:  51.7%
+      Trades:   391
+    FTEC:
+      Profit:   -1.29%
+      Win Rate:  54.1%
+      Trades:   711
+    IYW:
+      Profit:    1.23%
+      Win Rate:  50.6%
+      Trades:   697
+    QTEC:
+      Profit:    9.94%
+      Win Rate:  48.4%
+      Trades:   483
+    AIQ:
+      Profit:   37.60%
+      Win Rate:  63.8%
+      Trades:    47
+    BOTZ:
+      Profit:   13.50%
+      Win Rate:  60.3%
+      Trades:    63
+    ROBO:
+      Profit:    5.20%
+      Win Rate:  51.5%
+      Trades:   136
+    SOXQ:
+      Profit:   15.21%
+      Win Rate:  50.8%
+      Trades:    61
+    PSI:
+      Profit:   22.67%
+      Win Rate:  58.8%
+      Trades:   119
+    XSD:
+      Profit:  -15.59%
+      Win Rate:  48.8%
+      Trades:   709
+    USD:
+      Profit:   52.09%
+      Win Rate:  53.2%
+      Trades:   154
+    WCLD:
+      Profit:   14.36%
+      Win Rate:  59.7%
+      Trades:    62
+    SKYY:
+      Profit:   19.14%
+      Win Rate:  51.2%
+      Trades:   516
+    CLOU:
+      Profit:   21.73%
+      Win Rate:  59.1%
+      Trades:    66
+    CIBR:
+      Profit:   20.65%
+      Win Rate:  56.3%
+      Trades:   119
+    BUG:
+      Profit:   21.02%
+      Win Rate:  52.2%
+      Trades:    46
+    ARKW:
+      Profit:   49.74%
+      Win Rate:  52.0%
+      Trades:   398
+    KOMP:
+      Profit:   14.87%
+      Win Rate:  61.8%
+      Trades:    55
+    PTF:
+      Profit:    3.71%
+      Win Rate:  52.2%
+      Trades:   134
+    XITK:
+      Profit:   -2.94%
+      Win Rate:  54.9%
+      Trades:   377
+    IWF:
+      Profit:    1.02%
+      Win Rate:  52.8%
+      Trades:   702
+    VUG:
+      Profit:   11.08%
+      Win Rate:  53.4%
+      Trades:   700
+    SPYG:
+      Profit:   20.78%
+      Win Rate:  56.2%
+      Trades:   306
+    VONG:
+      Profit:   45.82%
+      Win Rate:  57.2%
+      Trades:   453
+    SCHG:
+      Profit:   33.45%
+      Win Rate:  65.9%
+      Trades:    41
+    AAPL:
+      Profit:    9.79%
+      Win Rate:  52.5%
+      Trades:   716
+    MSFT:
+      Profit:  -13.04%
+      Win Rate:  52.1%
+      Trades:   580
+    GOOGL:
+      Profit:   11.95%
+      Win Rate:  49.8%
+      Trades:   707
+    AMZN:
+      Profit:    4.60%
+      Win Rate:  48.8%
+      Trades:   721
+    META:
+      Profit:   19.26%
+      Win Rate:  50.2%
+      Trades:   462
+    NVDA:
+      Profit:   57.12%
+      Win Rate:  55.9%
+      Trades:   564
+    TSLA:
+      Profit:   46.44%
+      Win Rate:  48.0%
+      Trades:   664
+    AMD:
+      Profit:  -47.63%
+      Win Rate:  48.5%
+      Trades:   674
+    INTC:
+      Profit:  -35.50%
+      Win Rate:  55.0%
+      Trades:    60
+    TSM:
+      Profit:    7.97%
+      Win Rate:  50.1%
+      Trades:   712
+    AVGO:
+      Profit:   13.08%
+      Win Rate:  51.2%
+      Trades:   692
+    QCOM:
+      Profit:  -24.57%
+      Win Rate:  49.7%
+      Trades:   708
+    AMAT:
+      Profit:   -4.02%
+      Win Rate:  52.5%
+      Trades:   695
+    MU:
+      Profit:  -17.72%
+      Win Rate:  49.0%
+      Trades:   541
+    CRM:
+      Profit:    0.24%
+      Win Rate:  51.6%
+      Trades:   692
+    ADBE:
+      Profit:   -2.08%
+      Win Rate:  53.2%
+      Trades:   434
+    ORCL:
+      Profit:    4.33%
+      Win Rate:  51.0%
+      Trades:   690
+    SNOW:
+      Profit:   -7.92%
+      Win Rate:  48.5%
+      Trades:   664
+    NET:
+      Profit:   35.14%
+      Win Rate:  51.4%
+      Trades:   440
+    PLTR:
+      Profit:  359.80%
+      Win Rate:  54.2%
+      Trades:    59
+    CSCO:
+      Profit:   30.06%
+      Win Rate:  53.2%
+      Trades:    77
+    IBM:
+      Profit:   29.21%
+      Win Rate:  53.5%
+      Trades:   714
+    HPQ:
+      Profit:   14.24%
+      Win Rate:  33.3%
+      Trades:    51
+    DELL:
+      Profit:   -2.98%
+      Win Rate:  50.0%
+      Trades:   622
+    STX:
+      Profit:   22.26%
+      Win Rate:  51.1%
+      Trades:   542
+    WDC:
+      Profit:   21.03%
+      Win Rate:  50.2%
+      Trades:   251
+    PYPL:
+      Profit:   10.82%
+      Win Rate:  51.6%
+      Trades:   310
+    SQ:
+      Profit:   34.39%
+      Win Rate:  52.6%
+      Trades:   302
+    SHOP:
+      Profit:   67.32%
+      Win Rate:  54.0%
+      Trades:   350
+    ABNB:
+      Profit:  -32.27%
+      Win Rate:  49.1%
+      Trades:   676
+    UBER:
+      Profit:   30.32%
+      Win Rate:  49.4%
+      Trades:   263
+    DASH:
+      Profit:   35.71%
+      Win Rate:  52.8%
+      Trades:   693
+    NFLX:
+      Profit:   60.02%
+      Win Rate:  57.2%
+      Trades:   269
+    DIS:
+      Profit:   15.38%
+      Win Rate:  52.1%
+      Trades:   585
+    EA:
+      Profit:    1.50%
+      Win Rate:  49.4%
+      Trades:   697
+    TTWO:
+      Profit:   25.12%
+      Win Rate:  49.9%
+      Trades:   717
+    RBLX:
+      Profit:   80.89%
+      Win Rate:  55.1%
+      Trades:    49
+    COIN:
+      Profit:   18.80%
+      Win Rate:  50.5%
+      Trades:   669
+    U:
+      Profit:  -10.49%
+      Win Rate:  46.0%
+      Trades:    50
+    PATH:
+      Profit:  -34.08%
+      Win Rate:  51.1%
+      Trades:    94
+    AI:
+      Profit:   34.41%
+      Win Rate:  53.1%
+      Trades:    49
+    CRWD:
+      Profit:  -12.83%
+      Win Rate:  53.9%
+      Trades:   673
+    ZS:
+      Profit:    4.41%
+      Win Rate:  47.5%
+      Trades:   713
+--------------------------------------------------------------------------------
+
+Training Update (Episode 10)
+  Learning Rate: 2.99e-04
+  Gradient Norm: 0.3942
+
+Episode   11
+  Returns: -3.0330 (Avg: -3.0096)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1135
+  Epsilon:   0.9010
+  Loss:      0.0165
+
+Episode   12
+  Returns: -3.0320 (Avg: -3.0113)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0735
+  Epsilon:   0.8926
+  Loss:      0.0160
+
+Episode   13
+  Returns: -3.0220 (Avg: -3.0121)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0716
+  Epsilon:   0.8842
+  Loss:      0.0130
+
+Episode   14
+  Returns: -2.9970 (Avg: -3.0111)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0607
+  Epsilon:   0.8759
+  Loss:      0.0160
+
+Episode   15
+  Returns: -2.9020 (Avg: -3.0042)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0472
+  Epsilon:   0.8677
+  Loss:      0.0117
+
+Validation Results (Episode 15)
+  Excess Return:  -14.19%
+  Profit:          13.48%
+  Win Rate:        51.89%
+  Trades:            481
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:    2.43%
+      Win Rate:  52.7%
+      Trades:   736
+    XLK:
+      Profit:   18.53%
+      Win Rate:  53.2%
+      Trades:   737
+    VGT:
+      Profit:    0.23%
+      Win Rate:  53.3%
+      Trades:   736
+    SMH:
+      Profit:  -11.98%
+      Win Rate:  50.6%
+      Trades:   737
+    SOXX:
+      Profit:  -16.26%
+      Win Rate:  50.7%
+      Trades:   737
+    IGV:
+      Profit:   11.17%
+      Win Rate:  53.6%
+      Trades:   470
+    FTEC:
+      Profit:   12.38%
+      Win Rate:  54.8%
+      Trades:   737
+    IYW:
+      Profit:    0.69%
+      Win Rate:  53.5%
+      Trades:   737
+    QTEC:
+      Profit:    3.60%
+      Win Rate:  49.3%
+      Trades:   485
+    AIQ:
+      Profit:   19.77%
+      Win Rate:  51.6%
+      Trades:    31
+    BOTZ:
+      Profit:   -0.45%
+      Win Rate:  45.7%
+      Trades:    46
+    ROBO:
+      Profit:    1.70%
+      Win Rate:  50.0%
+      Trades:    94
+    SOXQ:
+      Profit:   -5.98%
+      Win Rate:  45.2%
+      Trades:    31
+    PSI:
+      Profit:  -10.64%
+      Win Rate:  54.0%
+      Trades:   100
+    XSD:
+      Profit:   -7.03%
+      Win Rate:  49.8%
+      Trades:   737
+    USD:
+      Profit:    9.91%
+      Win Rate:  53.0%
+      Trades:   134
+    WCLD:
+      Profit:    0.28%
+      Win Rate:  52.6%
+      Trades:    97
+    SKYY:
+      Profit:   20.77%
+      Win Rate:  51.9%
+      Trades:   619
+    CLOU:
+      Profit:   28.30%
+      Win Rate:  68.2%
+      Trades:    66
+    CIBR:
+      Profit:   20.51%
+      Win Rate:  52.5%
+      Trades:    99
+    BUG:
+      Profit:    4.59%
+      Win Rate:  53.3%
+      Trades:    30
+    ARKW:
+      Profit:   66.97%
+      Win Rate:  51.3%
+      Trades:   458
+    KOMP:
+      Profit:    5.29%
+      Win Rate:  53.5%
+      Trades:    43
+    PTF:
+      Profit:    9.01%
+      Win Rate:  54.3%
+      Trades:   151
+    XITK:
+      Profit:    4.99%
+      Win Rate:  54.4%
+      Trades:   395
+    IWF:
+      Profit:   18.27%
+      Win Rate:  53.7%
+      Trades:   736
+    VUG:
+      Profit:   18.31%
+      Win Rate:  52.9%
+      Trades:   736
+    SPYG:
+      Profit:   30.17%
+      Win Rate:  55.9%
+      Trades:   365
+    VONG:
+      Profit:    8.08%
+      Win Rate:  51.6%
+      Trades:   539
+    SCHG:
+      Profit:   12.36%
+      Win Rate:  58.5%
+      Trades:    53
+    AAPL:
+      Profit:   16.17%
+      Win Rate:  51.0%
+      Trades:   737
+    MSFT:
+      Profit:  -19.40%
+      Win Rate:  50.3%
+      Trades:   736
+    GOOGL:
+      Profit:    2.51%
+      Win Rate:  50.3%
+      Trades:   736
+    AMZN:
+      Profit:    7.69%
+      Win Rate:  53.9%
+      Trades:   737
+    META:
+      Profit:   32.01%
+      Win Rate:  50.6%
+      Trades:   737
+    NVDA:
+      Profit:   57.38%
+      Win Rate:  54.1%
+      Trades:   680
+    TSLA:
+      Profit:   37.58%
+      Win Rate:  50.1%
+      Trades:   737
+    AMD:
+      Profit:  -12.79%
+      Win Rate:  51.4%
+      Trades:   737
+    INTC:
+      Profit:  -29.61%
+      Win Rate:  51.2%
+      Trades:    43
+    TSM:
+      Profit:  -10.44%
+      Win Rate:  49.9%
+      Trades:   735
+    AVGO:
+      Profit:   34.61%
+      Win Rate:  51.0%
+      Trades:   735
+    QCOM:
+      Profit:   19.73%
+      Win Rate:  49.9%
+      Trades:   737
+    AMAT:
+      Profit:  -33.91%
+      Win Rate:  49.5%
+      Trades:   732
+    MU:
+      Profit:   34.35%
+      Win Rate:  50.9%
+      Trades:   662
+    CRM:
+      Profit:   19.66%
+      Win Rate:  51.6%
+      Trades:   736
+    ADBE:
+      Profit:  -13.74%
+      Win Rate:  49.6%
+      Trades:   736
+    ORCL:
+      Profit:   -3.05%
+      Win Rate:  50.8%
+      Trades:   736
+    SNOW:
+      Profit:   17.16%
+      Win Rate:  50.5%
+      Trades:   735
+    NET:
+      Profit:   61.23%
+      Win Rate:  48.8%
+      Trades:   510
+    PLTR:
+      Profit:  204.27%
+      Win Rate:  50.0%
+      Trades:    68
+    CSCO:
+      Profit:   17.95%
+      Win Rate:  53.1%
+      Trades:    49
+    IBM:
+      Profit:    8.16%
+      Win Rate:  55.0%
+      Trades:   736
+    HPQ:
+      Profit:   16.25%
+      Win Rate:  41.2%
+      Trades:    34
+    DELL:
+      Profit:  -17.62%
+      Win Rate:  48.7%
+      Trades:   727
+    STX:
+      Profit:    2.28%
+      Win Rate:  52.8%
+      Trades:   646
+    WDC:
+      Profit:  -11.92%
+      Win Rate:  44.3%
+      Trades:   246
+    PYPL:
+      Profit:   -2.68%
+      Win Rate:  49.8%
+      Trades:   291
+    SQ:
+      Profit:  -10.63%
+      Win Rate:  50.6%
+      Trades:   310
+    SHOP:
+      Profit:   60.53%
+      Win Rate:  51.7%
+      Trades:   387
+    ABNB:
+      Profit:   -9.93%
+      Win Rate:  48.8%
+      Trades:   736
+    UBER:
+      Profit:   34.40%
+      Win Rate:  51.9%
+      Trades:   293
+    DASH:
+      Profit:   55.92%
+      Win Rate:  55.4%
+      Trades:   736
+    NFLX:
+      Profit:   24.01%
+      Win Rate:  53.7%
+      Trades:   735
+    DIS:
+      Profit:   -8.42%
+      Win Rate:  50.8%
+      Trades:   667
+    EA:
+      Profit:   -7.33%
+      Win Rate:  50.6%
+      Trades:   737
+    TTWO:
+      Profit:   12.58%
+      Win Rate:  51.1%
+      Trades:   736
+    RBLX:
+      Profit:  102.65%
+      Win Rate:  63.2%
+      Trades:    38
+    COIN:
+      Profit:  -13.34%
+      Win Rate:  46.9%
+      Trades:   738
+    U:
+      Profit:  -11.88%
+      Win Rate:  47.1%
+      Trades:    70
+    PATH:
+      Profit:   -7.78%
+      Win Rate:  55.6%
+      Trades:    36
+    AI:
+      Profit:   41.02%
+      Win Rate:  62.7%
+      Trades:    51
+    CRWD:
+      Profit:   37.27%
+      Win Rate:  54.4%
+      Trades:   734
+    ZS:
+      Profit:  -24.57%
+      Win Rate:  47.5%
+      Trades:   737
+--------------------------------------------------------------------------------
+
+Training Update (Episode 15)
+  Learning Rate: 2.97e-04
+  Gradient Norm: 0.1538
+
+Episode   16
+  Returns: -3.0020 (Avg: -3.0041)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1241
+  Epsilon:   0.8595
+  Loss:      0.0126
+
+Episode   17
+  Returns: -2.9510 (Avg: -3.0012)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0509
+  Epsilon:   0.8515
+  Loss:      0.0104
+
+Episode   18
+  Returns: -2.9410 (Avg: -2.9980)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0601
+  Epsilon:   0.8435
+  Loss:      0.0122
+
+Episode   19
+  Returns: -3.0530 (Avg: -3.0007)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0864
+  Epsilon:   0.8356
+  Loss:      0.0089
+
+Episode   20
+  Returns: -3.0720 (Avg: -3.0041)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0731
+  Epsilon:   0.8278
+  Loss:      0.0094
+
+Validation Results (Episode 20)
+  Excess Return:   -5.34%
+  Profit:          22.34%
+  Win Rate:        52.57%
+  Trades:            364
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:    2.43%
+      Win Rate:  52.7%
+      Trades:   736
+    XLK:
+      Profit:   10.37%
+      Win Rate:  51.2%
+      Trades:   690
+    VGT:
+      Profit:    0.23%
+      Win Rate:  53.3%
+      Trades:   736
+    SMH:
+      Profit:   -2.05%
+      Win Rate:  51.5%
+      Trades:   695
+    SOXX:
+      Profit:  -12.77%
+      Win Rate:  48.8%
+      Trades:   690
+    IGV:
+      Profit:   18.79%
+      Win Rate:  48.8%
+      Trades:   205
+    FTEC:
+      Profit:   11.02%
+      Win Rate:  57.0%
+      Trades:   607
+    IYW:
+      Profit:    9.16%
+      Win Rate:  53.6%
+      Trades:   530
+    QTEC:
+      Profit:   32.44%
+      Win Rate:  50.9%
+      Trades:   525
+    AIQ:
+      Profit:   31.27%
+      Win Rate: 100.0%
+      Trades:     1
+    BOTZ:
+      Profit:   11.50%
+      Win Rate:  55.6%
+      Trades:     9
+    ROBO:
+      Profit:    6.07%
+      Win Rate:  61.9%
+      Trades:    21
+    SOXQ:
+      Profit:    8.62%
+      Win Rate:  33.3%
+      Trades:     6
+    PSI:
+      Profit:   10.15%
+      Win Rate:  40.0%
+      Trades:    20
+    XSD:
+      Profit:   38.13%
+      Win Rate:  51.4%
+      Trades:   702
+    USD:
+      Profit:   45.86%
+      Win Rate:  40.0%
+      Trades:    20
+    WCLD:
+      Profit:   17.37%
+      Win Rate:  65.9%
+      Trades:    41
+    SKYY:
+      Profit:   36.61%
+      Win Rate:  52.7%
+      Trades:   262
+    CLOU:
+      Profit:   16.04%
+      Win Rate:  58.6%
+      Trades:    29
+    CIBR:
+      Profit:   24.50%
+      Win Rate:  58.6%
+      Trades:    29
+    BUG:
+      Profit:   23.21%
+      Win Rate:  66.7%
+      Trades:     3
+    ARKW:
+      Profit:   24.56%
+      Win Rate:  52.4%
+      Trades:   164
+    KOMP:
+      Profit:   13.98%
+      Win Rate:  58.3%
+      Trades:    12
+    PTF:
+      Profit:   21.16%
+      Win Rate:  56.2%
+      Trades:    48
+    XITK:
+      Profit:   19.12%
+      Win Rate:  56.6%
+      Trades:   288
+    IWF:
+      Profit:    9.02%
+      Win Rate:  55.4%
+      Trades:   733
+    VUG:
+      Profit:   16.90%
+      Win Rate:  54.6%
+      Trades:   734
+    SPYG:
+      Profit:   23.36%
+      Win Rate:  59.4%
+      Trades:   101
+    VONG:
+      Profit:   36.02%
+      Win Rate:  57.4%
+      Trades:   195
+    SCHG:
+      Profit:   28.01%
+      Win Rate:  55.6%
+      Trades:     9
+    AAPL:
+      Profit:   18.23%
+      Win Rate:  53.6%
+      Trades:   674
+    MSFT:
+      Profit:  -19.40%
+      Win Rate:  50.3%
+      Trades:   736
+    GOOGL:
+      Profit:   32.74%
+      Win Rate:  49.8%
+      Trades:   596
+    AMZN:
+      Profit:   42.75%
+      Win Rate:  51.9%
+      Trades:   673
+    META:
+      Profit:   20.45%
+      Win Rate:  51.5%
+      Trades:   734
+    NVDA:
+      Profit:   82.97%
+      Win Rate:  56.7%
+      Trades:   386
+    TSLA:
+      Profit:   57.11%
+      Win Rate:  48.1%
+      Trades:   651
+    AMD:
+      Profit:   -5.75%
+      Win Rate:  51.6%
+      Trades:   546
+    INTC:
+      Profit:  -36.37%
+      Win Rate:  35.7%
+      Trades:    14
+    TSM:
+      Profit:  -33.55%
+      Win Rate:  48.2%
+      Trades:   575
+    AVGO:
+      Profit:   77.25%
+      Win Rate:  52.6%
+      Trades:   584
+    QCOM:
+      Profit:   18.93%
+      Win Rate:  52.0%
+      Trades:   629
+    AMAT:
+      Profit:    1.46%
+      Win Rate:  52.6%
+      Trades:   646
+    MU:
+      Profit:  -11.80%
+      Win Rate:  51.1%
+      Trades:   368
+    CRM:
+      Profit:  -16.84%
+      Win Rate:  52.7%
+      Trades:   712
+    ADBE:
+      Profit:   16.34%
+      Win Rate:  50.8%
+      Trades:   728
+    ORCL:
+      Profit:   45.20%
+      Win Rate:  52.1%
+      Trades:   526
+    SNOW:
+      Profit:   12.34%
+      Win Rate:  50.8%
+      Trades:   541
+    NET:
+      Profit:   66.66%
+      Win Rate:  50.3%
+      Trades:   199
+    PLTR:
+      Profit:  399.59%
+      Win Rate:  50.0%
+      Trades:    10
+    CSCO:
+      Profit:   33.01%
+      Win Rate:  33.3%
+      Trades:     9
+    IBM:
+      Profit:   47.28%
+      Win Rate:  55.1%
+      Trades:   651
+    HPQ:
+      Profit:   17.53%
+      Win Rate:  33.3%
+      Trades:     9
+    DELL:
+      Profit:   34.94%
+      Win Rate:  51.8%
+      Trades:   444
+    STX:
+      Profit:   27.48%
+      Win Rate:  52.0%
+      Trades:   269
+    WDC:
+      Profit:   -1.00%
+      Win Rate:  55.7%
+      Trades:    61
+    PYPL:
+      Profit:   20.40%
+      Win Rate:  53.3%
+      Trades:    75
+    SQ:
+      Profit:   25.69%
+      Win Rate:  53.6%
+      Trades:    97
+    SHOP:
+      Profit:   61.34%
+      Win Rate:  53.1%
+      Trades:   143
+    ABNB:
+      Profit:   -5.77%
+      Win Rate:  49.3%
+      Trades:   556
+    UBER:
+      Profit:    6.78%
+      Win Rate:  47.2%
+      Trades:    72
+    DASH:
+      Profit:    1.69%
+      Win Rate:  51.0%
+      Trades:   522
+    NFLX:
+      Profit:   40.56%
+      Win Rate:  54.1%
+      Trades:   735
+    DIS:
+      Profit:  -21.99%
+      Win Rate:  44.4%
+      Trades:   351
+    EA:
+      Profit:    1.14%
+      Win Rate:  51.1%
+      Trades:   540
+    TTWO:
+      Profit:   22.11%
+      Win Rate:  52.3%
+      Trades:   596
+    RBLX:
+      Profit:   76.64%
+      Win Rate:  50.0%
+      Trades:     8
+    COIN:
+      Profit:  -36.87%
+      Win Rate:  47.0%
+      Trades:   655
+    U:
+      Profit:  -16.55%
+      Win Rate:  46.7%
+      Trades:    15
+    PATH:
+      Profit:  -29.64%
+      Win Rate:  57.1%
+      Trades:    42
+    AI:
+      Profit:   41.48%
+      Win Rate:  75.0%
+      Trades:     8
+    CRWD:
+      Profit:  -15.72%
+      Win Rate:  52.1%
+      Trades:   721
+    ZS:
+      Profit:    0.60%
+      Win Rate:  47.9%
+      Trades:   647
+--------------------------------------------------------------------------------
+
+Saved Model Checkpoint (Episode 20)
+  Path: checkpoints/best_model.pt
+  Metrics:
+    profit:  0.2234
+    win_rate:  0.5257
+    num_trades: 364
+    excess_return: -5.3398
+    per_ticker_metrics: {'QQQ': {'profit': np.float64(0.024338486109009683), 'num_trades': 736, 'avg_return': np.float64(4.1600534496279533e-05), 'win_rate': np.float64(0.5271739130434783), 'accumulated_reward': -1.4769999999999481, 'buy_and_hold_return': np.float64(0.22357002395983172)}, 'XLK': {'profit': np.float64(0.10366360871912716), 'num_trades': 690, 'avg_return': np.float64(0.00015524802102509554), 'win_rate': np.float64(0.5115942028985507), 'accumulated_reward': -1.3849999999999583, 'buy_and_hold_return': np.float64(0.16708819213337356)}, 'VGT': {'profit': np.float64(0.0023270700314601545), 'num_trades': 736, 'avg_return': np.float64(1.4280264138788577e-05), 'win_rate': np.float64(0.532608695652174), 'accumulated_reward': -1.4769999999999481, 'buy_and_hold_return': np.float64(0.23861523175113986)}, 'SMH': {'profit': np.float64(-0.020536663680365663), 'num_trades': 695, 'avg_return': np.float64(5.420751361701259e-07), 'win_rate': np.float64(0.5151079136690647), 'accumulated_reward': -1.3949999999999572, 'buy_and_hold_return': np.float64(0.12989883611458763)}, 'SOXX': {'profit': np.float64(-0.12768975792160442), 'num_trades': 690, 'avg_return': np.float64(-0.00016682475350486943), 'win_rate': np.float64(0.48840579710144927), 'accumulated_reward': -1.3839999999999584, 'buy_and_hold_return': np.float64(0.005681862359471435)}, 'IGV': {'profit': np.float64(0.18789163201897185), 'num_trades': 205, 'avg_return': np.float64(0.0008467051416722245), 'win_rate': np.float64(0.4878048780487805), 'accumulated_reward': -1.3619999999999608, 'buy_and_hold_return': np.float64(0.2781702207316892)}, 'FTEC': {'profit': np.float64(0.11016366949436884), 'num_trades': 607, 'avg_return': np.float64(0.00018782410924850026), 'win_rate': np.float64(0.5700164744645799), 'accumulated_reward': -1.2179999999999767, 'buy_and_hold_return': np.float64(0.23994791825664175)}, 'IYW': {'profit': np.float64(0.09155597956230643), 'num_trades': 530, 'avg_return': np.float64(0.0001829062869275526), 'win_rate': np.float64(0.5358490566037736), 'accumulated_reward': -1.142999999999985, 'buy_and_hold_return': np.float64(0.23583779461825172)}, 'QTEC': {'profit': np.float64(0.32442592001880866), 'num_trades': 525, 'avg_return': np.float64(0.0005577283386987935), 'win_rate': np.float64(0.5085714285714286), 'accumulated_reward': -1.2389999999999743, 'buy_and_hold_return': np.float64(0.10792288400927363)}, 'AIQ': {'profit': np.float64(0.31270340910433836), 'num_trades': 1, 'avg_return': np.float64(0.06713278903623021), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4389999999999523, 'buy_and_hold_return': np.float64(0.293166594515587)}, 'BOTZ': {'profit': np.float64(0.11497125137430952), 'num_trades': 9, 'avg_return': np.float64(0.008964308465719986), 'win_rate': np.float64(0.5555555555555556), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.10652924351513948)}, 'ROBO': {'profit': np.float64(0.060704478280700025), 'num_trades': 21, 'avg_return': np.float64(0.00106424896305081), 'win_rate': np.float64(0.6190476190476191), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.06159615901315063)}, 'SOXQ': {'profit': np.float64(0.08624024074492764), 'num_trades': 6, 'avg_return': np.float64(0.007899100905290578), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.05295882170965571)}, 'PSI': {'profit': np.float64(0.10154066532668216), 'num_trades': 20, 'avg_return': np.float64(0.005927045475309206), 'win_rate': np.float64(0.4), 'accumulated_reward': -1.4269999999999536, 'buy_and_hold_return': np.float64(0.08121921315168912)}, 'XSD': {'profit': np.float64(0.38134849240292756), 'num_trades': 702, 'avg_return': np.float64(0.0004885082455864118), 'win_rate': np.float64(0.5142450142450142), 'accumulated_reward': -1.4089999999999556, 'buy_and_hold_return': np.float64(0.08147384148721182)}, 'USD': {'profit': np.float64(0.4585795295321957), 'num_trades': 20, 'avg_return': np.float64(0.013765005915119732), 'win_rate': np.float64(0.4), 'accumulated_reward': -1.4659999999999493, 'buy_and_hold_return': np.float64(0.3819095963042163)}, 'WCLD': {'profit': np.float64(0.17369616369648422), 'num_trades': 41, 'avg_return': np.float64(0.004478063859381576), 'win_rate': np.float64(0.6585365853658537), 'accumulated_reward': -1.4559999999999504, 'buy_and_hold_return': np.float64(0.2088570837630861)}, 'SKYY': {'profit': np.float64(0.36614063005141695), 'num_trades': 262, 'avg_return': np.float64(0.001235257869632929), 'win_rate': np.float64(0.5267175572519084), 'accumulated_reward': -1.2989999999999677, 'buy_and_hold_return': np.float64(0.35989074745452965)}, 'CLOU': {'profit': np.float64(0.1604371987443005), 'num_trades': 29, 'avg_return': np.float64(0.0037303108078841508), 'win_rate': np.float64(0.5862068965517241), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.21911979422659167)}, 'CIBR': {'profit': np.float64(0.24502338984146066), 'num_trades': 29, 'avg_return': np.float64(0.003818272639483338), 'win_rate': np.float64(0.5862068965517241), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.2895021579118193)}, 'BUG': {'profit': np.float64(0.23207122359726196), 'num_trades': 3, 'avg_return': np.float64(0.02986795444996303), 'win_rate': np.float64(0.6666666666666666), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.2609774843614383)}, 'ARKW': {'profit': np.float64(0.24560104666793614), 'num_trades': 164, 'avg_return': np.float64(0.0014489032135090163), 'win_rate': np.float64(0.524390243902439), 'accumulated_reward': -1.340999999999963, 'buy_and_hold_return': np.float64(0.5596230229069084)}, 'KOMP': {'profit': np.float64(0.13979309127838468), 'num_trades': 12, 'avg_return': np.float64(0.008299431256123048), 'win_rate': np.float64(0.5833333333333334), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.16871376865048981)}, 'PTF': {'profit': np.float64(0.21160424424818292), 'num_trades': 48, 'avg_return': np.float64(0.00437893946595752), 'win_rate': np.float64(0.5625), 'accumulated_reward': -1.3179999999999656, 'buy_and_hold_return': np.float64(0.3463836346573792)}, 'XITK': {'profit': np.float64(0.19121374328631613), 'num_trades': 288, 'avg_return': np.float64(0.0006316976569967442), 'win_rate': np.float64(0.5659722222222222), 'accumulated_reward': -0.5830000000000004, 'buy_and_hold_return': np.float64(0.3128252847547257)}, 'IWF': {'profit': np.float64(0.09021937074030295), 'num_trades': 733, 'avg_return': np.float64(0.00012721399506046387), 'win_rate': np.float64(0.5538881309686221), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.24850322547237114)}, 'VUG': {'profit': np.float64(0.1689781784098039), 'num_trades': 734, 'avg_return': np.float64(0.0002234433666500196), 'win_rate': np.float64(0.5463215258855586), 'accumulated_reward': -1.4719999999999487, 'buy_and_hold_return': np.float64(0.25060707490694556)}, 'SPYG': {'profit': np.float64(0.23363360969665803), 'num_trades': 101, 'avg_return': np.float64(0.0019594397661763193), 'win_rate': np.float64(0.594059405940594), 'accumulated_reward': -1.413999999999955, 'buy_and_hold_return': np.float64(0.26872856428533076)}, 'VONG': {'profit': np.float64(0.3602372424873579), 'num_trades': 195, 'avg_return': np.float64(0.0015973571690300517), 'win_rate': np.float64(0.5743589743589743), 'accumulated_reward': -1.3309999999999642, 'buy_and_hold_return': np.float64(0.2483103895871832)}, 'SCHG': {'profit': np.float64(0.2801067309656531), 'num_trades': 9, 'avg_return': np.float64(0.025279014325686484), 'win_rate': np.float64(0.5555555555555556), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.2561875572132104)}, 'AAPL': {'profit': np.float64(0.18233199546339063), 'num_trades': 674, 'avg_return': np.float64(0.00026210916548291167), 'win_rate': np.float64(0.5356083086053413), 'accumulated_reward': -1.3489999999999622, 'buy_and_hold_return': np.float64(0.447159806652182)}, 'MSFT': {'profit': np.float64(-0.19400988376105732), 'num_trades': 736, 'avg_return': np.float64(-0.000284533096466046), 'win_rate': np.float64(0.5027173913043478), 'accumulated_reward': -1.4769999999999481, 'buy_and_hold_return': np.float64(-0.037523275766199404)}, 'GOOGL': {'profit': np.float64(0.32743620411047236), 'num_trades': 596, 'avg_return': np.float64(0.0005139282718276244), 'win_rate': np.float64(0.4983221476510067), 'accumulated_reward': -1.2179999999999767, 'buy_and_hold_return': np.float64(0.17538327101583517)}, 'AMZN': {'profit': np.float64(0.4275015051137252), 'num_trades': 673, 'avg_return': np.float64(0.0005547426154407628), 'win_rate': np.float64(0.5185735512630015), 'accumulated_reward': -1.3469999999999624, 'buy_and_hold_return': np.float64(0.22593608805998455)}, 'META': {'profit': np.float64(0.20448202099305512), 'num_trades': 734, 'avg_return': np.float64(0.0002907184956138141), 'win_rate': np.float64(0.5149863760217984), 'accumulated_reward': -1.4719999999999487, 'buy_and_hold_return': np.float64(0.4211297367982567)}, 'NVDA': {'profit': np.float64(0.8297298044243395), 'num_trades': 386, 'avg_return': np.float64(0.001731369029222665), 'win_rate': np.float64(0.5673575129533679), 'accumulated_reward': -1.3039999999999672, 'buy_and_hold_return': np.float64(0.5648302499983879)}, 'TSLA': {'profit': np.float64(0.5711239630169642), 'num_trades': 651, 'avg_return': np.float64(0.0007940391505274938), 'win_rate': np.float64(0.4807987711213518), 'accumulated_reward': -1.3019999999999674, 'buy_and_hold_return': np.float64(1.0873287217644618)}, 'AMD': {'profit': np.float64(-0.05750284451151044), 'num_trades': 546, 'avg_return': np.float64(-4.931792513048464e-05), 'win_rate': np.float64(0.5164835164835165), 'accumulated_reward': -1.115999999999988, 'buy_and_hold_return': np.float64(-0.3317973434427003)}, 'INTC': {'profit': np.float64(-0.3637373607830231), 'num_trades': 14, 'avg_return': np.float64(-0.030829697887832484), 'win_rate': np.float64(0.35714285714285715), 'accumulated_reward': -1.4669999999999492, 'buy_and_hold_return': np.float64(-0.36515188270549126)}, 'TSM': {'profit': np.float64(-0.33546674311592206), 'num_trades': 575, 'avg_return': np.float64(-0.0006570396945696893), 'win_rate': np.float64(0.4817391304347826), 'accumulated_reward': -1.160999999999983, 'buy_and_hold_return': np.float64(0.4055563409705121)}, 'AVGO': {'profit': np.float64(0.7725242230281839), 'num_trades': 584, 'avg_return': np.float64(0.0011113015853886337), 'win_rate': np.float64(0.5256849315068494), 'accumulated_reward': -1.205999999999978, 'buy_and_hold_return': np.float64(0.7132141063061468)}, 'QCOM': {'profit': np.float64(0.18928637014184502), 'num_trades': 629, 'avg_return': np.float64(0.00031881834070419626), 'win_rate': np.float64(0.519872813990461), 'accumulated_reward': -1.2629999999999717, 'buy_and_hold_return': np.float64(0.0024449771331347403)}, 'AMAT': {'profit': np.float64(0.014608261282702317), 'num_trades': 646, 'avg_return': np.float64(8.071213764650851e-05), 'win_rate': np.float64(0.5263157894736842), 'accumulated_reward': -1.295999999999968, 'buy_and_hold_return': np.float64(-0.1849014960184685)}, 'MU': {'profit': np.float64(-0.11797786091268236), 'num_trades': 368, 'avg_return': np.float64(-0.00017340419763809802), 'win_rate': np.float64(0.5108695652173914), 'accumulated_reward': -1.269999999999971, 'buy_and_hold_return': np.float64(-0.2078955975284259)}, 'CRM': {'profit': np.float64(-0.1683505270097504), 'num_trades': 712, 'avg_return': np.float64(-0.00019780991307448575), 'win_rate': np.float64(0.526685393258427), 'accumulated_reward': -1.4289999999999534, 'buy_and_hold_return': np.float64(0.09969339503818175)}, 'ADBE': {'profit': np.float64(0.16335293602271794), 'num_trades': 728, 'avg_return': np.float64(0.00024497186818715733), 'win_rate': np.float64(0.5082417582417582), 'accumulated_reward': -1.46099999999995, 'buy_and_hold_return': np.float64(-0.04657501516851181)}, 'ORCL': {'profit': np.float64(0.45198897869806176), 'num_trades': 526, 'avg_return': np.float64(0.0007423123453794789), 'win_rate': np.float64(0.5209125475285171), 'accumulated_reward': -1.1749999999999814, 'buy_and_hold_return': np.float64(0.4159687529174727)}, 'SNOW': {'profit': np.float64(0.12343203469635289), 'num_trades': 541, 'avg_return': np.float64(0.0002626057922535777), 'win_rate': np.float64(0.5083179297597042), 'accumulated_reward': -1.1829999999999805, 'buy_and_hold_return': np.float64(0.1983392043850183)}, 'NET': {'profit': np.float64(0.6665982640958579), 'num_trades': 199, 'avg_return': np.float64(0.0029547900379657405), 'win_rate': np.float64(0.5025125628140703), 'accumulated_reward': -1.359999999999961, 'buy_and_hold_return': np.float64(0.8021491872990674)}, 'PLTR': {'profit': np.float64(3.9958836243222517), 'num_trades': 10, 'avg_return': np.float64(0.1490978069578781), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(4.2826424257922575)}, 'CSCO': {'profit': np.float64(0.33008063138488275), 'num_trades': 9, 'avg_return': np.float64(0.028217003799192557), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -1.4669999999999492, 'buy_and_hold_return': np.float64(0.3209812691885323)}, 'IBM': {'profit': np.float64(0.4727692773933845), 'num_trades': 651, 'avg_return': np.float64(0.0006223186854269091), 'win_rate': np.float64(0.5514592933947773), 'accumulated_reward': -1.305999999999967, 'buy_and_hold_return': np.float64(0.4117932408563758)}, 'HPQ': {'profit': np.float64(0.17532494043144786), 'num_trades': 9, 'avg_return': np.float64(0.028763491995405774), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -1.4679999999999491, 'buy_and_hold_return': np.float64(0.16994260171370068)}, 'DELL': {'profit': np.float64(0.34939519512669426), 'num_trades': 444, 'avg_return': np.float64(0.0007261424826254386), 'win_rate': np.float64(0.5180180180180181), 'accumulated_reward': -1.169999999999982, 'buy_and_hold_return': np.float64(-0.07525273101778585)}, 'STX': {'profit': np.float64(0.2747822656222616), 'num_trades': 269, 'avg_return': np.float64(0.0008626356495328219), 'win_rate': np.float64(0.5204460966542751), 'accumulated_reward': -1.3579999999999612, 'buy_and_hold_return': np.float64(0.17726226159690128)}, 'WDC': {'profit': np.float64(-0.010011817522700972), 'num_trades': 61, 'avg_return': np.float64(-0.0005994879753496743), 'win_rate': np.float64(0.5573770491803278), 'accumulated_reward': -1.4489999999999512, 'buy_and_hold_return': np.float64(-0.05705622283552725)}, 'PYPL': {'profit': np.float64(0.2039820043473235), 'num_trades': 75, 'avg_return': np.float64(0.002625691258916982), 'win_rate': np.float64(0.5333333333333333), 'accumulated_reward': -1.423999999999954, 'buy_and_hold_return': np.float64(0.20080423865035546)}, 'SQ': {'profit': np.float64(0.2569130251477785), 'num_trades': 97, 'avg_return': np.float64(0.002995175968937694), 'win_rate': np.float64(0.5360824742268041), 'accumulated_reward': -1.3839999999999584, 'buy_and_hold_return': np.float64(0.03463053319508469)}, 'SHOP': {'profit': np.float64(0.6133901440859626), 'num_trades': 143, 'avg_return': np.float64(0.004000209450542587), 'win_rate': np.float64(0.5314685314685315), 'accumulated_reward': -1.3679999999999601, 'buy_and_hold_return': np.float64(0.8081420548381422)}, 'ABNB': {'profit': np.float64(-0.057668740534652874), 'num_trades': 556, 'avg_return': np.float64(-4.663945501016354e-05), 'win_rate': np.float64(0.49280575539568344), 'accumulated_reward': -1.205999999999978, 'buy_and_hold_return': np.float64(-0.004194990184861913)}, 'UBER': {'profit': np.float64(0.0678196847615522), 'num_trades': 72, 'avg_return': np.float64(-0.0013994710994573792), 'win_rate': np.float64(0.4722222222222222), 'accumulated_reward': -1.4259999999999537, 'buy_and_hold_return': np.float64(0.04192097982992804)}, 'DASH': {'profit': np.float64(0.01686644553506844), 'num_trades': 522, 'avg_return': np.float64(6.397049400277656e-05), 'win_rate': np.float64(0.5095785440613027), 'accumulated_reward': -1.1669999999999823, 'buy_and_hold_return': np.float64(0.5282112779557813)}, 'NFLX': {'profit': np.float64(0.40556240286380874), 'num_trades': 735, 'avg_return': np.float64(0.000493214685566777), 'win_rate': np.float64(0.5414965986394558), 'accumulated_reward': -1.4739999999999485, 'buy_and_hold_return': np.float64(0.6887655420821841)}, 'DIS': {'profit': np.float64(-0.21985881248739403), 'num_trades': 351, 'avg_return': np.float64(-0.0006253485692576551), 'win_rate': np.float64(0.4444444444444444), 'accumulated_reward': -1.2859999999999692, 'buy_and_hold_return': np.float64(-0.05359286445552047)}, 'EA': {'profit': np.float64(0.011424744159131528), 'num_trades': 540, 'avg_return': np.float64(6.853956016061812e-05), 'win_rate': np.float64(0.5111111111111111), 'accumulated_reward': -1.1729999999999816, 'buy_and_hold_return': np.float64(0.004112662368109143)}, 'TTWO': {'profit': np.float64(0.22108528226272894), 'num_trades': 596, 'avg_return': np.float64(0.00035144791023817787), 'win_rate': np.float64(0.5234899328859061), 'accumulated_reward': -1.1939999999999793, 'buy_and_hold_return': np.float64(0.38463063584868595)}, 'RBLX': {'profit': np.float64(0.7663903097001756), 'num_trades': 8, 'avg_return': np.float64(0.08901492975387537), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4709999999999488, 'buy_and_hold_return': np.float64(0.6855267264395712)}, 'COIN': {'profit': np.float64(-0.3687037410088342), 'num_trades': 655, 'avg_return': np.float64(-0.0005083648195800711), 'win_rate': np.float64(0.47022900763358777), 'accumulated_reward': -1.313999999999966, 'buy_and_hold_return': np.float64(0.09334510765024562)}, 'U': {'profit': np.float64(-0.16545437472386781), 'num_trades': 15, 'avg_return': np.float64(-0.004613047852457859), 'win_rate': np.float64(0.4666666666666667), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(-0.16923301879895192)}, 'PATH': {'profit': np.float64(-0.29643172892232184), 'num_trades': 42, 'avg_return': np.float64(-0.007434071229184212), 'win_rate': np.float64(0.5714285714285714), 'accumulated_reward': -1.4759999999999482, 'buy_and_hold_return': np.float64(-0.29601695440973785)}, 'AI': {'profit': np.float64(0.4147856311825251), 'num_trades': 8, 'avg_return': np.float64(0.0723871391532042), 'win_rate': np.float64(0.75), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.3530545952258799)}, 'CRWD': {'profit': np.float64(-0.15717652005498128), 'num_trades': 721, 'avg_return': np.float64(-0.00016977510777091225), 'win_rate': np.float64(0.521497919556172), 'accumulated_reward': -1.4479999999999513, 'buy_and_hold_return': np.float64(0.445827903243168)}, 'ZS': {'profit': np.float64(0.005963475002235263), 'num_trades': 647, 'avg_return': np.float64(5.4102880820446865e-05), 'win_rate': np.float64(0.47913446676970634), 'accumulated_reward': -1.2989999999999677, 'buy_and_hold_return': np.float64(0.15812692355051472)}}
+    episode: 20
+    timestamp: 2025-02-16T14:07:27.485986
+--------------------------------------------------------------------------------
+
+Training Update (Episode 20)
+  Learning Rate: 2.95e-04
+  Gradient Norm: 0.1289
+
+Episode   21
+  Returns: -3.0540 (Avg: -3.0064)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0559
+  Epsilon:   0.8201
+  Loss:      0.0094
+
+Episode   22
+  Returns: -3.1230 (Avg: -3.0115)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0255
+  Epsilon:   0.8124
+  Loss:      0.0059
+
+Episode   23
+  Returns: -2.9850 (Avg: -3.0104)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0494
+  Epsilon:   0.8048
+  Loss:      0.0106
+
+Episode   24
+  Returns: -3.0040 (Avg: -3.0101)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0551
+  Epsilon:   0.7973
+  Loss:      0.0060
+
+Episode   25
+  Returns: -3.1080 (Avg: -3.0139)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0443
+  Epsilon:   0.7899
+  Loss:      0.0093
+
+Validation Results (Episode 25)
+  Excess Return:   -1.50%
+  Profit:          26.17%
+  Win Rate:        46.05%
+  Trades:             58
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:    1.42%
+      Win Rate:  54.6%
+      Trades:   108
+    XLK:
+      Profit:    8.25%
+      Win Rate:  51.7%
+      Trades:   151
+    VGT:
+      Profit:    5.68%
+      Win Rate:  63.0%
+      Trades:    54
+    SMH:
+      Profit:   32.85%
+      Win Rate:  54.6%
+      Trades:   194
+    SOXX:
+      Profit:   32.06%
+      Win Rate:  56.7%
+      Trades:   180
+    IGV:
+      Profit:   29.96%
+      Win Rate:   0.0%
+      Trades:     2
+    FTEC:
+      Profit:   14.05%
+      Win Rate:  55.0%
+      Trades:    80
+    IYW:
+      Profit:   26.30%
+      Win Rate:  39.4%
+      Trades:    33
+    QTEC:
+      Profit:   13.17%
+      Win Rate:  51.4%
+      Trades:   640
+    AIQ:
+      Profit:   30.47%
+      Win Rate:   0.0%
+      Trades:     0
+    BOTZ:
+      Profit:    9.67%
+      Win Rate:   0.0%
+      Trades:     0
+    ROBO:
+      Profit:    7.75%
+      Win Rate:   0.0%
+      Trades:     0
+    SOXQ:
+      Profit:   10.03%
+      Win Rate: 100.0%
+      Trades:     1
+    PSI:
+      Profit:   16.18%
+      Win Rate:  50.0%
+      Trades:     2
+    XSD:
+      Profit:   32.17%
+      Win Rate:  48.8%
+      Trades:   172
+    USD:
+      Profit:   46.69%
+      Win Rate: 100.0%
+      Trades:     1
+    WCLD:
+      Profit:   23.80%
+      Win Rate:  61.9%
+      Trades:    21
+    SKYY:
+      Profit:   41.16%
+      Win Rate:  60.0%
+      Trades:     5
+    CLOU:
+      Profit:   19.61%
+      Win Rate:   0.0%
+      Trades:     1
+    CIBR:
+      Profit:   31.84%
+      Win Rate: 100.0%
+      Trades:     1
+    BUG:
+      Profit:   25.17%
+      Win Rate:   0.0%
+      Trades:     0
+    ARKW:
+      Profit:   63.16%
+      Win Rate: 100.0%
+      Trades:     1
+    KOMP:
+      Profit:   17.07%
+      Win Rate: 100.0%
+      Trades:     1
+    PTF:
+      Profit:   31.93%
+      Win Rate:   0.0%
+      Trades:     0
+    XITK:
+      Profit:    6.59%
+      Win Rate:  52.0%
+      Trades:    25
+    IWF:
+      Profit:   11.03%
+      Win Rate:  57.9%
+      Trades:   171
+    VUG:
+      Profit:   11.87%
+      Win Rate:  60.6%
+      Trades:   170
+    SPYG:
+      Profit:   27.01%
+      Win Rate:   0.0%
+      Trades:     0
+    VONG:
+      Profit:   28.26%
+      Win Rate: 100.0%
+      Trades:     1
+    SCHG:
+      Profit:   24.52%
+      Win Rate:   0.0%
+      Trades:     0
+    AAPL:
+      Profit:   20.40%
+      Win Rate:  50.4%
+      Trades:   115
+    MSFT:
+      Profit:   -5.04%
+      Win Rate:  49.6%
+      Trades:   113
+    GOOGL:
+      Profit:   16.23%
+      Win Rate:  51.2%
+      Trades:    84
+    AMZN:
+      Profit:    3.22%
+      Win Rate:  55.1%
+      Trades:    89
+    META:
+      Profit:    1.72%
+      Win Rate:  50.7%
+      Trades:    73
+    NVDA:
+      Profit:   61.60%
+      Win Rate:  55.6%
+      Trades:     9
+    TSLA:
+      Profit:   49.54%
+      Win Rate:  50.0%
+      Trades:   124
+    AMD:
+      Profit:   -2.78%
+      Win Rate:  39.7%
+      Trades:    78
+    INTC:
+      Profit:  -35.28%
+      Win Rate:   0.0%
+      Trades:     0
+    TSM:
+      Profit:   72.49%
+      Win Rate:  52.1%
+      Trades:    96
+    AVGO:
+      Profit:   35.99%
+      Win Rate:  59.4%
+      Trades:    64
+    QCOM:
+      Profit:  -14.21%
+      Win Rate:  43.1%
+      Trades:    72
+    AMAT:
+      Profit:   16.74%
+      Win Rate:  55.4%
+      Trades:   148
+    MU:
+      Profit:    7.84%
+      Win Rate:  45.5%
+      Trades:    33
+    CRM:
+      Profit:   -2.46%
+      Win Rate:  58.3%
+      Trades:   204
+    ADBE:
+      Profit:   13.48%
+      Win Rate:  49.5%
+      Trades:    95
+    ORCL:
+      Profit:   43.30%
+      Win Rate:  55.6%
+      Trades:    54
+    SNOW:
+      Profit:   37.14%
+      Win Rate:  57.8%
+      Trades:    45
+    NET:
+      Profit:   85.58%
+      Win Rate:   0.0%
+      Trades:     0
+    PLTR:
+      Profit:  434.29%
+      Win Rate: 100.0%
+      Trades:     1
+    CSCO:
+      Profit:   33.75%
+      Win Rate:   0.0%
+      Trades:     0
+    IBM:
+      Profit:    0.74%
+      Win Rate:  61.6%
+      Trades:    99
+    HPQ:
+      Profit:   15.96%
+      Win Rate: 100.0%
+      Trades:     1
+    DELL:
+      Profit:   -3.15%
+      Win Rate:  43.8%
+      Trades:    32
+    STX:
+      Profit:   18.71%
+      Win Rate:  50.0%
+      Trades:     4
+    WDC:
+      Profit:   -4.88%
+      Win Rate: 100.0%
+      Trades:     1
+    PYPL:
+      Profit:   20.42%
+      Win Rate:   0.0%
+      Trades:     0
+    SQ:
+      Profit:    2.34%
+      Win Rate:   0.0%
+      Trades:     1
+    SHOP:
+      Profit:   84.29%
+      Win Rate:   0.0%
+      Trades:     0
+    ABNB:
+      Profit:    7.78%
+      Win Rate:  59.1%
+      Trades:    44
+    UBER:
+      Profit:    4.12%
+      Win Rate:   0.0%
+      Trades:     1
+    DASH:
+      Profit:   68.20%
+      Win Rate:  75.0%
+      Trades:    16
+    NFLX:
+      Profit:   -2.08%
+      Win Rate:  38.1%
+      Trades:    21
+    DIS:
+      Profit:   -0.56%
+      Win Rate:  50.0%
+      Trades:    10
+    EA:
+      Profit:   37.32%
+      Win Rate:  64.3%
+      Trades:    28
+    TTWO:
+      Profit:   26.54%
+      Win Rate:  60.5%
+      Trades:    43
+    RBLX:
+      Profit:   65.66%
+      Win Rate:  50.0%
+      Trades:     2
+    COIN:
+      Profit:   13.02%
+      Win Rate:  47.8%
+      Trades:   178
+    U:
+      Profit:  -18.61%
+      Win Rate:   0.0%
+      Trades:     2
+    PATH:
+      Profit:  -30.09%
+      Win Rate:  66.7%
+      Trades:    12
+    AI:
+      Profit:   33.96%
+      Win Rate:   0.0%
+      Trades:     0
+    CRWD:
+      Profit:   11.93%
+      Win Rate:  55.3%
+      Trades:   188
+    ZS:
+      Profit:    5.89%
+      Win Rate:  43.5%
+      Trades:    85
+--------------------------------------------------------------------------------
+
+Saved Model Checkpoint (Episode 25)
+  Path: checkpoints/best_model.pt
+  Metrics:
+    profit:  0.2617
+    win_rate:  0.4605
+    num_trades: 58
+    excess_return: -1.5011
+    per_ticker_metrics: {'QQQ': {'profit': np.float64(0.014207469641692505), 'num_trades': 108, 'avg_return': np.float64(0.00013885379070713774), 'win_rate': np.float64(0.5462962962962963), 'accumulated_reward': -0.22300000000000017, 'buy_and_hold_return': np.float64(0.22357002395983172)}, 'XLK': {'profit': np.float64(0.08249881142006799), 'num_trades': 151, 'avg_return': np.float64(0.0005485460242735141), 'win_rate': np.float64(0.5165562913907285), 'accumulated_reward': -0.34100000000000025, 'buy_and_hold_return': np.float64(0.16708819213337356)}, 'VGT': {'profit': np.float64(0.056807007901944706), 'num_trades': 54, 'avg_return': np.float64(0.0010407675966078427), 'win_rate': np.float64(0.6296296296296297), 'accumulated_reward': -0.11500000000000009, 'buy_and_hold_return': np.float64(0.23861523175113986)}, 'SMH': {'profit': np.float64(0.32847058450624855), 'num_trades': 194, 'avg_return': np.float64(0.0013783497341889803), 'win_rate': np.float64(0.5463917525773195), 'accumulated_reward': -0.5690000000000004, 'buy_and_hold_return': np.float64(0.12989883611458763)}, 'SOXX': {'profit': np.float64(0.32058211295505035), 'num_trades': 180, 'avg_return': np.float64(0.0015918374126645), 'win_rate': np.float64(0.5666666666666667), 'accumulated_reward': -0.4890000000000004, 'buy_and_hold_return': np.float64(0.005681862359471435)}, 'IGV': {'profit': np.float64(0.299562143851027), 'num_trades': 2, 'avg_return': np.float64(-0.012699305725522967), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.2781702207316892)}, 'FTEC': {'profit': np.float64(0.14051259907309732), 'num_trades': 80, 'avg_return': np.float64(0.0010480457142115287), 'win_rate': np.float64(0.55), 'accumulated_reward': -0.8350000000000006, 'buy_and_hold_return': np.float64(0.23994791825664175)}, 'IYW': {'profit': np.float64(0.2629943958278347), 'num_trades': 33, 'avg_return': np.float64(0.005886721708921339), 'win_rate': np.float64(0.3939393939393939), 'accumulated_reward': -1.2169999999999768, 'buy_and_hold_return': np.float64(0.23583779461825172)}, 'QTEC': {'profit': np.float64(0.13167575687348632), 'num_trades': 640, 'avg_return': np.float64(0.00021176099418010672), 'win_rate': np.float64(0.5140625), 'accumulated_reward': -1.413999999999955, 'buy_and_hold_return': np.float64(0.10792288400927363)}, 'AIQ': {'profit': np.float64(0.30470905508579915), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.440999999999952, 'buy_and_hold_return': np.float64(0.293166594515587)}, 'BOTZ': {'profit': np.float64(0.09665914553874355), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.10652924351513948)}, 'ROBO': {'profit': np.float64(0.07749600564025094), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.06159615901315063)}, 'SOXQ': {'profit': np.float64(0.10032704235263568), 'num_trades': 1, 'avg_return': np.float64(0.0540288567398974), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.05295882170965571)}, 'PSI': {'profit': np.float64(0.16179438409081248), 'num_trades': 2, 'avg_return': np.float64(0.07794152425385613), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.440999999999952, 'buy_and_hold_return': np.float64(0.08121921315168912)}, 'XSD': {'profit': np.float64(0.3216561729654617), 'num_trades': 172, 'avg_return': np.float64(0.0016777711633088174), 'win_rate': np.float64(0.4883720930232558), 'accumulated_reward': -0.4920000000000004, 'buy_and_hold_return': np.float64(0.08147384148721182)}, 'USD': {'profit': np.float64(0.46693620947699266), 'num_trades': 1, 'avg_return': np.float64(0.22967040770451716), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.3819095963042163)}, 'WCLD': {'profit': np.float64(0.23798513550388223), 'num_trades': 21, 'avg_return': np.float64(0.01191348317439115), 'win_rate': np.float64(0.6190476190476191), 'accumulated_reward': -1.46099999999995, 'buy_and_hold_return': np.float64(0.2088570837630861)}, 'SKYY': {'profit': np.float64(0.4116292243726396), 'num_trades': 5, 'avg_return': np.float64(0.06648355171733257), 'win_rate': np.float64(0.6), 'accumulated_reward': -1.4569999999999503, 'buy_and_hold_return': np.float64(0.35989074745452965)}, 'CLOU': {'profit': np.float64(0.19608481789556964), 'num_trades': 1, 'avg_return': np.float64(-0.0685768402553929), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.21911979422659167)}, 'CIBR': {'profit': np.float64(0.3184478444866039), 'num_trades': 1, 'avg_return': np.float64(0.16574471301192537), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.2895021579118193)}, 'BUG': {'profit': np.float64(0.25171418975013204), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.2609774843614383)}, 'ARKW': {'profit': np.float64(0.6316402063887956), 'num_trades': 1, 'avg_return': np.float64(0.43965971089354805), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.5596230229069084)}, 'KOMP': {'profit': np.float64(0.17072657342220143), 'num_trades': 1, 'avg_return': np.float64(0.008161876402565493), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.16871376865048981)}, 'PTF': {'profit': np.float64(0.31932061959956437), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.323999999999965, 'buy_and_hold_return': np.float64(0.3463836346573792)}, 'XITK': {'profit': np.float64(0.06588474630901509), 'num_trades': 25, 'avg_return': np.float64(0.0037462246908694396), 'win_rate': np.float64(0.52), 'accumulated_reward': -0.5300000000000004, 'buy_and_hold_return': np.float64(0.3128252847547257)}, 'IWF': {'profit': np.float64(0.11033112458744498), 'num_trades': 171, 'avg_return': np.float64(0.0006252568205654455), 'win_rate': np.float64(0.5789473684210527), 'accumulated_reward': -0.34400000000000025, 'buy_and_hold_return': np.float64(0.24850322547237114)}, 'VUG': {'profit': np.float64(0.11869763702010094), 'num_trades': 170, 'avg_return': np.float64(0.0006759761779689544), 'win_rate': np.float64(0.6058823529411764), 'accumulated_reward': -0.34200000000000025, 'buy_and_hold_return': np.float64(0.25060707490694556)}, 'SPYG': {'profit': np.float64(0.2701235641098727), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.26872856428533076)}, 'VONG': {'profit': np.float64(0.2825727489448977), 'num_trades': 1, 'avg_return': np.float64(0.10809116103499582), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.2483103895871832)}, 'SCHG': {'profit': np.float64(0.24517140217003663), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.2561875572132104)}, 'AAPL': {'profit': np.float64(0.2039952677964023), 'num_trades': 115, 'avg_return': np.float64(0.0017117964560968526), 'win_rate': np.float64(0.5043478260869565), 'accumulated_reward': -0.5950000000000004, 'buy_and_hold_return': np.float64(0.447159806652182)}, 'MSFT': {'profit': np.float64(-0.050362966403916576), 'num_trades': 113, 'avg_return': np.float64(-0.0004357448008754494), 'win_rate': np.float64(0.49557522123893805), 'accumulated_reward': -0.23300000000000018, 'buy_and_hold_return': np.float64(-0.037523275766199404)}, 'GOOGL': {'profit': np.float64(0.16227568227336753), 'num_trades': 84, 'avg_return': np.float64(0.0019594947446499246), 'win_rate': np.float64(0.5119047619047619), 'accumulated_reward': -0.6270000000000004, 'buy_and_hold_return': np.float64(0.17538327101583517)}, 'AMZN': {'profit': np.float64(0.03220146038961591), 'num_trades': 89, 'avg_return': np.float64(0.0004062977796064027), 'win_rate': np.float64(0.550561797752809), 'accumulated_reward': -0.23500000000000018, 'buy_and_hold_return': np.float64(0.22593608805998455)}, 'META': {'profit': np.float64(0.017201561442334423), 'num_trades': 73, 'avg_return': np.float64(0.0003008948250035202), 'win_rate': np.float64(0.5068493150684932), 'accumulated_reward': -0.1500000000000001, 'buy_and_hold_return': np.float64(0.4211297367982567)}, 'NVDA': {'profit': np.float64(0.6159802021150536), 'num_trades': 9, 'avg_return': np.float64(0.05134811586787211), 'win_rate': np.float64(0.5555555555555556), 'accumulated_reward': -1.4659999999999493, 'buy_and_hold_return': np.float64(0.5648302499983879)}, 'TSLA': {'profit': np.float64(0.49539756471519314), 'num_trades': 124, 'avg_return': np.float64(0.003945919883908604), 'win_rate': np.float64(0.5), 'accumulated_reward': -0.4290000000000003, 'buy_and_hold_return': np.float64(1.0873287217644618)}, 'AMD': {'profit': np.float64(-0.027784741827547088), 'num_trades': 78, 'avg_return': np.float64(0.00042844161884440015), 'win_rate': np.float64(0.3974358974358974), 'accumulated_reward': -1.0089999999999997, 'buy_and_hold_return': np.float64(-0.3317973434427003)}, 'INTC': {'profit': np.float64(-0.352796027779111), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(-0.36515188270549126)}, 'TSM': {'profit': np.float64(0.7249099950902078), 'num_trades': 96, 'avg_return': np.float64(0.0058315214403671725), 'win_rate': np.float64(0.5208333333333334), 'accumulated_reward': -0.7800000000000006, 'buy_and_hold_return': np.float64(0.4055563409705121)}, 'AVGO': {'profit': np.float64(0.35985651120334006), 'num_trades': 64, 'avg_return': np.float64(0.004673695838531601), 'win_rate': np.float64(0.59375), 'accumulated_reward': -1.1559999999999835, 'buy_and_hold_return': np.float64(0.7132141063061468)}, 'QCOM': {'profit': np.float64(-0.14206522187805037), 'num_trades': 72, 'avg_return': np.float64(-0.0018297122348991128), 'win_rate': np.float64(0.4305555555555556), 'accumulated_reward': -0.8630000000000007, 'buy_and_hold_return': np.float64(0.0024449771331347403)}, 'AMAT': {'profit': np.float64(0.16740055380960062), 'num_trades': 148, 'avg_return': np.float64(0.0015721156827817955), 'win_rate': np.float64(0.5540540540540541), 'accumulated_reward': -0.6560000000000005, 'buy_and_hold_return': np.float64(-0.1849014960184685)}, 'MU': {'profit': np.float64(0.07838653942775764), 'num_trades': 33, 'avg_return': np.float64(0.0026679366664362405), 'win_rate': np.float64(0.45454545454545453), 'accumulated_reward': -1.2109999999999774, 'buy_and_hold_return': np.float64(-0.2078955975284259)}, 'CRM': {'profit': np.float64(-0.024584554577776307), 'num_trades': 204, 'avg_return': np.float64(1.778394449172643e-05), 'win_rate': np.float64(0.5833333333333334), 'accumulated_reward': -0.43900000000000033, 'buy_and_hold_return': np.float64(0.09969339503818175)}, 'ADBE': {'profit': np.float64(0.1347695455515674), 'num_trades': 95, 'avg_return': np.float64(0.0014485662386948118), 'win_rate': np.float64(0.49473684210526314), 'accumulated_reward': -0.21500000000000016, 'buy_and_hold_return': np.float64(-0.04657501516851181)}, 'ORCL': {'profit': np.float64(0.43302771229323556), 'num_trades': 54, 'avg_return': np.float64(0.007096784455244583), 'win_rate': np.float64(0.5555555555555556), 'accumulated_reward': -1.0559999999999945, 'buy_and_hold_return': np.float64(0.4159687529174727)}, 'SNOW': {'profit': np.float64(0.3713707624510989), 'num_trades': 45, 'avg_return': np.float64(0.00966318084896787), 'win_rate': np.float64(0.5777777777777777), 'accumulated_reward': -1.159999999999983, 'buy_and_hold_return': np.float64(0.1983392043850183)}, 'NET': {'profit': np.float64(0.8558176500687578), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.8021491872990674)}, 'PLTR': {'profit': np.float64(4.3429292812791696), 'num_trades': 1, 'avg_return': np.float64(1.4268512236079176), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(4.2826424257922575)}, 'CSCO': {'profit': np.float64(0.33745618425672563), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.3209812691885323)}, 'IBM': {'profit': np.float64(0.007408435890326581), 'num_trades': 99, 'avg_return': np.float64(0.0001338306146165319), 'win_rate': np.float64(0.6161616161616161), 'accumulated_reward': -0.4830000000000004, 'buy_and_hold_return': np.float64(0.4117932408563758)}, 'HPQ': {'profit': np.float64(0.15960262591778096), 'num_trades': 1, 'avg_return': np.float64(0.24425389133478087), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.16994260171370068)}, 'DELL': {'profit': np.float64(-0.03152778613362328), 'num_trades': 32, 'avg_return': np.float64(-0.0044549732693541875), 'win_rate': np.float64(0.4375), 'accumulated_reward': -1.3529999999999618, 'buy_and_hold_return': np.float64(-0.07525273101778585)}, 'STX': {'profit': np.float64(0.1871009882706578), 'num_trades': 4, 'avg_return': np.float64(0.0109038578814288), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4069999999999558, 'buy_and_hold_return': np.float64(0.17726226159690128)}, 'WDC': {'profit': np.float64(-0.048823057375022016), 'num_trades': 1, 'avg_return': np.float64(0.014014182607288064), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(-0.05705622283552725)}, 'PYPL': {'profit': np.float64(0.20417156089341426), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.20080423865035546)}, 'SQ': {'profit': np.float64(0.023447318234024017), 'num_trades': 1, 'avg_return': np.float64(-0.2729215743518956), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4219999999999542, 'buy_and_hold_return': np.float64(0.03463053319508469)}, 'SHOP': {'profit': np.float64(0.8429288987547054), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.8081420548381422)}, 'ABNB': {'profit': np.float64(0.07781152544575742), 'num_trades': 44, 'avg_return': np.float64(-0.0022294415829572224), 'win_rate': np.float64(0.5909090909090909), 'accumulated_reward': -1.2639999999999716, 'buy_and_hold_return': np.float64(-0.004194990184861913)}, 'UBER': {'profit': np.float64(0.04118887451937159), 'num_trades': 1, 'avg_return': np.float64(-0.18570669193582715), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.04192097982992804)}, 'DASH': {'profit': np.float64(0.6820443126946321), 'num_trades': 16, 'avg_return': np.float64(0.02461150004617419), 'win_rate': np.float64(0.75), 'accumulated_reward': -1.4639999999999496, 'buy_and_hold_return': np.float64(0.5282112779557813)}, 'NFLX': {'profit': np.float64(-0.0207683370596341), 'num_trades': 21, 'avg_return': np.float64(-0.0009787350301231732), 'win_rate': np.float64(0.38095238095238093), 'accumulated_reward': -0.046000000000000034, 'buy_and_hold_return': np.float64(0.6887655420821841)}, 'DIS': {'profit': np.float64(-0.005624636449439113), 'num_trades': 10, 'avg_return': np.float64(-0.01765226107849543), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4339999999999529, 'buy_and_hold_return': np.float64(-0.05359286445552047)}, 'EA': {'profit': np.float64(0.3731834305295072), 'num_trades': 28, 'avg_return': np.float64(0.008550860678118992), 'win_rate': np.float64(0.6428571428571429), 'accumulated_reward': -1.0829999999999915, 'buy_and_hold_return': np.float64(0.004112662368109143)}, 'TTWO': {'profit': np.float64(0.26537522221781984), 'num_trades': 43, 'avg_return': np.float64(0.006790734207479826), 'win_rate': np.float64(0.6046511627906976), 'accumulated_reward': -1.0929999999999904, 'buy_and_hold_return': np.float64(0.38463063584868595)}, 'RBLX': {'profit': np.float64(0.6566188480643078), 'num_trades': 2, 'avg_return': np.float64(-0.08848726774315348), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.6855267264395712)}, 'COIN': {'profit': np.float64(0.13022591416362506), 'num_trades': 178, 'avg_return': np.float64(0.00111961472303542), 'win_rate': np.float64(0.47752808988764045), 'accumulated_reward': -0.46400000000000036, 'buy_and_hold_return': np.float64(0.09334510765024562)}, 'U': {'profit': np.float64(-0.18609639494527908), 'num_trades': 2, 'avg_return': np.float64(-0.19333285382563306), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(-0.16923301879895192)}, 'PATH': {'profit': np.float64(-0.3008715791834944), 'num_trades': 12, 'avg_return': np.float64(-0.029753260622247205), 'win_rate': np.float64(0.6666666666666666), 'accumulated_reward': -1.4759999999999482, 'buy_and_hold_return': np.float64(-0.29601695440973785)}, 'AI': {'profit': np.float64(0.33955858155109686), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.3530545952258799)}, 'CRWD': {'profit': np.float64(0.11926590361935596), 'num_trades': 188, 'avg_return': np.float64(0.0006890569099786476), 'win_rate': np.float64(0.5531914893617021), 'accumulated_reward': -0.4310000000000003, 'buy_and_hold_return': np.float64(0.445827903243168)}, 'ZS': {'profit': np.float64(0.05885219885761317), 'num_trades': 85, 'avg_return': np.float64(0.0008652977017875286), 'win_rate': np.float64(0.43529411764705883), 'accumulated_reward': -0.5830000000000004, 'buy_and_hold_return': np.float64(0.15812692355051472)}}
+    episode: 25
+    timestamp: 2025-02-16T14:08:36.484733
+--------------------------------------------------------------------------------
+
+Training Update (Episode 25)
+  Learning Rate: 2.93e-04
+  Gradient Norm: 0.0892
+
+Episode   26
+  Returns: -3.0740 (Avg: -3.0161)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0636
+  Epsilon:   0.7825
+  Loss:      0.0049
+
+Episode   27
+  Returns: -3.1410 (Avg: -3.0206)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0303
+  Epsilon:   0.7752
+  Loss:      0.0049
+
+Episode   28
+  Returns: -3.0370 (Avg: -3.0211)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0505
+  Epsilon:   0.7680
+  Loss:      0.0067
+
+Episode   29
+  Returns: -3.0730 (Avg: -3.0229)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0421
+  Epsilon:   0.7609
+  Loss:      0.0057
+
+Episode   30
+  Returns: -3.0880 (Avg: -3.0250)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0592
+  Epsilon:   0.7538
+  Loss:      0.0052
+
+Validation Results (Episode 30)
+  Excess Return:   -0.17%
+  Profit:          27.51%
+  Win Rate:        35.36%
+  Trades:             17
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   -0.71%
+      Win Rate:  50.0%
+      Trades:     4
+    XLK:
+      Profit:   13.66%
+      Win Rate:  66.7%
+      Trades:     6
+    VGT:
+      Profit:    0.34%
+      Win Rate:  57.1%
+      Trades:     7
+    SMH:
+      Profit:   18.06%
+      Win Rate:  33.3%
+      Trades:     9
+    SOXX:
+      Profit:    9.60%
+      Win Rate:  50.0%
+      Trades:     8
+    IGV:
+      Profit:   30.66%
+      Win Rate:   0.0%
+      Trades:     1
+    FTEC:
+      Profit:   28.95%
+      Win Rate: 100.0%
+      Trades:     1
+    IYW:
+      Profit:   25.58%
+      Win Rate:   0.0%
+      Trades:     0
+    QTEC:
+      Profit:   33.89%
+      Win Rate:  50.3%
+      Trades:   656
+    AIQ:
+      Profit:   31.43%
+      Win Rate:  50.0%
+      Trades:    12
+    BOTZ:
+      Profit:   10.79%
+      Win Rate:  50.0%
+      Trades:    26
+    ROBO:
+      Profit:    7.75%
+      Win Rate:   0.0%
+      Trades:     0
+    SOXQ:
+      Profit:    6.81%
+      Win Rate:  33.3%
+      Trades:     3
+    PSI:
+      Profit:   13.05%
+      Win Rate:   0.0%
+      Trades:     0
+    XSD:
+      Profit:   25.69%
+      Win Rate:  58.3%
+      Trades:    12
+    USD:
+      Profit:   40.45%
+      Win Rate:   0.0%
+      Trades:     1
+    WCLD:
+      Profit:   18.72%
+      Win Rate:  57.6%
+      Trades:    59
+    SKYY:
+      Profit:   39.24%
+      Win Rate:   0.0%
+      Trades:     0
+    CLOU:
+      Profit:   19.69%
+      Win Rate:  54.8%
+      Trades:    62
+    CIBR:
+      Profit:   30.22%
+      Win Rate:   0.0%
+      Trades:     0
+    BUG:
+      Profit:   25.28%
+      Win Rate:  58.3%
+      Trades:    12
+    ARKW:
+      Profit:   61.32%
+      Win Rate:   0.0%
+      Trades:     0
+    KOMP:
+      Profit:   17.05%
+      Win Rate:  50.0%
+      Trades:     2
+    PTF:
+      Profit:   30.20%
+      Win Rate: 100.0%
+      Trades:     1
+    XITK:
+      Profit:   27.61%
+      Win Rate:   0.0%
+      Trades:     0
+    IWF:
+      Profit:   -0.88%
+      Win Rate:  33.3%
+      Trades:     3
+    VUG:
+      Profit:   -1.07%
+      Win Rate:  25.0%
+      Trades:     4
+    SPYG:
+      Profit:   27.01%
+      Win Rate:   0.0%
+      Trades:     0
+    VONG:
+      Profit:   25.09%
+      Win Rate:   0.0%
+      Trades:     0
+    SCHG:
+      Profit:   26.38%
+      Win Rate:  69.0%
+      Trades:    42
+    AAPL:
+      Profit:   44.31%
+      Win Rate:  80.0%
+      Trades:     5
+    MSFT:
+      Profit:   -1.14%
+      Win Rate:  33.3%
+      Trades:     3
+    GOOGL:
+      Profit:   19.98%
+      Win Rate: 100.0%
+      Trades:     1
+    AMZN:
+      Profit:   30.48%
+      Win Rate: 100.0%
+      Trades:     1
+    META:
+      Profit:   -2.02%
+      Win Rate:  20.0%
+      Trades:     5
+    NVDA:
+      Profit:   56.59%
+      Win Rate:   0.0%
+      Trades:     0
+    TSLA:
+      Profit:  126.98%
+      Win Rate: 100.0%
+      Trades:     4
+    AMD:
+      Profit:  -25.26%
+      Win Rate:  25.0%
+      Trades:     4
+    INTC:
+      Profit:  -35.69%
+      Win Rate:  44.4%
+      Trades:    36
+    TSM:
+      Profit:   55.18%
+      Win Rate: 100.0%
+      Trades:     1
+    AVGO:
+      Profit:   76.48%
+      Win Rate:   0.0%
+      Trades:     1
+    QCOM:
+      Profit:    6.49%
+      Win Rate:   0.0%
+      Trades:     0
+    AMAT:
+      Profit:  -16.76%
+      Win Rate:  20.0%
+      Trades:     5
+    MU:
+      Profit:  -16.33%
+      Win Rate:  33.3%
+      Trades:     3
+    CRM:
+      Profit:    4.36%
+      Win Rate:  53.3%
+      Trades:    15
+    ADBE:
+      Profit:   -3.53%
+      Win Rate:  50.0%
+      Trades:     6
+    ORCL:
+      Profit:   50.39%
+      Win Rate:   0.0%
+      Trades:     1
+    SNOW:
+      Profit:   22.52%
+      Win Rate:  50.0%
+      Trades:     2
+    NET:
+      Profit:   85.58%
+      Win Rate:   0.0%
+      Trades:     0
+    PLTR:
+      Profit:  423.02%
+      Win Rate:  67.6%
+      Trades:    34
+    CSCO:
+      Profit:   33.75%
+      Win Rate:   0.0%
+      Trades:     0
+    IBM:
+      Profit:   40.91%
+      Win Rate:  80.0%
+      Trades:     5
+    HPQ:
+      Profit:   15.94%
+      Win Rate:  63.2%
+      Trades:    19
+    DELL:
+      Profit:   -2.94%
+      Win Rate:   0.0%
+      Trades:     0
+    STX:
+      Profit:   21.68%
+      Win Rate:   0.0%
+      Trades:     0
+    WDC:
+      Profit:   -5.06%
+      Win Rate:   0.0%
+      Trades:     0
+    PYPL:
+      Profit:   20.73%
+      Win Rate:   0.0%
+      Trades:     0
+    SQ:
+      Profit:    3.25%
+      Win Rate:   0.0%
+      Trades:     0
+    SHOP:
+      Profit:   84.29%
+      Win Rate:   0.0%
+      Trades:     0
+    ABNB:
+      Profit:    1.16%
+      Win Rate: 100.0%
+      Trades:     1
+    UBER:
+      Profit:    5.49%
+      Win Rate:   0.0%
+      Trades:     0
+    DASH:
+      Profit:   60.53%
+      Win Rate:   0.0%
+      Trades:     0
+    NFLX:
+      Profit:    1.21%
+      Win Rate:  28.6%
+      Trades:     7
+    DIS:
+      Profit:   -2.21%
+      Win Rate:   0.0%
+      Trades:     0
+    EA:
+      Profit:    2.06%
+      Win Rate:   0.0%
+      Trades:     0
+    TTWO:
+      Profit:   45.74%
+      Win Rate:   0.0%
+      Trades:     0
+    RBLX:
+      Profit:   67.89%
+      Win Rate:  77.8%
+      Trades:     9
+    COIN:
+      Profit:    9.79%
+      Win Rate:  40.0%
+      Trades:    10
+    U:
+      Profit:  -25.35%
+      Win Rate:  43.5%
+      Trades:    46
+    PATH:
+      Profit:  -27.72%
+      Win Rate:  52.6%
+      Trades:    78
+    AI:
+      Profit:   53.56%
+      Win Rate:  54.5%
+      Trades:    33
+    CRWD:
+      Profit:   36.64%
+      Win Rate:  66.7%
+      Trades:    15
+    ZS:
+      Profit:   23.34%
+      Win Rate:  50.0%
+      Trades:     4
+--------------------------------------------------------------------------------
+
+Saved Model Checkpoint (Episode 30)
+  Path: checkpoints/best_model.pt
+  Metrics:
+    profit:  0.2751
+    win_rate:  0.3536
+    num_trades: 17
+    excess_return: -0.1670
+    per_ticker_metrics: {'QQQ': {'profit': np.float64(-0.007147171155473142), 'num_trades': 4, 'avg_return': np.float64(-0.0017732189129201804), 'win_rate': np.float64(0.5), 'accumulated_reward': -0.008, 'buy_and_hold_return': np.float64(0.22357002395983172)}, 'XLK': {'profit': np.float64(0.13655592613084577), 'num_trades': 6, 'avg_return': np.float64(0.016354156183004936), 'win_rate': np.float64(0.6666666666666666), 'accumulated_reward': -0.9880000000000008, 'buy_and_hold_return': np.float64(0.16708819213337356)}, 'VGT': {'profit': np.float64(0.0033871932062004007), 'num_trades': 7, 'avg_return': np.float64(0.0004874785417130472), 'win_rate': np.float64(0.5714285714285714), 'accumulated_reward': -0.016000000000000007, 'buy_and_hold_return': np.float64(0.23861523175113986)}, 'SMH': {'profit': np.float64(0.1806241429732638), 'num_trades': 9, 'avg_return': np.float64(0.017193061726299662), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -1.1799999999999808, 'buy_and_hold_return': np.float64(0.12989883611458763)}, 'SOXX': {'profit': np.float64(0.09600053103825412), 'num_trades': 8, 'avg_return': np.float64(0.009974177335073293), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4189999999999545, 'buy_and_hold_return': np.float64(0.005681862359471435)}, 'IGV': {'profit': np.float64(0.3065783559724724), 'num_trades': 1, 'avg_return': np.float64(-0.022698020950425106), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.2781702207316892)}, 'FTEC': {'profit': np.float64(0.28953068049809594), 'num_trades': 1, 'avg_return': np.float64(0.003186695489155733), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4169999999999547, 'buy_and_hold_return': np.float64(0.23994791825664175)}, 'IYW': {'profit': np.float64(0.2557752373300506), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.46099999999995, 'buy_and_hold_return': np.float64(0.23583779461825172)}, 'QTEC': {'profit': np.float64(0.33890548753978855), 'num_trades': 656, 'avg_return': np.float64(0.0004655313985555667), 'win_rate': np.float64(0.5030487804878049), 'accumulated_reward': -1.4309999999999532, 'buy_and_hold_return': np.float64(0.10792288400927363)}, 'AIQ': {'profit': np.float64(0.31427159984872466), 'num_trades': 12, 'avg_return': np.float64(0.019196826932230713), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.440999999999952, 'buy_and_hold_return': np.float64(0.293166594515587)}, 'BOTZ': {'profit': np.float64(0.10787132457913984), 'num_trades': 26, 'avg_return': np.float64(0.0039596512574226), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.10652924351513948)}, 'ROBO': {'profit': np.float64(0.07749600564025094), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.06159615901315063)}, 'SOXQ': {'profit': np.float64(0.06810631811125711), 'num_trades': 3, 'avg_return': np.float64(-0.003013754831304042), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.05295882170965571)}, 'PSI': {'profit': np.float64(0.13050636812983862), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.441999999999952, 'buy_and_hold_return': np.float64(0.08121921315168912)}, 'XSD': {'profit': np.float64(0.2568901339363858), 'num_trades': 12, 'avg_return': np.float64(0.021087251652079697), 'win_rate': np.float64(0.5833333333333334), 'accumulated_reward': -1.3289999999999644, 'buy_and_hold_return': np.float64(0.08147384148721182)}, 'USD': {'profit': np.float64(0.40450644849435924), 'num_trades': 1, 'avg_return': np.float64(-0.11196994239745803), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.3819095963042163)}, 'WCLD': {'profit': np.float64(0.18721865568946905), 'num_trades': 59, 'avg_return': np.float64(0.003437334278541554), 'win_rate': np.float64(0.576271186440678), 'accumulated_reward': -1.4549999999999506, 'buy_and_hold_return': np.float64(0.2088570837630861)}, 'SKYY': {'profit': np.float64(0.39238062238848004), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.35989074745452965)}, 'CLOU': {'profit': np.float64(0.19691331191388572), 'num_trades': 62, 'avg_return': np.float64(0.0023767925519728424), 'win_rate': np.float64(0.5483870967741935), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.21911979422659167)}, 'CIBR': {'profit': np.float64(0.30218816025565887), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.2895021579118193)}, 'BUG': {'profit': np.float64(0.2528485131802525), 'num_trades': 12, 'avg_return': np.float64(0.008890209777418452), 'win_rate': np.float64(0.5833333333333334), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.2609774843614383)}, 'ARKW': {'profit': np.float64(0.6131930172239066), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.5596230229069084)}, 'KOMP': {'profit': np.float64(0.17045129252794533), 'num_trades': 2, 'avg_return': np.float64(0.0028871720324484163), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.16871376865048981)}, 'PTF': {'profit': np.float64(0.30200570882722877), 'num_trades': 1, 'avg_return': np.float64(0.2680557337835794), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.3179999999999656, 'buy_and_hold_return': np.float64(0.3463836346573792)}, 'XITK': {'profit': np.float64(0.27607278052402107), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -0.7760000000000006, 'buy_and_hold_return': np.float64(0.3128252847547257)}, 'IWF': {'profit': np.float64(-0.008827074351486996), 'num_trades': 3, 'avg_return': np.float64(-0.0029403534180853976), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -0.006, 'buy_and_hold_return': np.float64(0.24850322547237114)}, 'VUG': {'profit': np.float64(-0.010689482086855273), 'num_trades': 4, 'avg_return': np.float64(-0.0026744378668597077), 'win_rate': np.float64(0.25), 'accumulated_reward': -0.008, 'buy_and_hold_return': np.float64(0.25060707490694556)}, 'SPYG': {'profit': np.float64(0.2701235641098727), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.26872856428533076)}, 'VONG': {'profit': np.float64(0.25093701725971873), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.2483103895871832)}, 'SCHG': {'profit': np.float64(0.26377907442632753), 'num_trades': 42, 'avg_return': np.float64(0.005185232208278136), 'win_rate': np.float64(0.6904761904761905), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.2561875572132104)}, 'AAPL': {'profit': np.float64(0.44311806875628856), 'num_trades': 5, 'avg_return': np.float64(0.08042739013435204), 'win_rate': np.float64(0.8), 'accumulated_reward': -1.2399999999999742, 'buy_and_hold_return': np.float64(0.447159806652182)}, 'MSFT': {'profit': np.float64(-0.01143166409850449), 'num_trades': 3, 'avg_return': np.float64(-0.003803180574652438), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -0.006, 'buy_and_hold_return': np.float64(-0.037523275766199404)}, 'GOOGL': {'profit': np.float64(0.1997831401944956), 'num_trades': 1, 'avg_return': np.float64(0.17801248553549973), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4589999999999501, 'buy_and_hold_return': np.float64(0.17538327101583517)}, 'AMZN': {'profit': np.float64(0.30480577101838136), 'num_trades': 1, 'avg_return': np.float64(0.007076377299247927), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4109999999999554, 'buy_and_hold_return': np.float64(0.22593608805998455)}, 'META': {'profit': np.float64(-0.020206068489660667), 'num_trades': 5, 'avg_return': np.float64(-0.004055656971343037), 'win_rate': np.float64(0.2), 'accumulated_reward': -0.012000000000000004, 'buy_and_hold_return': np.float64(0.4211297367982567)}, 'NVDA': {'profit': np.float64(0.5658547601769355), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.5648302499983879)}, 'TSLA': {'profit': np.float64(1.2697854268584043), 'num_trades': 4, 'avg_return': np.float64(0.23907397246288573), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.032999999999997, 'buy_and_hold_return': np.float64(1.0873287217644618)}, 'AMD': {'profit': np.float64(-0.25264879065610757), 'num_trades': 4, 'avg_return': np.float64(-0.002287468930792148), 'win_rate': np.float64(0.25), 'accumulated_reward': -1.4169999999999547, 'buy_and_hold_return': np.float64(-0.3317973434427003)}, 'INTC': {'profit': np.float64(-0.3569182539875472), 'num_trades': 36, 'avg_return': np.float64(-0.009384732459614782), 'win_rate': np.float64(0.4444444444444444), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(-0.36515188270549126)}, 'TSM': {'profit': np.float64(0.551793585741505), 'num_trades': 1, 'avg_return': np.float64(0.6102836046417178), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.4369999999999525, 'buy_and_hold_return': np.float64(0.4055563409705121)}, 'AVGO': {'profit': np.float64(0.7647772279917326), 'num_trades': 1, 'avg_return': np.float64(-0.0005919947631577438), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4629999999999497, 'buy_and_hold_return': np.float64(0.7132141063061468)}, 'QCOM': {'profit': np.float64(0.06493506616058164), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4169999999999547, 'buy_and_hold_return': np.float64(0.0024449771331347403)}, 'AMAT': {'profit': np.float64(-0.16758251850101935), 'num_trades': 5, 'avg_return': np.float64(-0.01785881526988608), 'win_rate': np.float64(0.2), 'accumulated_reward': -1.4539999999999507, 'buy_and_hold_return': np.float64(-0.1849014960184685)}, 'MU': {'profit': np.float64(-0.1633135478444887), 'num_trades': 3, 'avg_return': np.float64(-0.08058141197108719), 'win_rate': np.float64(0.3333333333333333), 'accumulated_reward': -1.45999999999995, 'buy_and_hold_return': np.float64(-0.2078955975284259)}, 'CRM': {'profit': np.float64(0.04363417621131149), 'num_trades': 15, 'avg_return': np.float64(0.0029105657759451948), 'win_rate': np.float64(0.5333333333333333), 'accumulated_reward': -0.4890000000000004, 'buy_and_hold_return': np.float64(0.09969339503818175)}, 'ADBE': {'profit': np.float64(-0.035263831422978065), 'num_trades': 6, 'avg_return': np.float64(-0.0058843325685616074), 'win_rate': np.float64(0.5), 'accumulated_reward': -0.06400000000000004, 'buy_and_hold_return': np.float64(-0.04657501516851181)}, 'ORCL': {'profit': np.float64(0.5038758932311336), 'num_trades': 1, 'avg_return': np.float64(-0.004065371238999638), 'win_rate': np.float64(0.0), 'accumulated_reward': -1.4109999999999554, 'buy_and_hold_return': np.float64(0.4159687529174727)}, 'SNOW': {'profit': np.float64(0.2252168069095013), 'num_trades': 2, 'avg_return': np.float64(-0.060989778080825924), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.45999999999995, 'buy_and_hold_return': np.float64(0.1983392043850183)}, 'NET': {'profit': np.float64(0.8558176500687578), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.8021491872990674)}, 'PLTR': {'profit': np.float64(4.230202842810501), 'num_trades': 34, 'avg_return': np.float64(0.029057789400390308), 'win_rate': np.float64(0.6764705882352942), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(4.2826424257922575)}, 'CSCO': {'profit': np.float64(0.33745618425672563), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.3209812691885323)}, 'IBM': {'profit': np.float64(0.40912059068311746), 'num_trades': 5, 'avg_return': np.float64(0.06984321168554083), 'win_rate': np.float64(0.8), 'accumulated_reward': -1.18699999999998, 'buy_and_hold_return': np.float64(0.4117932408563758)}, 'HPQ': {'profit': np.float64(0.15943914788919056), 'num_trades': 19, 'avg_return': np.float64(0.0072873886638766495), 'win_rate': np.float64(0.631578947368421), 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.16994260171370068)}, 'DELL': {'profit': np.float64(-0.0294117342305118), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4579999999999502, 'buy_and_hold_return': np.float64(-0.07525273101778585)}, 'STX': {'profit': np.float64(0.21678658873218937), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4379999999999524, 'buy_and_hold_return': np.float64(0.17726226159690128)}, 'WDC': {'profit': np.float64(-0.050645227436306284), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(-0.05705622283552725)}, 'PYPL': {'profit': np.float64(0.20734260820934902), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4639999999999496, 'buy_and_hold_return': np.float64(0.20080423865035546)}, 'SQ': {'profit': np.float64(0.03254163411488409), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4219999999999542, 'buy_and_hold_return': np.float64(0.03463053319508469)}, 'SHOP': {'profit': np.float64(0.8429288987547054), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4619999999999498, 'buy_and_hold_return': np.float64(0.8081420548381422)}, 'ABNB': {'profit': np.float64(0.011582975364186732), 'num_trades': 1, 'avg_return': np.float64(0.008574949644115426), 'win_rate': np.float64(1.0), 'accumulated_reward': -1.3659999999999604, 'buy_and_hold_return': np.float64(-0.004194990184861913)}, 'UBER': {'profit': np.float64(0.05486191484833425), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4649999999999495, 'buy_and_hold_return': np.float64(0.04192097982992804)}, 'DASH': {'profit': np.float64(0.6053403352756013), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.46099999999995, 'buy_and_hold_return': np.float64(0.5282112779557813)}, 'NFLX': {'profit': np.float64(0.012092150712568639), 'num_trades': 7, 'avg_return': np.float64(0.0017462720504754865), 'win_rate': np.float64(0.2857142857142857), 'accumulated_reward': -0.016000000000000007, 'buy_and_hold_return': np.float64(0.6887655420821841)}, 'DIS': {'profit': np.float64(-0.022062713541587176), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4379999999999524, 'buy_and_hold_return': np.float64(-0.05359286445552047)}, 'EA': {'profit': np.float64(0.02062539069166358), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.45999999999995, 'buy_and_hold_return': np.float64(0.004112662368109143)}, 'TTWO': {'profit': np.float64(0.4573583611440053), 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4439999999999518, 'buy_and_hold_return': np.float64(0.38463063584868595)}, 'RBLX': {'profit': np.float64(0.6789369695140111), 'num_trades': 9, 'avg_return': np.float64(0.03804178446035836), 'win_rate': np.float64(0.7777777777777778), 'accumulated_reward': -1.4729999999999486, 'buy_and_hold_return': np.float64(0.6855267264395712)}, 'COIN': {'profit': np.float64(0.0978841300233797), 'num_trades': 10, 'avg_return': np.float64(0.025574400792476214), 'win_rate': np.float64(0.4), 'accumulated_reward': -1.46099999999995, 'buy_and_hold_return': np.float64(0.09334510765024562)}, 'U': {'profit': np.float64(-0.2534786909567056), 'num_trades': 46, 'avg_return': np.float64(-0.003683285423400934), 'win_rate': np.float64(0.43478260869565216), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(-0.16923301879895192)}, 'PATH': {'profit': np.float64(-0.2772102308894615), 'num_trades': 78, 'avg_return': np.float64(-0.0025737518616175035), 'win_rate': np.float64(0.5256410256410257), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(-0.29601695440973785)}, 'AI': {'profit': np.float64(0.5355787622698218), 'num_trades': 33, 'avg_return': np.float64(0.015784126101513998), 'win_rate': np.float64(0.5454545454545454), 'accumulated_reward': -1.4749999999999484, 'buy_and_hold_return': np.float64(0.3530545952258799)}, 'CRWD': {'profit': np.float64(0.36635566311490164), 'num_trades': 15, 'avg_return': np.float64(0.023292492105333136), 'win_rate': np.float64(0.6666666666666666), 'accumulated_reward': -0.48000000000000037, 'buy_and_hold_return': np.float64(0.445827903243168)}, 'ZS': {'profit': np.float64(0.23342304093308996), 'num_trades': 4, 'avg_return': np.float64(-0.023859508711451417), 'win_rate': np.float64(0.5), 'accumulated_reward': -1.440999999999952, 'buy_and_hold_return': np.float64(0.15812692355051472)}}
+    episode: 30
+    timestamp: 2025-02-16T14:09:45.728765
+--------------------------------------------------------------------------------
+
+Training Update (Episode 30)
+  Learning Rate: 2.90e-04
+  Gradient Norm: 0.1287
+
+Episode   31
+  Returns: -3.0520 (Avg: -3.0258)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0566
+  Epsilon:   0.7468
+  Loss:      0.0061
+
+Episode   32
+  Returns: -3.0050 (Avg: -3.0252)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0454
+  Epsilon:   0.7398
+  Loss:      0.0065
+
+Episode   33
+  Returns: -3.0510 (Avg: -3.0259)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0479
+  Epsilon:   0.7330
+  Loss:      0.0050
+
+Episode   34
+  Returns: -3.1060 (Avg: -3.0282)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0489
+  Epsilon:   0.7262
+  Loss:      0.0044
+
+Episode   35
+  Returns: -3.0860 (Avg: -3.0298)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0608
+  Epsilon:   0.7195
+  Loss:      0.0048
+
+Validation Results (Episode 35)
+  Excess Return:   -3.53%
+  Profit:          24.15%
+  Win Rate:        41.12%
+  Trades:             36
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   -0.71%
+      Win Rate:  50.0%
+      Trades:     4
+    XLK:
+      Profit:    0.22%
+      Win Rate:  50.0%
+      Trades:     2
+    VGT:
+      Profit:    0.28%
+      Win Rate:  60.0%
+      Trades:     5
+    SMH:
+      Profit:   -0.78%
+      Win Rate:  25.0%
+      Trades:     4
+    SOXX:
+      Profit:    0.22%
+      Win Rate:  33.3%
+      Trades:     3
+    IGV:
+      Profit:   30.61%
+      Win Rate:   0.0%
+      Trades:     0
+    FTEC:
+      Profit:   25.92%
+      Win Rate: 100.0%
+      Trades:     2
+    IYW:
+      Profit:   30.98%
+      Win Rate: 100.0%
+      Trades:     1
+    QTEC:
+      Profit:   22.52%
+      Win Rate:  49.8%
+      Trades:   654
+    AIQ:
+      Profit:   27.97%
+      Win Rate:  60.4%
+      Trades:   111
+    BOTZ:
+      Profit:   14.31%
+      Win Rate:  57.4%
+      Trades:   155
+    ROBO:
+      Profit:    6.78%
+      Win Rate:  58.3%
+      Trades:    12
+    SOXQ:
+      Profit:   -0.85%
+      Win Rate:  52.3%
+      Trades:    65
+    PSI:
+      Profit:   17.18%
+      Win Rate: 100.0%
+      Trades:     6
+    XSD:
+      Profit:   15.60%
+      Win Rate: 100.0%
+      Trades:     2
+    USD:
+      Profit:   37.70%
+      Win Rate:  33.3%
+      Trades:     9
+    WCLD:
+      Profit:   19.50%
+      Win Rate:  52.9%
+      Trades:   155
+    SKYY:
+      Profit:   39.24%
+      Win Rate:   0.0%
+      Trades:     0
+    CLOU:
+      Profit:   15.94%
+      Win Rate:  52.4%
+      Trades:   170
+    CIBR:
+      Profit:   27.34%
+      Win Rate:  66.7%
+      Trades:     3
+    BUG:
+      Profit:   24.41%
+      Win Rate:  48.2%
+      Trades:   139
+    ARKW:
+      Profit:   61.32%
+      Win Rate:   0.0%
+      Trades:     0
+    KOMP:
+      Profit:   13.02%
+      Win Rate:  62.2%
+      Trades:    37
+    PTF:
+      Profit:   22.48%
+      Win Rate:  63.6%
+      Trades:    22
+    XITK:
+      Profit:   40.40%
+      Win Rate:   0.0%
+      Trades:     0
+    IWF:
+      Profit:   -0.88%
+      Win Rate:  33.3%
+      Trades:     3
+    VUG:
+      Profit:   -0.53%
+      Win Rate:  50.0%
+      Trades:     4
+    SPYG:
+      Profit:   27.01%
+      Win Rate:   0.0%
+      Trades:     0
+    VONG:
+      Profit:   25.09%
+      Win Rate:   0.0%
+      Trades:     0
+    SCHG:
+      Profit:   20.08%
+      Win Rate:  56.1%
+      Trades:   132
+    AAPL:
+      Profit:   41.63%
+      Win Rate:  50.0%
+      Trades:     2
+    MSFT:
+      Profit:   -0.75%
+      Win Rate:  50.0%
+      Trades:     4
+    GOOGL:
+      Profit:    8.76%
+      Win Rate:   0.0%
+      Trades:     0
+    AMZN:
+      Profit:   38.80%
+      Win Rate: 100.0%
+      Trades:     1
+    META:
+      Profit:   -0.13%
+      Win Rate:  60.0%
+      Trades:     5
+    NVDA:
+      Profit:   57.25%
+      Win Rate:   0.0%
+      Trades:     0
+    TSLA:
+      Profit:    0.00%
+      Win Rate:   0.0%
+      Trades:     0
+    AMD:
+      Profit:  -25.41%
+      Win Rate:  25.0%
+      Trades:     4
+    INTC:
+      Profit:  -42.54%
+      Win Rate:  47.0%
+      Trades:   134
+    TSM:
+      Profit:   54.17%
+      Win Rate:   0.0%
+      Trades:     0
+    AVGO:
+      Profit:   81.62%
+      Win Rate:  50.0%
+      Trades:     2
+    QCOM:
+      Profit:    1.36%
+      Win Rate: 100.0%
+      Trades:     1
+    AMAT:
+      Profit:   -7.55%
+      Win Rate:   0.0%
+      Trades:     3
+    MU:
+      Profit:   -9.36%
+      Win Rate: 100.0%
+      Trades:     1
+    CRM:
+      Profit:    2.28%
+      Win Rate:  66.7%
+      Trades:     3
+    ADBE:
+      Profit:   -2.37%
+      Win Rate:  50.0%
+      Trades:     4
+    ORCL:
+      Profit:   49.79%
+      Win Rate:   0.0%
+      Trades:     1
+    SNOW:
+      Profit:   18.67%
+      Win Rate:   0.0%
+      Trades:     1
+    NET:
+      Profit:   85.58%
+      Win Rate:   0.0%
+      Trades:     0
+    PLTR:
+      Profit:  347.20%
+      Win Rate:  53.0%
+      Trades:   115
+    CSCO:
+      Profit:   34.05%
+      Win Rate:  42.9%
+      Trades:    14
+    IBM:
+      Profit:   28.68%
+      Win Rate:  66.7%
+      Trades:     3
+    HPQ:
+      Profit:   23.62%
+      Win Rate:  51.1%
+      Trades:   135
+    DELL:
+      Profit:   -4.81%
+      Win Rate:   0.0%
+      Trades:     0
+    STX:
+      Profit:   20.85%
+      Win Rate:   0.0%
+      Trades:     0
+    WDC:
+      Profit:   -5.06%
+      Win Rate:   0.0%
+      Trades:     0
+    PYPL:
+      Profit:   20.65%
+      Win Rate:   0.0%
+      Trades:     0
+    SQ:
+      Profit:    3.25%
+      Win Rate:   0.0%
+      Trades:     0
+    SHOP:
+      Profit:   85.27%
+      Win Rate:  50.0%
+      Trades:     2
+    ABNB:
+      Profit:   10.99%
+      Win Rate: 100.0%
+      Trades:     1
+    UBER:
+      Profit:    4.50%
+      Win Rate:  50.0%
+      Trades:     2
+    DASH:
+      Profit:   86.04%
+      Win Rate: 100.0%
+      Trades:     1
+    NFLX:
+      Profit:   -0.61%
+      Win Rate:  16.7%
+      Trades:     6
+    DIS:
+      Profit:   -2.95%
+      Win Rate:   0.0%
+      Trades:     0
+    EA:
+      Profit:    2.52%
+      Win Rate: 100.0%
+      Trades:     1
+    TTWO:
+      Profit:   41.45%
+      Win Rate:   0.0%
+      Trades:     0
+    RBLX:
+      Profit:   95.83%
+      Win Rate:  60.6%
+      Trades:    66
+    COIN:
+      Profit:   29.83%
+      Win Rate:  50.0%
+      Trades:     2
+    U:
+      Profit:  -29.01%
+      Win Rate:  43.8%
+      Trades:   153
+    PATH:
+      Profit:  -33.24%
+      Win Rate:  52.2%
+      Trades:   134
+    AI:
+      Profit:   24.96%
+      Win Rate:  51.1%
+      Trades:   188
+    CRWD:
+      Profit:   28.46%
+      Win Rate:   0.0%
+      Trades:     3
+    ZS:
+      Profit:   36.11%
+      Win Rate:   0.0%
+      Trades:     1
+--------------------------------------------------------------------------------
+
+Training Update (Episode 35)
+  Learning Rate: 2.86e-04
+  Gradient Norm: 0.1698
+
+Episode   36
+  Returns: -2.9990 (Avg: -3.0290)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0224
+  Epsilon:   0.7128
+  Loss:      0.0049
+
+Episode   37
+  Returns: -2.8930 (Avg: -3.0254)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0692
+  Epsilon:   0.7062
+  Loss:      0.0066
+
+Episode   38
+  Returns: -2.9330 (Avg: -3.0231)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0399
+  Epsilon:   0.6997
+  Loss:      0.0032
+
+Episode   39
+  Returns: -3.0290 (Avg: -3.0232)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0247
+  Epsilon:   0.6932
+  Loss:      0.0043
+
+Episode   40
+  Returns: -3.0240 (Avg: -3.0232)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0312
+  Epsilon:   0.6868
+  Loss:      0.0038
