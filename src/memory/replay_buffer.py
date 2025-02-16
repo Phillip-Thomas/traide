@@ -32,9 +32,6 @@ class PrioritizedReplayBuffer:
         priority = (abs(total_return) + return_std + len(episode)/1000 + self.eps) ** self.alpha
         priority = np.clip(priority, self.eps, 10.0)  # Limit extreme values
         
-        print(f"Episode stats - Returns: {total_return:.4f}, Std: {return_std:.4f}, Length: {len(episode)}")
-        print(f"Priority assigned: {priority:.4f}")
-        
         self.episodes.append(episode)
         self.priorities.append(float(priority))
     

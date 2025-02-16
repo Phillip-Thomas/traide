@@ -323,7 +323,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 'win_rate': avg_win_rate,
                 'num_trades': int(avg_num_trades),
                 'excess_return': avg_excess_return,
-                'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
+                # 'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
             }
             logger.log_validation(episode, validation_metrics)
             

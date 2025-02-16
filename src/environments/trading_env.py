@@ -151,56 +151,95 @@ class SimpleTradeEnv:
         # Safety check for index
         if self.idx >= len(self.close_prices):
             return 0
-            
+        
+        # Return early for invalid positions/actions
+        if (action == 1 and self.position == 1) or (action == 2 and self.position == 0):
+            return -0.003
+
         current_price = self.close_prices[self.idx]
+        buying_fee = 0.001
+        selling_fee = 0.0015
         reward = 0
         
-        # Technical indicators for reward shaping
+        # Calculate price relative to recent range
+        lookback = min(20, self.idx)
+        recent_high = max(self.high_prices[self.idx - lookback:self.idx])
+        recent_low = min(self.low_prices[self.idx - lookback:self.idx])
+        price_position = (current_price - recent_low) / (recent_high - recent_low) if recent_high != recent_low else 0.5
+        
+        # Technical indicators
         momentum = self.returns[self.idx]
         volatility = self.volatility[self.idx]
         rsi = self.rsi[self.idx]
-        trend = (current_price - self.sma[self.idx]) / (current_price + 1e-6)  # Avoid division by zero
+        trend = (current_price - self.sma[self.idx]) / (current_price + 1e-6)
         
-        if action == 1:  # Buy
-            if self.position == 0:
-                # Reward buying in favorable conditions
-                reward = 0.001  # Base reward for taking action
-                
-                # Add rewards for good entry conditions
-                if rsi < 30:  # Oversold
-                    reward += 0.002
-                if trend < -0.02:  # Price below SMA
-                    reward += 0.002
-                if volatility > np.mean(self.volatility):  # Higher volatility
-                    reward += 0.001
-                
-        elif action == 2:  # Sell
+        if action == 1 and self.position == 0:  # Buy
+            self.entry_idx = self.idx
+            # Base reward components
+            buy_quality = 1 - price_position
+            reward = -buying_fee + (0.001 * buy_quality)
+            
+            # Technical indicator rewards
+            if rsi < 30:  # Oversold
+                reward += 0.002
+            if trend < -0.02:  # Price below SMA
+                reward += 0.002
+            if volatility > np.mean(self.volatility):
+                reward += 0.001
+            
+            # Penalty for buying near highs
+            if price_position > 0.8:
+                reward -= 0.0005
+            
+        elif action == 2 and self.position == 1:  # Sell
+            effective_sale = current_price * (1 - selling_fee)
+            profit = (effective_sale - self.entry_price) / self.entry_price
+            
+            # Base reward from profit
+            reward = profit
+            
+            # Price position rewards
+            sell_quality = price_position
+            reward += 0.001 * sell_quality
+            
+            # Technical indicator rewards
+            if rsi > 70:  # Overbought
+                reward += 0.002
+            if trend > 0.02:  # Price above SMA
+                reward += 0.002
+            
+            # Bonus for selling near peak
+            if price_position > 0.9:
+                reward += 0.003
+            
+            # Scale with holding duration
+            holding_duration = self.idx - self.entry_idx
+            duration_scale = min(1.2, 1.0 + (holding_duration / 200))
+            reward *= duration_scale
+            
+            # Update maximum values
+            self.max_profit = max(self.max_profit, profit)
+            self.max_drawdown = min(self.max_drawdown, profit)
+            
+        else:  # Hold
             if self.position == 1:
-                # Calculate profit/loss
-                profit = (current_price - self.entry_price) / self.entry_price
-                holding_time = self.idx - self.entry_idx
+                # Penalty for holding near lows
+                if price_position < 0.2:
+                    reward = -0.002
+                # Penalty for holding in overbought conditions
+                if rsi > 80 or trend < -0.03:
+                    reward -= 0.001
+            else:
+                # Penalty for not buying near lows
+                if price_position < 0.1:
+                    reward = -0.001
                 
-                # Base reward on profit
-                reward = profit
-                
-                # Add rewards for good exit conditions
-                if rsi > 70:  # Overbought
-                    reward += 0.002
-                if trend > 0.02:  # Price above SMA
-                    reward += 0.002
-                
-                # Scale reward by holding time
-                reward *= min(1.0, holding_time / 20)  # Cap at 20 periods
-                
-                # Update maximum values
-                self.max_profit = max(self.max_profit, profit)
-                self.max_drawdown = min(self.max_drawdown, profit)
-        
-        # Small penalty for holding during unfavorable conditions
-        elif action == 0 and self.position == 1:
-            if rsi > 80 or trend < -0.03:
-                reward -= 0.001
-        
+            # Small reward for holding during trending moves
+            if momentum > 0 and self.position == 1:
+                reward += 0.0001
+            elif momentum < 0 and self.position == 0:
+                reward += 0.0001
+
         return reward
 
     def _get_state(self):

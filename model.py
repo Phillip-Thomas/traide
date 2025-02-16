@@ -309,7 +309,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     target_net.load_state_dict(policy_net.state_dict())
     if optimizer is None:
         print(f"optimizer: new")
-        optimizer = optim.Adam(policy_net.parameters(), lr=0.0001)
+        optimizer = optim.Adam(policy_net.parameters(), lr=0.00001)
     else:
         print(f"optimizer: {optimizer}")
         optimizer = optimizer
@@ -448,12 +448,6 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
             for val_ticker, val_env in val_envs.items():
                 val_metrics = validate_model(policy_net, val_env, device)
                 val_metrics_all.append(val_metrics)
-                # print(f"\n{val_ticker} Metrics:")
-                # print(f"  Profit: {val_metrics['profit']*100:.2f}%")
-                # print(f"  Win Rate: {val_metrics['win_rate']*100:.1f}%")
-                # print(f"  Trades: {val_metrics['num_trades']}")
-                # print(f"  Avg Return: {val_metrics['avg_return']*100:.2f}%")
-                # print(f"  Buy & Hold Return: {val_metrics['buy_and_hold_return']*100:.2f}%")
             
             # Calculate average metrics across all tickers
             avg_profit = np.mean([m['profit'] for m in val_metrics_all])
@@ -534,8 +528,8 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 # Reset training components
                 epsilon = 1.0  # Reset exploration
                 memory = ReplayBuffer(100000)  # Fresh replay buffer
-                optimizer = optim.Adam(policy_net.parameters(), lr=0.0001)  # Fresh optimizer
-                scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.98)
+                optimizer = optim.Adam(policy_net.parameters(), lr=0.00001)  # Fresh optimizer
+                scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.99)
                 
                 # Reset counter
                 episodes_without_improvement = 0
