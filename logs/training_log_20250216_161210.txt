@@ -1,0 +1,1047 @@
+Training Log - Started at 2025-02-16 16:12:10.190206
+================================================================================
+
+
+Episode    0
+  Returns: -3.0460 (Avg: -3.0460)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  3.2269
+  Epsilon:   1.0000
+  Loss:      0.0000
+  Trades:    991 (Win Rate:  47.8%)
+
+Validation Results (Episode 0)
+  Excess Return:   -6.59%
+  Profit:          21.09%
+  Win Rate:        54.08%
+  Trades:             16
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   -2.45%
+      Win Rate:  55.3%
+      Trades:    47
+    XLK:
+      Profit:    7.48%
+      Win Rate:  65.7%
+      Trades:    35
+    VGT:
+      Profit:    5.03%
+      Win Rate:  51.8%
+      Trades:    56
+    SMH:
+      Profit:   55.22%
+      Win Rate:  68.3%
+      Trades:    41
+    SOXX:
+      Profit:  -24.23%
+      Win Rate:  46.9%
+      Trades:    32
+    IGV:
+      Profit:   34.56%
+      Win Rate:  50.0%
+      Trades:     2
+    FTEC:
+      Profit:   24.90%
+      Win Rate:  60.0%
+      Trades:    20
+    IYW:
+      Profit:   35.47%
+      Win Rate:  86.7%
+      Trades:    15
+    QTEC:
+      Profit:    2.12%
+      Win Rate:  46.7%
+      Trades:    15
+    AIQ:
+      Profit:   46.95%
+      Win Rate: 100.0%
+      Trades:     1
+    BOTZ:
+      Profit:   14.96%
+      Win Rate:   0.0%
+      Trades:     0
+    ROBO:
+      Profit:    1.45%
+      Win Rate:  50.0%
+      Trades:     2
+    SOXQ:
+      Profit:    3.07%
+      Win Rate: 100.0%
+      Trades:     2
+    PSI:
+      Profit:    9.26%
+      Win Rate: 100.0%
+      Trades:     1
+    XSD:
+      Profit:  -14.03%
+      Win Rate:  50.0%
+      Trades:    30
+    USD:
+      Profit:   13.83%
+      Win Rate:   0.0%
+      Trades:     1
+    WCLD:
+      Profit:   20.60%
+      Win Rate:  50.0%
+      Trades:     2
+    SKYY:
+      Profit:   26.77%
+      Win Rate:  50.0%
+      Trades:     8
+    CLOU:
+      Profit:   25.71%
+      Win Rate:  50.0%
+      Trades:     2
+    CIBR:
+      Profit:   19.54%
+      Win Rate: 100.0%
+      Trades:     2
+    BUG:
+      Profit:   29.05%
+      Win Rate:   0.0%
+      Trades:     0
+    ARKW:
+      Profit:   63.97%
+      Win Rate:  87.5%
+      Trades:     8
+    KOMP:
+      Profit:   10.73%
+      Win Rate: 100.0%
+      Trades:     1
+    PTF:
+      Profit:   22.94%
+      Win Rate: 100.0%
+      Trades:     2
+    XITK:
+      Profit:   21.54%
+      Win Rate:  63.6%
+      Trades:    11
+    IWF:
+      Profit:   11.72%
+      Win Rate:  52.4%
+      Trades:    42
+    VUG:
+      Profit:   16.91%
+      Win Rate:  60.0%
+      Trades:    45
+    SPYG:
+      Profit:   31.31%
+      Win Rate:   0.0%
+      Trades:     0
+    VONG:
+      Profit:   16.03%
+      Win Rate:  60.0%
+      Trades:    10
+    SCHG:
+      Profit:   28.76%
+      Win Rate:   0.0%
+      Trades:     0
+    AAPL:
+      Profit:   28.54%
+      Win Rate:  63.3%
+      Trades:    30
+    MSFT:
+      Profit:   -8.56%
+      Win Rate:  51.2%
+      Trades:    41
+    GOOGL:
+      Profit:   -0.73%
+      Win Rate:  54.5%
+      Trades:    22
+    AMZN:
+      Profit:   25.34%
+      Win Rate:  57.1%
+      Trades:    28
+    META:
+      Profit:    9.69%
+      Win Rate:  51.7%
+      Trades:    58
+    NVDA:
+      Profit:  118.92%
+      Win Rate:  87.5%
+      Trades:     8
+    TSLA:
+      Profit:   57.11%
+      Win Rate:  45.2%
+      Trades:    31
+    AMD:
+      Profit:  -15.87%
+      Win Rate:  47.4%
+      Trades:    19
+    INTC:
+      Profit:  -30.39%
+      Win Rate:  33.3%
+      Trades:     3
+    TSM:
+      Profit:   27.51%
+      Win Rate:  50.0%
+      Trades:    20
+    AVGO:
+      Profit:   49.90%
+      Win Rate:  60.0%
+      Trades:    15
+    QCOM:
+      Profit:   18.21%
+      Win Rate:  50.0%
+      Trades:    20
+    AMAT:
+      Profit:  -26.63%
+      Win Rate:  46.9%
+      Trades:    32
+    MU:
+      Profit:   -1.72%
+      Win Rate:  37.5%
+      Trades:     8
+    CRM:
+      Profit:   10.29%
+      Win Rate:  59.1%
+      Trades:    44
+    ADBE:
+      Profit:   12.32%
+      Win Rate:  43.1%
+      Trades:    51
+    ORCL:
+      Profit:   42.04%
+      Win Rate:  53.3%
+      Trades:    15
+    SNOW:
+      Profit:   59.11%
+      Win Rate:  46.7%
+      Trades:    15
+    NET:
+      Profit:  102.01%
+      Win Rate: 100.0%
+      Trades:     3
+    PLTR:
+      Profit:  196.16%
+      Win Rate: 100.0%
+      Trades:     2
+    CSCO:
+      Profit:   14.08%
+      Win Rate: 100.0%
+      Trades:     1
+    IBM:
+      Profit:   -0.46%
+      Win Rate:  64.0%
+      Trades:    25
+    HPQ:
+      Profit:   33.96%
+      Win Rate: 100.0%
+      Trades:     1
+    DELL:
+      Profit:  -30.42%
+      Win Rate:  40.0%
+      Trades:    10
+    STX:
+      Profit:    4.59%
+      Win Rate:  60.0%
+      Trades:     5
+    WDC:
+      Profit:  -17.71%
+      Win Rate:   0.0%
+      Trades:     2
+    PYPL:
+      Profit:   18.90%
+      Win Rate:  50.0%
+      Trades:     6
+    SQ:
+      Profit:    6.44%
+      Win Rate:   0.0%
+      Trades:     3
+    SHOP:
+      Profit:   94.51%
+      Win Rate:  50.0%
+      Trades:     4
+    ABNB:
+      Profit:    0.22%
+      Win Rate:  43.8%
+      Trades:    16
+    UBER:
+      Profit:   -2.70%
+      Win Rate:  20.0%
+      Trades:     5
+    DASH:
+      Profit:   45.12%
+      Win Rate:  75.0%
+      Trades:    12
+    NFLX:
+      Profit:   15.42%
+      Win Rate:  45.8%
+      Trades:    59
+    DIS:
+      Profit:   -9.81%
+      Win Rate:  25.0%
+      Trades:     4
+    EA:
+      Profit:    2.04%
+      Win Rate:  50.0%
+      Trades:    16
+    TTWO:
+      Profit:   15.82%
+      Win Rate:  61.9%
+      Trades:    21
+    RBLX:
+      Profit:   55.37%
+      Win Rate: 100.0%
+      Trades:     2
+    COIN:
+      Profit:   21.15%
+      Win Rate:  41.2%
+      Trades:    34
+    U:
+      Profit:  -14.07%
+      Win Rate:   0.0%
+      Trades:     1
+    PATH:
+      Profit:  -21.36%
+      Win Rate:   0.0%
+      Trades:     1
+    AI:
+      Profit:   52.97%
+      Win Rate:  66.7%
+      Trades:     3
+    CRWD:
+      Profit:   24.14%
+      Win Rate:  53.7%
+      Trades:    41
+    ZS:
+      Profit:   -0.98%
+      Win Rate:  58.3%
+      Trades:    24
+--------------------------------------------------------------------------------
+
+Saved Model Checkpoint (Episode 0)
+  Path: checkpoints/best_model.pt
+  Metrics:
+    profit:  0.2109
+    win_rate:  0.5408
+    num_trades: 16
+    excess_return: -6.5854
+    per_ticker_metrics: {'QQQ': {'profit': -0.0244867736925366, 'num_trades': 47, 'avg_return': -0.00036883978663875846, 'win_rate': 0.5531914893617021, 'accumulated_reward': -0.7130000000000005, 'buy_and_hold_return': 0.22357002395983172}, 'XLK': {'profit': 0.0748135377109791, 'num_trades': 35, 'avg_return': 0.002304242108810366, 'win_rate': 0.6571428571428571, 'accumulated_reward': -0.7980000000000006, 'buy_and_hold_return': 0.16708819213337356}, 'VGT': {'profit': 0.05033484748655814, 'num_trades': 56, 'avg_return': 0.0009557860048082912, 'win_rate': 0.5178571428571429, 'accumulated_reward': -0.6520000000000005, 'buy_and_hold_return': 0.23861523175113986}, 'SMH': {'profit': 0.5521669442130486, 'num_trades': 41, 'avg_return': 0.011162537531888466, 'win_rate': 0.6829268292682927, 'accumulated_reward': -0.8670000000000007, 'buy_and_hold_return': 0.12989883611458763}, 'SOXX': {'profit': -0.24230036257702248, 'num_trades': 32, 'avg_return': -0.008724250065806011, 'win_rate': 0.46875, 'accumulated_reward': -0.9070000000000007, 'buy_and_hold_return': 0.005681862359471435}, 'IGV': {'profit': 0.34558718361626184, 'num_trades': 2, 'avg_return': 0.05516968656545245, 'win_rate': 0.5, 'accumulated_reward': -1.3999999999999566, 'buy_and_hold_return': 0.2781702207316892}, 'FTEC': {'profit': 0.2489593894844171, 'num_trades': 20, 'avg_return': 0.011822628515543903, 'win_rate': 0.6, 'accumulated_reward': -0.8400000000000006, 'buy_and_hold_return': 0.23994791825664175}, 'IYW': {'profit': 0.3546680337499828, 'num_trades': 15, 'avg_return': 0.02023909633478859, 'win_rate': 0.8666666666666667, 'accumulated_reward': -0.9810000000000008, 'buy_and_hold_return': 0.23583779461825172}, 'QTEC': {'profit': 0.021166899842227416, 'num_trades': 15, 'avg_return': 0.0002740036910349631, 'win_rate': 0.4666666666666667, 'accumulated_reward': -0.8200000000000006, 'buy_and_hold_return': 0.10792288400927363}, 'AIQ': {'profit': 0.46954407926060115, 'num_trades': 1, 'avg_return': 0.09180988762027605, 'win_rate': 1.0, 'accumulated_reward': -1.1729999999999816, 'buy_and_hold_return': 0.293166594515587}, 'BOTZ': {'profit': 0.1496090291978045, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.450999999999951, 'buy_and_hold_return': 0.10652924351513948}, 'ROBO': {'profit': 0.014462568154177236, 'num_trades': 2, 'avg_return': 0.00723128407708859, 'win_rate': 0.5, 'accumulated_reward': -1.295999999999968, 'buy_and_hold_return': 0.06159615901315063}, 'SOXQ': {'profit': 0.030691793525312816, 'num_trades': 2, 'avg_return': 0.011287796700358853, 'win_rate': 1.0, 'accumulated_reward': -0.8860000000000007, 'buy_and_hold_return': 0.05295882170965571}, 'PSI': {'profit': 0.09258701315621387, 'num_trades': 1, 'avg_return': 0.052922630350836414, 'win_rate': 1.0, 'accumulated_reward': -1.4209999999999543, 'buy_and_hold_return': 0.08121921315168912}, 'XSD': {'profit': -0.14029476577416478, 'num_trades': 30, 'avg_return': -0.004219906634593118, 'win_rate': 0.5, 'accumulated_reward': -0.6860000000000005, 'buy_and_hold_return': 0.08147384148721182}, 'USD': {'profit': 0.13825253532343118, 'num_trades': 1, 'avg_return': -0.10750653480321877, 'win_rate': 0.0, 'accumulated_reward': -1.27899999999997, 'buy_and_hold_return': 0.3819095963042163}, 'WCLD': {'profit': 0.20595764970041186, 'num_trades': 2, 'avg_return': 0.06585331871859249, 'win_rate': 0.5, 'accumulated_reward': -0.9970000000000008, 'buy_and_hold_return': 0.2088570837630861}, 'SKYY': {'profit': 0.2676784312289935, 'num_trades': 8, 'avg_return': 0.024301550035214566, 'win_rate': 0.5, 'accumulated_reward': -1.1389999999999854, 'buy_and_hold_return': 0.35989074745452965}, 'CLOU': {'profit': 0.2571214241080426, 'num_trades': 2, 'avg_return': 0.08187487901995741, 'win_rate': 0.5, 'accumulated_reward': -1.18799999999998, 'buy_and_hold_return': 0.21911979422659167}, 'CIBR': {'profit': 0.19537461550934632, 'num_trades': 2, 'avg_return': 0.09569268290656134, 'win_rate': 1.0, 'accumulated_reward': -1.1109999999999884, 'buy_and_hold_return': 0.2895021579118193}, 'BUG': {'profit': 0.29054998894329653, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4209999999999543, 'buy_and_hold_return': 0.2609774843614383}, 'ARKW': {'profit': 0.6396671244458068, 'num_trades': 8, 'avg_return': 0.06394902223621327, 'win_rate': 0.875, 'accumulated_reward': -0.9920000000000008, 'buy_and_hold_return': 0.5596230229069084}, 'KOMP': {'profit': 0.10727358048675328, 'num_trades': 1, 'avg_return': 0.11969293581452921, 'win_rate': 1.0, 'accumulated_reward': -1.3859999999999582, 'buy_and_hold_return': 0.16871376865048981}, 'PTF': {'profit': 0.22935687591330534, 'num_trades': 2, 'avg_return': 0.013752283500915693, 'win_rate': 1.0, 'accumulated_reward': -1.2189999999999765, 'buy_and_hold_return': 0.3463836346573792}, 'XITK': {'profit': 0.21541959960154533, 'num_trades': 11, 'avg_return': 0.01951377249200258, 'win_rate': 0.6363636363636364, 'accumulated_reward': -0.6040000000000004, 'buy_and_hold_return': 0.3128252847547257}, 'IWF': {'profit': 0.11715267727322942, 'num_trades': 42, 'avg_return': 0.0027199220690579773, 'win_rate': 0.5238095238095238, 'accumulated_reward': -0.6920000000000005, 'buy_and_hold_return': 0.24850322547237114}, 'VUG': {'profit': 0.1691164257397737, 'num_trades': 45, 'avg_return': 0.0035526352185758303, 'win_rate': 0.6, 'accumulated_reward': -0.5380000000000004, 'buy_and_hold_return': 0.25060707490694556}, 'SPYG': {'profit': 0.3131313394444468, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.4219999999999542, 'buy_and_hold_return': 0.26872856428533076}, 'VONG': {'profit': 0.16032778452135688, 'num_trades': 10, 'avg_return': 0.012926030886737558, 'win_rate': 0.6, 'accumulated_reward': -0.8910000000000007, 'buy_and_hold_return': 0.2483103895871832}, 'SCHG': {'profit': 0.2876376731289709, 'num_trades': 0, 'avg_return': 0, 'win_rate': 0, 'accumulated_reward': -1.3669999999999602, 'buy_and_hold_return': 0.2561875572132104}, 'AAPL': {'profit': 0.2854205421492573, 'num_trades': 30, 'avg_return': 0.00816647782338998, 'win_rate': 0.6333333333333333, 'accumulated_reward': -0.6790000000000005, 'buy_and_hold_return': 0.447159806652182}, 'MSFT': {'profit': -0.08556925085563816, 'num_trades': 41, 'avg_return': -0.0020608815067409796, 'win_rate': 0.5121951219512195, 'accumulated_reward': -0.5020000000000003, 'buy_and_hold_return': -0.037523275766199404}, 'GOOGL': {'profit': -0.0072732742674411766, 'num_trades': 22, 'avg_return': -0.0003408789168828726, 'win_rate': 0.5454545454545454, 'accumulated_reward': -0.8330000000000006, 'buy_and_hold_return': 0.17538327101583517}, 'AMZN': {'profit': 0.25336582127504026, 'num_trades': 28, 'avg_return': 0.00866217465040985, 'win_rate': 0.5714285714285714, 'accumulated_reward': -0.6630000000000005, 'buy_and_hold_return': 0.22593608805998455}, 'META': {'profit': 0.09686818797967689, 'num_trades': 58, 'avg_return': 0.0018267037498837977, 'win_rate': 0.5172413793103449, 'accumulated_reward': -0.6600000000000005, 'buy_and_hold_return': 0.4211297367982567}, 'NVDA': {'profit': 1.1892261461761935, 'num_trades': 8, 'avg_return': 0.08438788448123737, 'win_rate': 0.875, 'accumulated_reward': -0.8640000000000007, 'buy_and_hold_return': 0.5648302499983879}, 'TSLA': {'profit': 0.5711132319159444, 'num_trades': 31, 'avg_return': 0.01723423523429713, 'win_rate': 0.45161290322580644, 'accumulated_reward': -0.6720000000000005, 'buy_and_hold_return': 1.0873287217644618}, 'AMD': {'profit': -0.15865875679044572, 'num_trades': 19, 'avg_return': -0.0074071506142534315, 'win_rate': 0.47368421052631576, 'accumulated_reward': -0.7620000000000006, 'buy_and_hold_return': -0.3317973434427003}, 'INTC': {'profit': -0.3038673361521699, 'num_trades': 3, 'avg_return': -0.1546699525421207, 'win_rate': 0.3333333333333333, 'accumulated_reward': -0.6980000000000005, 'buy_and_hold_return': -0.36515188270549126}, 'TSM': {'profit': 0.2751235174469646, 'num_trades': 20, 'avg_return': 0.012545403748432457, 'win_rate': 0.5, 'accumulated_reward': -0.8910000000000007, 'buy_and_hold_return': 0.4055563409705121}, 'AVGO': {'profit': 0.4989914838288203, 'num_trades': 15, 'avg_return': 0.032646957621074627, 'win_rate': 0.6, 'accumulated_reward': -1.0949999999999902, 'buy_and_hold_return': 0.7132141063061468}, 'QCOM': {'profit': 0.18208307219702569, 'num_trades': 20, 'avg_return': 0.011059042042684885, 'win_rate': 0.5, 'accumulated_reward': -0.7950000000000006, 'buy_and_hold_return': 0.0024449771331347403}, 'AMAT': {'profit': -0.26630899261303287, 'num_trades': 32, 'avg_return': -0.0063920562655107515, 'win_rate': 0.46875, 'accumulated_reward': -0.6570000000000005, 'buy_and_hold_return': -0.1849014960184685}, 'MU': {'profit': -0.017220175758683842, 'num_trades': 8, 'avg_return': -0.017315187600164473, 'win_rate': 0.375, 'accumulated_reward': -1.1019999999999894, 'buy_and_hold_return': -0.2078955975284259}, 'CRM': {'profit': 0.10291889164701673, 'num_trades': 44, 'avg_return': 0.0025121684786560666, 'win_rate': 0.5909090909090909, 'accumulated_reward': -0.6590000000000005, 'buy_and_hold_return': 0.09969339503818175}, 'ADBE': {'profit': 0.12316011705724295, 'num_trades': 51, 'avg_return': 0.0026327044933153096, 'win_rate': 0.43137254901960786, 'accumulated_reward': -0.5340000000000004, 'buy_and_hold_return': -0.04657501516851181}, 'ORCL': {'profit': 0.4204351560740087, 'num_trades': 15, 'avg_return': 0.025803223990909275, 'win_rate': 0.5333333333333333, 'accumulated_reward': -1.0040000000000002, 'buy_and_hold_return': 0.4159687529174727}, 'SNOW': {'profit': 0.5911367004370995, 'num_trades': 15, 'avg_return': 0.037801439703728616, 'win_rate': 0.4666666666666667, 'accumulated_reward': -1.1569999999999834, 'buy_and_hold_return': 0.1983392043850183}, 'NET': {'profit': 1.0200501914056295, 'num_trades': 3, 'avg_return': 0.1115471172769269, 'win_rate': 1.0, 'accumulated_reward': -1.1299999999999863, 'buy_and_hold_return': 0.8021491872990674}, 'PLTR': {'profit': 1.9615987756540125, 'num_trades': 2, 'avg_return': 0.8308150466456001, 'win_rate': 1.0, 'accumulated_reward': -0.8720000000000007, 'buy_and_hold_return': 4.2826424257922575}, 'CSCO': {'profit': 0.1407702342084758, 'num_trades': 1, 'avg_return': 0.08098884781070395, 'win_rate': 1.0, 'accumulated_reward': -0.3900000000000003, 'buy_and_hold_return': 0.3209812691885323}, 'IBM': {'profit': -0.0046480210094025365, 'num_trades': 25, 'avg_return': 0.0003714934092663721, 'win_rate': 0.64, 'accumulated_reward': -0.8070000000000006, 'buy_and_hold_return': 0.4117932408563758}, 'HPQ': {'profit': 0.3396319398594898, 'num_trades': 1, 'avg_return': 0.34799713379246133, 'win_rate': 1.0, 'accumulated_reward': -1.287999999999969, 'buy_and_hold_return': 0.16994260171370068}, 'DELL': {'profit': -0.30423434188136655, 'num_trades': 10, 'avg_return': -0.020480694352696095, 'win_rate': 0.4, 'accumulated_reward': -1.1199999999999875, 'buy_and_hold_return': -0.07525273101778585}, 'STX': {'profit': 0.04594601341383053, 'num_trades': 5, 'avg_return': 0.006710597882111516, 'win_rate': 0.6, 'accumulated_reward': -0.9900000000000008, 'buy_and_hold_return': 0.17726226159690128}, 'WDC': {'profit': -0.17714905624246513, 'num_trades': 2, 'avg_return': -0.11904018976065092, 'win_rate': 0.0, 'accumulated_reward': -0.8790000000000007, 'buy_and_hold_return': -0.05705622283552725}, 'PYPL': {'profit': 0.18901723131265102, 'num_trades': 6, 'avg_return': 0.03417147193305856, 'win_rate': 0.5, 'accumulated_reward': -1.0119999999999993, 'buy_and_hold_return': 0.20080423865035546}, 'SQ': {'profit': 0.06435344456381897, 'num_trades': 3, 'avg_return': -0.05873036491314431, 'win_rate': 0.0, 'accumulated_reward': -0.7820000000000006, 'buy_and_hold_return': 0.03463053319508469}, 'SHOP': {'profit': 0.9450646781995258, 'num_trades': 4, 'avg_return': 0.14400472618886953, 'win_rate': 0.5, 'accumulated_reward': -1.2719999999999707, 'buy_and_hold_return': 0.8081420548381422}, 'ABNB': {'profit': 0.0022181764450952546, 'num_trades': 16, 'avg_return': -0.008426786925205328, 'win_rate': 0.4375, 'accumulated_reward': -0.9340000000000007, 'buy_and_hold_return': -0.004194990184861913}, 'UBER': {'profit': -0.02702218152221081, 'num_trades': 5, 'avg_return': -0.054148839061292406, 'win_rate': 0.2, 'accumulated_reward': -0.9390000000000007, 'buy_and_hold_return': 0.04192097982992804}, 'DASH': {'profit': 0.4511783745352784, 'num_trades': 12, 'avg_return': 0.034758017056501146, 'win_rate': 0.75, 'accumulated_reward': -1.0109999999999995, 'buy_and_hold_return': 0.5282112779557813}, 'NFLX': {'profit': 0.15423413833339628, 'num_trades': 59, 'avg_return': 0.0027225887091604176, 'win_rate': 0.4576271186440678, 'accumulated_reward': -0.5620000000000004, 'buy_and_hold_return': 0.6887655420821841}, 'DIS': {'profit': -0.09807741701396322, 'num_trades': 4, 'avg_return': -0.012959127264563074, 'win_rate': 0.25, 'accumulated_reward': -1.0139999999999991, 'buy_and_hold_return': -0.05359286445552047}, 'EA': {'profit': 0.020437735101114685, 'num_trades': 16, 'avg_return': -0.00134958909887597, 'win_rate': 0.5, 'accumulated_reward': -0.8010000000000006, 'buy_and_hold_return': 0.004112662368109143}, 'TTWO': {'profit': 0.15815382442570614, 'num_trades': 21, 'avg_return': 0.00826254620625865, 'win_rate': 0.6190476190476191, 'accumulated_reward': -0.8340000000000006, 'buy_and_hold_return': 0.38463063584868595}, 'RBLX': {'profit': 0.5537299640157547, 'num_trades': 2, 'avg_return': 0.24549255840355297, 'win_rate': 1.0, 'accumulated_reward': -1.2529999999999728, 'buy_and_hold_return': 0.6855267264395712}, 'COIN': {'profit': 0.2114656317221315, 'num_trades': 34, 'avg_return': 0.013257564045342694, 'win_rate': 0.4117647058823529, 'accumulated_reward': -0.7420000000000005, 'buy_and_hold_return': 0.09334510765024562}, 'U': {'profit': -0.14065530249871683, 'num_trades': 1, 'avg_return': -0.341702019638095, 'win_rate': 0.0, 'accumulated_reward': -1.2819999999999696, 'buy_and_hold_return': -0.16923301879895192}, 'PATH': {'profit': -0.21364946629768478, 'num_trades': 1, 'avg_return': -0.020155105390620594, 'win_rate': 0.0, 'accumulated_reward': -1.3159999999999659, 'buy_and_hold_return': -0.29601695440973785}, 'AI': {'profit': 0.5296901171228616, 'num_trades': 3, 'avg_return': 0.15416655807184346, 'win_rate': 0.6666666666666666, 'accumulated_reward': -1.007, 'buy_and_hold_return': 0.3530545952258799}, 'CRWD': {'profit': 0.24138904088761093, 'num_trades': 41, 'avg_return': 0.005185287984873301, 'win_rate': 0.5365853658536586, 'accumulated_reward': -0.7180000000000005, 'buy_and_hold_return': 0.445827903243168}, 'ZS': {'profit': -0.009794857645447963, 'num_trades': 24, 'avg_return': 0.0020229939696485046, 'win_rate': 0.5833333333333334, 'accumulated_reward': -0.8750000000000007, 'buy_and_hold_return': 0.15812692355051472}}
+    episode: 0
+    timestamp: 2025-02-16T16:13:10.632052
+--------------------------------------------------------------------------------
+
+Training Update (Episode 0)
+  Learning Rate: 3.00e-04
+  Gradient Norm: 0.0000
+
+Episode    1
+  Returns: -2.9940 (Avg: -3.0200)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  3.2126
+  Epsilon:   0.9905
+  Loss:      0.0000
+  Trades:    988 (Win Rate:  48.2%)
+
+Episode    2
+  Returns: -2.9710 (Avg: -3.0037)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  3.2062
+  Epsilon:   0.9812
+  Loss:      0.0000
+  Trades:    970 (Win Rate:  48.2%)
+
+Episode    3
+  Returns: -2.9900 (Avg: -3.0003)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0827
+  Epsilon:   0.9719
+  Loss:      0.0778
+  Trades:    988 (Win Rate:  48.2%)
+
+Episode    4
+  Returns: -3.0110 (Avg: -3.0024)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0711
+  Epsilon:   0.9627
+  Loss:      0.0443
+  Trades:    970 (Win Rate:  47.8%)
+
+Episode    5
+  Returns: -2.9740 (Avg: -2.9977)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1884
+  Epsilon:   0.9537
+  Loss:      0.0537
+  Trades:    949 (Win Rate:  46.9%)
+
+Validation Results (Episode 5)
+  Excess Return:   -8.83%
+  Profit:          18.85%
+  Win Rate:        52.70%
+  Trades:            324
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   40.60%
+      Win Rate:  56.8%
+      Trades:   373
+    XLK:
+      Profit:   -1.76%
+      Win Rate:  51.7%
+      Trades:   356
+    VGT:
+      Profit:   34.15%
+      Win Rate:  56.2%
+      Trades:   379
+    SMH:
+      Profit:   19.90%
+      Win Rate:  54.1%
+      Trades:   377
+    SOXX:
+      Profit:  -23.83%
+      Win Rate:  49.0%
+      Trades:   363
+    IGV:
+      Profit:   38.86%
+      Win Rate:  58.6%
+      Trades:   377
+    FTEC:
+      Profit:    7.86%
+      Win Rate:  56.8%
+      Trades:   359
+    IYW:
+      Profit:   18.11%
+      Win Rate:  52.2%
+      Trades:   347
+    QTEC:
+      Profit:    6.26%
+      Win Rate:  48.3%
+      Trades:    60
+    AIQ:
+      Profit:   29.41%
+      Win Rate:  61.0%
+      Trades:   241
+    BOTZ:
+      Profit:    9.62%
+      Win Rate:  55.7%
+      Trades:   210
+    ROBO:
+      Profit:   15.83%
+      Win Rate:  56.3%
+      Trades:   332
+    SOXQ:
+      Profit:    4.37%
+      Win Rate:  54.5%
+      Trades:   275
+    PSI:
+      Profit:   -5.95%
+      Win Rate:  51.9%
+      Trades:   337
+    XSD:
+      Profit:    7.45%
+      Win Rate:  53.1%
+      Trades:   369
+    USD:
+      Profit:   68.30%
+      Win Rate:  53.9%
+      Trades:   323
+    WCLD:
+      Profit:   15.88%
+      Win Rate:  50.9%
+      Trades:   222
+    SKYY:
+      Profit:    8.98%
+      Win Rate:  53.7%
+      Trades:   352
+    CLOU:
+      Profit:   22.10%
+      Win Rate:  50.9%
+      Trades:   163
+    CIBR:
+      Profit:   27.24%
+      Win Rate:  58.1%
+      Trades:   339
+    BUG:
+      Profit:   28.81%
+      Win Rate:  55.9%
+      Trades:   229
+    ARKW:
+      Profit:   50.18%
+      Win Rate:  51.4%
+      Trades:   364
+    KOMP:
+      Profit:   13.13%
+      Win Rate:  55.2%
+      Trades:   317
+    PTF:
+      Profit:   14.02%
+      Win Rate:  55.5%
+      Trades:   319
+    XITK:
+      Profit:   31.23%
+      Win Rate:  55.2%
+      Trades:   201
+    IWF:
+      Profit:   12.46%
+      Win Rate:  55.5%
+      Trades:   375
+    VUG:
+      Profit:    2.37%
+      Win Rate:  54.0%
+      Trades:   359
+    SPYG:
+      Profit:   19.12%
+      Win Rate:  57.7%
+      Trades:   352
+    VONG:
+      Profit:    6.81%
+      Win Rate:  58.0%
+      Trades:   350
+    SCHG:
+      Profit:   13.67%
+      Win Rate:  56.4%
+      Trades:   202
+    AAPL:
+      Profit:   27.45%
+      Win Rate:  54.2%
+      Trades:   371
+    MSFT:
+      Profit:   -4.35%
+      Win Rate:  49.6%
+      Trades:   383
+    GOOGL:
+      Profit:   29.21%
+      Win Rate:  51.9%
+      Trades:   339
+    AMZN:
+      Profit:   36.82%
+      Win Rate:  49.3%
+      Trades:   367
+    META:
+      Profit:   49.45%
+      Win Rate:  50.5%
+      Trades:   380
+    NVDA:
+      Profit:   22.99%
+      Win Rate:  52.1%
+      Trades:   361
+    TSLA:
+      Profit:   44.79%
+      Win Rate:  50.0%
+      Trades:   372
+    AMD:
+      Profit:  -35.62%
+      Win Rate:  49.6%
+      Trades:   351
+    INTC:
+      Profit:  -45.56%
+      Win Rate:  46.9%
+      Trades:   211
+    TSM:
+      Profit:   -5.95%
+      Win Rate:  47.6%
+      Trades:   353
+    AVGO:
+      Profit:   87.13%
+      Win Rate:  54.5%
+      Trades:   347
+    QCOM:
+      Profit:   -9.25%
+      Win Rate:  50.1%
+      Trades:   357
+    AMAT:
+      Profit:   20.57%
+      Win Rate:  52.1%
+      Trades:   380
+    MU:
+      Profit:   20.60%
+      Win Rate:  51.0%
+      Trades:   349
+    CRM:
+      Profit:    4.12%
+      Win Rate:  51.7%
+      Trades:   381
+    ADBE:
+      Profit:   -1.57%
+      Win Rate:  46.8%
+      Trades:   359
+    ORCL:
+      Profit:    7.02%
+      Win Rate:  52.5%
+      Trades:   366
+    SNOW:
+      Profit:    7.00%
+      Win Rate:  50.0%
+      Trades:   350
+    NET:
+      Profit:   22.54%
+      Win Rate:  50.9%
+      Trades:   352
+    PLTR:
+      Profit:  310.44%
+      Win Rate:  53.5%
+      Trades:   254
+    CSCO:
+      Profit:   23.06%
+      Win Rate:  55.3%
+      Trades:   338
+    IBM:
+      Profit:   23.58%
+      Win Rate:  59.2%
+      Trades:   348
+    HPQ:
+      Profit:   19.70%
+      Win Rate:  51.3%
+      Trades:   265
+    DELL:
+      Profit:  -17.17%
+      Win Rate:  52.5%
+      Trades:   377
+    STX:
+      Profit:   19.26%
+      Win Rate:  53.2%
+      Trades:   374
+    WDC:
+      Profit:  -21.40%
+      Win Rate:  47.6%
+      Trades:   355
+    PYPL:
+      Profit:    0.58%
+      Win Rate:  51.3%
+      Trades:   341
+    SQ:
+      Profit:   14.77%
+      Win Rate:  53.7%
+      Trades:   315
+    SHOP:
+      Profit:   40.33%
+      Win Rate:  47.0%
+      Trades:   362
+    ABNB:
+      Profit:    3.60%
+      Win Rate:  48.9%
+      Trades:   370
+    UBER:
+      Profit:  -24.14%
+      Win Rate:  46.9%
+      Trades:   360
+    DASH:
+      Profit:   45.60%
+      Win Rate:  52.0%
+      Trades:   367
+    NFLX:
+      Profit:   15.23%
+      Win Rate:  54.7%
+      Trades:   380
+    DIS:
+      Profit:  -20.73%
+      Win Rate:  48.6%
+      Trades:   352
+    EA:
+      Profit:   21.42%
+      Win Rate:  55.1%
+      Trades:   352
+    TTWO:
+      Profit:   15.83%
+      Win Rate:  55.0%
+      Trades:   338
+    RBLX:
+      Profit:  -26.74%
+      Win Rate:  51.0%
+      Trades:   286
+    COIN:
+      Profit:   63.12%
+      Win Rate:  53.2%
+      Trades:   357
+    U:
+      Profit:  -18.39%
+      Win Rate:  44.1%
+      Trades:   177
+    PATH:
+      Profit:  -40.49%
+      Win Rate:  51.4%
+      Trades:   105
+    AI:
+      Profit:   69.92%
+      Win Rate:  56.4%
+      Trades:   227
+    CRWD:
+      Profit:   47.47%
+      Win Rate:  55.1%
+      Trades:   361
+    ZS:
+      Profit:   -1.66%
+      Win Rate:  49.9%
+      Trades:   349
+--------------------------------------------------------------------------------
+
+Training Update (Episode 5)
+  Learning Rate: 3.00e-04
+  Gradient Norm: 1.0000
+
+Episode    6
+  Returns: -2.9710 (Avg: -2.9939)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0906
+  Epsilon:   0.9447
+  Loss:      0.0276
+  Trades:    966 (Win Rate:  50.3%)
+
+Episode    7
+  Returns: -2.8690 (Avg: -2.9783)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.2290
+  Epsilon:   0.9358
+  Loss:      0.0258
+  Trades:    934 (Win Rate:  47.8%)
+
+Episode    8
+  Returns: -2.8340 (Avg: -2.9622)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.0900
+  Epsilon:   0.9270
+  Loss:      0.0238
+  Trades:    891 (Win Rate:  48.1%)
+
+Episode    9
+  Returns: -2.8860 (Avg: -2.9546)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.1181
+  Epsilon:   0.9182
+  Loss:      0.0252
+  Trades:    907 (Win Rate:  46.2%)
+
+Episode   10
+  Returns: -2.7650 (Avg: -2.9374)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0005
+  Priority:  0.0758
+  Epsilon:   0.9096
+  Loss:      0.0184
+  Trades:    889 (Win Rate:  48.6%)
+
+Validation Results (Episode 10)
+  Excess Return:  -18.50%
+  Profit:           9.18%
+  Win Rate:        51.30%
+  Trades:            380
+
+  Per-Ticker Performance:
+    QQQ:
+      Profit:   12.23%
+      Win Rate:  53.9%
+      Trades:   445
+    XLK:
+      Profit:   -7.85%
+      Win Rate:  53.3%
+      Trades:   439
+    VGT:
+      Profit:    2.64%
+      Win Rate:  54.1%
+      Trades:   449
+    SMH:
+      Profit:   23.92%
+      Win Rate:  52.1%
+      Trades:   461
+    SOXX:
+      Profit:   -6.03%
+      Win Rate:  48.4%
+      Trades:   448
+    IGV:
+      Profit:   -1.69%
+      Win Rate:  49.5%
+      Trades:   398
+    FTEC:
+      Profit:   21.79%
+      Win Rate:  56.1%
+      Trades:   428
+    IYW:
+      Profit:   28.16%
+      Win Rate:  56.6%
+      Trades:   424
+    QTEC:
+      Profit:    1.57%
+      Win Rate:  50.6%
+      Trades:    81
+    AIQ:
+      Profit:    8.71%
+      Win Rate:  53.8%
+      Trades:   264
+    BOTZ:
+      Profit:   -9.37%
+      Win Rate:  52.2%
+      Trades:   255
+    ROBO:
+      Profit:   -1.36%
+      Win Rate:  53.3%
+      Trades:   353
+    SOXQ:
+      Profit:    1.83%
+      Win Rate:  51.1%
+      Trades:   284
+    PSI:
+      Profit:    6.77%
+      Win Rate:  50.9%
+      Trades:   373
+    XSD:
+      Profit:    4.34%
+      Win Rate:  49.0%
+      Trades:   435
+    USD:
+      Profit:  -57.48%
+      Win Rate:  50.9%
+      Trades:   385
+    WCLD:
+      Profit:    2.65%
+      Win Rate:  54.7%
+      Trades:   232
+    SKYY:
+      Profit:   17.80%
+      Win Rate:  51.6%
+      Trades:   417
+    CLOU:
+      Profit:   -6.56%
+      Win Rate:  50.0%
+      Trades:   172
+    CIBR:
+      Profit:    2.55%
+      Win Rate:  51.1%
+      Trades:   395
+    BUG:
+      Profit:   12.34%
+      Win Rate:  54.8%
+      Trades:   252
+    ARKW:
+      Profit:   -4.44%
+      Win Rate:  48.7%
+      Trades:   419
+    KOMP:
+      Profit:    4.81%
+      Win Rate:  52.0%
+      Trades:   350
+    PTF:
+      Profit:   21.50%
+      Win Rate:  53.3%
+      Trades:   347
+    XITK:
+      Profit:    3.58%
+      Win Rate:  55.5%
+      Trades:   220
+    IWF:
+      Profit:    7.66%
+      Win Rate:  55.3%
+      Trades:   441
+    VUG:
+      Profit:    1.65%
+      Win Rate:  53.2%
+      Trades:   453
+    SPYG:
+      Profit:   14.29%
+      Win Rate:  54.1%
+      Trades:   390
+    VONG:
+      Profit:    4.11%
+      Win Rate:  54.2%
+      Trades:   417
+    SCHG:
+      Profit:   16.89%
+      Win Rate:  55.0%
+      Trades:   191
+    AAPL:
+      Profit:   23.33%
+      Win Rate:  52.3%
+      Trades:   442
+    MSFT:
+      Profit:  -18.30%
+      Win Rate:  49.3%
+      Trades:   456
+    GOOGL:
+      Profit:   -3.56%
+      Win Rate:  50.2%
+      Trades:   426
+    AMZN:
+      Profit:   44.72%
+      Win Rate:  54.7%
+      Trades:   444
+    META:
+      Profit:    8.54%
+      Win Rate:  50.2%
+      Trades:   450
+    NVDA:
+      Profit:   -3.82%
+      Win Rate:  51.9%
+      Trades:   437
+    TSLA:
+      Profit:   24.87%
+      Win Rate:  52.3%
+      Trades:   430
+    AMD:
+      Profit:    1.38%
+      Win Rate:  52.2%
+      Trades:   435
+    INTC:
+      Profit:  -47.92%
+      Win Rate:  44.9%
+      Trades:   236
+    TSM:
+      Profit:   -4.16%
+      Win Rate:  51.6%
+      Trades:   440
+    AVGO:
+      Profit:   84.27%
+      Win Rate:  53.1%
+      Trades:   429
+    QCOM:
+      Profit:    5.05%
+      Win Rate:  50.9%
+      Trades:   442
+    AMAT:
+      Profit:    5.95%
+      Win Rate:  50.9%
+      Trades:   432
+    MU:
+      Profit:   -5.11%
+      Win Rate:  49.6%
+      Trades:   427
+    CRM:
+      Profit:    2.10%
+      Win Rate:  53.4%
+      Trades:   442
+    ADBE:
+      Profit:    7.80%
+      Win Rate:  51.0%
+      Trades:   449
+    ORCL:
+      Profit:    8.70%
+      Win Rate:  50.2%
+      Trades:   440
+    SNOW:
+      Profit:   35.85%
+      Win Rate:  48.5%
+      Trades:   425
+    NET:
+      Profit:   -9.57%
+      Win Rate:  48.1%
+      Trades:   412
+    PLTR:
+      Profit:  119.87%
+      Win Rate:  54.6%
+      Trades:   262
+    CSCO:
+      Profit:    5.63%
+      Win Rate:  49.6%
+      Trades:   371
+    IBM:
+      Profit:   23.31%
+      Win Rate:  51.9%
+      Trades:   451
+    HPQ:
+      Profit:  -16.47%
+      Win Rate:  50.2%
+      Trades:   265
+    DELL:
+      Profit:   44.60%
+      Win Rate:  49.9%
+      Trades:   445
+    STX:
+      Profit:   16.05%
+      Win Rate:  53.3%
+      Trades:   441
+    WDC:
+      Profit:   -3.71%
+      Win Rate:  49.0%
+      Trades:   404
+    PYPL:
+      Profit:   50.76%
+      Win Rate:  52.4%
+      Trades:   401
+    SQ:
+      Profit:  -13.68%
+      Win Rate:  48.2%
+      Trades:   386
+    SHOP:
+      Profit:   35.61%
+      Win Rate:  53.0%
+      Trades:   396
+    ABNB:
+      Profit:  -14.54%
+      Win Rate:  47.8%
+      Trades:   423
+    UBER:
+      Profit:   16.04%
+      Win Rate:  49.3%
+      Trades:   402
+    DASH:
+      Profit:   21.03%
+      Win Rate:  53.4%
+      Trades:   410
+    NFLX:
+      Profit:    4.50%
+      Win Rate:  52.8%
+      Trades:   475
+    DIS:
+      Profit:   12.04%
+      Win Rate:  47.7%
+      Trades:   432
+    EA:
+      Profit:    1.02%
+      Win Rate:  49.8%
+      Trades:   440
+    TTWO:
+      Profit:   12.13%
+      Win Rate:  49.2%
+      Trades:   443
+    RBLX:
+      Profit:   13.28%
+      Win Rate:  52.4%
+      Trades:   307
+    COIN:
+      Profit:   27.18%
+      Win Rate:  47.9%
+      Trades:   436
+    U:
+      Profit:  -33.23%
+      Win Rate:  44.4%
+      Trades:   198
+    PATH:
+      Profit:   15.83%
+      Win Rate:  43.2%
+      Trades:   132
+    AI:
+      Profit:   25.59%
+      Win Rate:  49.6%
+      Trades:   228
+    CRWD:
+      Profit:   14.90%
+      Win Rate:  51.5%
+      Trades:   462
+    ZS:
+      Profit:    5.27%
+      Win Rate:  49.3%
+      Trades:   450
+--------------------------------------------------------------------------------
+
+Training Update (Episode 10)
+  Learning Rate: 3.00e-04
+  Gradient Norm: 0.2160
+
+Episode   11
+  Returns: -2.8910 (Avg: -2.9335)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0416
+  Epsilon:   0.9010
+  Loss:      0.0163
+  Trades:    877 (Win Rate:  47.8%)
+
+Episode   12
+  Returns: -2.9060 (Avg: -2.9314)
+  Length:   4000   (Avg:  4000.0)
+  Std Dev:  0.0004
+  Priority:  0.0432
+  Epsilon:   0.8926
+  Loss:      0.0160
+  Trades:    884 (Win Rate:  48.3%)

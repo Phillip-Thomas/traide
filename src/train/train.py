@@ -12,7 +12,15 @@ from memory.replay_buffer import PrioritizedReplayBuffer
 from utils.save_utils import save_experiment, save_last_checkpoint, load_checkpoint
 from utils.logger import TrainingLogger
 from utils.visualizer import TrainingVisualizer
+import multiprocessing as mp
+from functools import partial
+import torch.multiprocessing as tmp
+from queue import Empty
+from threading import Event
 
+# Set multiprocessing start method to spawn for CUDA compatibility
+if __name__ == '__main__':
+    mp.set_start_method('spawn', force=True)
 
 def compute_loss(q_values, next_q_values, batch, gamma):
     """
@@ -37,70 +45,205 @@ def compute_loss(q_values, next_q_values, batch, gamma):
     
     return weighted_loss, loss
 
-def train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device):
+def train_batch(policy_net, target_net, optimizer, batch, batch_size, gamma, device, memory):
+    """
+    Modified to accept preprocessed batch directly
+    """
     try:
-        batch = memory.sample(batch_size, seq_len=10, device=device)
-        if batch is None:
-            return 0
-
+        torch.cuda.set_device(device)
+        
         # Get shapes
         batch_size, seq_len, feature_size = batch['states'].shape
         
-        # Process sequences in parallel
-        states = batch['states'].reshape(-1, feature_size)
-        next_states = batch['next_states'].reshape(-1, feature_size)
-        actions = batch['actions'].reshape(-1)
-        rewards = batch['rewards'].reshape(-1)
-        dones = batch['dones'].reshape(-1)
-
-        # N-step returns for better reward propagation
-        n_step = 3
-        discounted_rewards = rewards.clone()
-        for i in range(1, n_step):
-            discounted_rewards += (gamma ** i) * rewards.roll(-i, dims=0) * (1 - dones.roll(-i, dims=0))
-
-        # Double Q-learning with target network
-        with torch.no_grad():
-            # Get actions from policy network
-            next_q_values, _ = policy_net(next_states)
-            next_actions = next_q_values.max(1)[1]
-            
-            # Get Q-values from target network
-            target_q_values, _ = target_net(next_states)
-            next_q = target_q_values.gather(1, next_actions.unsqueeze(1)).squeeze(1)
-            
-            # Compute target with discounted rewards
-            targets = discounted_rewards + (gamma ** n_step) * (1 - dones) * next_q
-
-        # Current Q-values with added noise for exploration
-        q_values, _ = policy_net(states)
-        if random.random() < 0.1:  # Add noise occasionally
-            noise = torch.randn_like(q_values) * 0.1
-            q_values += noise
-            
-        q_value = q_values.gather(1, actions.unsqueeze(1)).squeeze(1)
-
-        # Prioritized replay with importance sampling
-        weights = batch['weights'].repeat_interleave(seq_len)
+        # Process sequences in chunks
+        chunk_size = min(32, batch_size)
+        total_loss = 0
+        num_chunks = 0
         
-        # Huber loss for stability
-        loss = F.smooth_l1_loss(q_value, targets, reduction='none')
-        weighted_loss = (loss * weights).mean()
+        # Process chunks
+        for i in range(0, batch_size, chunk_size):
+            end_idx = min(i + chunk_size, batch_size)
+            chunk_slice = slice(i, end_idx)
+            
+            # Process chunk
+            states = batch['states'][chunk_slice].reshape(-1, feature_size)
+            next_states = batch['next_states'][chunk_slice].reshape(-1, feature_size)
+            actions = batch['actions'][chunk_slice].reshape(-1)
+            rewards = batch['rewards'][chunk_slice].reshape(-1)
+            dones = batch['dones'][chunk_slice].reshape(-1)
+            weights = batch['weights'][chunk_slice].repeat_interleave(seq_len)
+            
+            # N-step returns
+            n_step = 3
+            discounted_rewards = rewards.clone()
+            for i in range(1, n_step):
+                discounted_rewards += (gamma ** i) * rewards.roll(-i, dims=0) * (1 - dones.roll(-i, dims=0))
 
-        # Optimize with gradient clipping
-        optimizer.zero_grad()
-        weighted_loss.backward()
-        torch.nn.utils.clip_grad_norm_(policy_net.parameters(), max_norm=1.0)
-        optimizer.step()
+            with torch.no_grad(), torch.cuda.amp.autocast():
+                next_q_values, _ = policy_net(next_states)
+                next_actions = next_q_values.max(1)[1]
+                target_q_values, _ = target_net(next_states)
+                next_q = target_q_values.gather(1, next_actions.unsqueeze(1)).squeeze(1)
+                targets = discounted_rewards + (gamma ** n_step) * (1 - dones) * next_q
 
-        # Update priorities using mean sequence loss
-        sequence_losses = loss.view(batch_size, seq_len).mean(dim=1)
-        memory.update_priorities(batch['indices'], sequence_losses.detach().cpu().numpy())
+            with torch.cuda.amp.autocast():
+                q_values, _ = policy_net(states)
+                if random.random() < 0.1:
+                    noise = torch.randn_like(q_values) * 0.1
+                    q_values += noise
+                
+                q_value = q_values.gather(1, actions.unsqueeze(1)).squeeze(1)
+                loss = F.smooth_l1_loss(q_value, targets, reduction='none')
+                weighted_loss = (loss * weights).mean()
 
-        return weighted_loss.item()
+            optimizer.zero_grad(set_to_none=True)
+            weighted_loss.backward()
+            torch.nn.utils.clip_grad_norm_(policy_net.parameters(), max_norm=1.0)
+            optimizer.step()
+
+            total_loss += weighted_loss.item()
+            num_chunks += 1
+
+            # Update priorities
+            sequence_losses = loss.view(-1, seq_len).mean(dim=1)
+            memory.update_priorities(batch['indices'][chunk_slice], sequence_losses.detach().cpu().numpy())
+
+            # Clear memory
+            del states, next_states, actions, rewards, dones, weights, q_values, loss
+            torch.cuda.empty_cache()
+
+        torch.cuda.synchronize(device)
+        return total_loss / num_chunks if num_chunks > 0 else 0
 
     except Exception as e:
         print(f"\nError in train_batch: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return 0
+
+def run_env_episode_worker(env, policy_net_state_dict, epsilon, temperature, input_size, device_idx):
+    """
+    Worker process to run environment episodes
+    """
+    try:
+        device = torch.device(f'cuda:{device_idx}' if torch.cuda.is_available() else 'cpu')
+        transitions, reward, trades = run_env_episode(
+            env=env,
+            policy_net_state_dict=policy_net_state_dict,
+            epsilon=epsilon,
+            temperature=temperature,
+            input_size=input_size,
+            device=device
+        )
+        return transitions, reward, trades
+    except Exception as e:
+        print(f"Error in episode worker: {str(e)}")
+        return None
+
+def preprocess_batch_worker(memory, batch_size, seq_len, device_idx):
+    """
+    Worker process to prepare batches for GPU training
+    """
+    try:
+        # Sample batch on CPU
+        batch = memory.sample(batch_size, seq_len=seq_len, device='cpu')
+        return device_idx, batch
+    except Exception as e:
+        print(f"Error in preprocess worker: {str(e)}")
+        return None
+
+def create_process_pool(num_workers):
+    """
+    Create a process pool with proper CUDA initialization settings
+    """
+    ctx = mp.get_context('spawn')
+    return ctx.Pool(num_workers)
+
+def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size, gamma, devices):
+    """
+    Run a single training step in parallel across all available GPUs with multi-CPU data preparation
+    """
+    try:
+        # Create process pool for batch preprocessing
+        num_workers = min(len(devices) * 2, mp.cpu_count())
+        sub_batch_size = batch_size // len(devices)
+        
+        # Process batches in parallel
+        with create_process_pool(num_workers) as pool:
+            # Submit preprocessing jobs
+            preprocessing_results = []
+            for dev_idx in range(len(devices)):
+                result = pool.apply_async(
+                    preprocess_batch_worker,
+                    (memory, sub_batch_size, 10, dev_idx)
+                )
+                preprocessing_results.append(result)
+            
+            # Process results as they become available
+            gpu_losses = []
+            for result in preprocessing_results:
+                try:
+                    device_idx, batch = result.get(timeout=30.0)
+                    if batch is None:
+                        continue
+                        
+                    device = devices[device_idx]
+                    torch.cuda.set_device(device)
+                    
+                    # Move batch to GPU and train
+                    batch = {k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v 
+                            for k, v in batch.items()}
+                    
+                    policy_nets[device_idx].train()
+                    target_nets[device_idx].train()
+                    
+                    loss = train_batch(
+                        policy_nets[device_idx],
+                        target_nets[device_idx],
+                        optimizers[device_idx],
+                        batch,
+                        sub_batch_size,
+                        gamma,
+                        device,
+                        memory  # Pass memory to train_batch
+                    )
+                    
+                    if loss > 0:
+                        gpu_losses.append(loss)
+                    
+                    torch.cuda.synchronize(device)
+                    
+                except mp.TimeoutError:
+                    print(f"Timeout waiting for preprocessing result")
+                    continue
+                except Exception as e:
+                    print(f"Error processing batch: {str(e)}")
+                    continue
+        
+        # Average losses and synchronize models
+        if gpu_losses:
+            avg_loss = np.mean(gpu_losses)
+            
+            # Synchronize models using the first GPU as reference
+            with torch.cuda.device(devices[0]), torch.no_grad():
+                reference_state_dict = policy_nets[0].state_dict()
+                
+                # Update all other models
+                for dev_idx in range(1, len(devices)):
+                    torch.cuda.set_device(devices[dev_idx])
+                    device_state_dict = {
+                        k: v.to(devices[dev_idx], non_blocking=True) 
+                        for k, v in reference_state_dict.items()
+                    }
+                    policy_nets[dev_idx].load_state_dict(device_state_dict)
+                    target_nets[dev_idx].load_state_dict(device_state_dict)
+                    torch.cuda.synchronize(devices[dev_idx])
+            
+            return avg_loss
+        return 0
+        
+    except Exception as e:
+        print(f"\nError in train_step_parallel: {type(e).__name__}: {str(e)}")
         import traceback
         traceback.print_exc()
         return 0
@@ -125,7 +268,7 @@ def get_optimizer(model, lr=1e-4):
 
 def validate_model(model, env, device):
     """
-    Validate the model on a single environment
+    Validate the model on a single environment with memory optimization
     """
     state = env.reset()
     done = False
@@ -161,6 +304,11 @@ def validate_model(model, env, device):
             # Take step in environment
             state, reward, done = env.step(action)
             accumulated_reward += reward
+            
+            # Clear unnecessary tensors
+            del state_tensor, q_values, mask
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
     
     # Calculate final portfolio value
     final_value = env.cash if env.position == 0 else env.shares * env.close_prices[env.idx]
@@ -175,21 +323,224 @@ def validate_model(model, env, device):
         'buy_and_hold_return': buy_and_hold_return
     }
 
+def run_env_episode(env, policy_net_state_dict, epsilon, temperature, input_size, device='cpu', max_steps=1000):
+    """
+    Run a single episode in an environment.
+    Can run on either CPU or GPU depending on device parameter.
+    """
+    try:
+        # Create a new policy network instance
+        policy_net = DQN(input_size).to(device)
+        policy_net.load_state_dict(policy_net_state_dict)
+        policy_net.eval()
+        
+        state = env.reset()
+        if state is None:
+            raise ValueError("Environment reset returned None state")
+            
+        state_size = len(state)
+        if state_size != input_size:
+            raise ValueError(f"State size mismatch. Expected {input_size}, got {state_size}")
+            
+        done = False
+        steps = 0
+        transitions = []
+        episode_reward = 0
+        trades_info = []
+        entry_price = None
+        
+        while not done and steps < max_steps:
+            try:
+                # Process on specified device
+                state_tensor = torch.from_numpy(np.array(state)).float().to(device)
+                
+                if random.random() < epsilon:
+                    action = random.choice(env.get_valid_actions())
+                    # Clean up tensors for random action
+                    if device.type == 'cuda':
+                        del state_tensor
+                        torch.cuda.empty_cache()
+                else:
+                    with torch.no_grad():
+                        state_input = state_tensor.unsqueeze(0).unsqueeze(0)
+                        q_values, _ = policy_net(state_input)
+                        q_values = q_values.squeeze()
+                        q_values = q_values / temperature
+                        valid_actions = env.get_valid_actions()
+                        mask = torch.full_like(q_values, float('-inf'))
+                        for a in valid_actions:
+                            mask[a] = q_values[a]
+                        action = torch.argmax(mask).item()
+                        
+                        # Clean up tensors for policy action
+                        if device.type == 'cuda':
+                            del state_tensor, state_input, q_values, mask
+                            torch.cuda.empty_cache()
+                
+                # Track trades
+                if action == 1 and env.position == 0:
+                    entry_price = env.close_prices[env.idx]
+                elif action == 2 and env.position == 1:
+                    exit_price = env.close_prices[env.idx]
+                    trades_info.append((exit_price - entry_price) / entry_price)
+                    entry_price = None
+                    
+                next_state, reward, done = env.step(action)
+                if next_state is None:
+                    raise ValueError("Environment step returned None state")
+                    
+                transitions.append((state, action, reward, next_state, done))
+                state = next_state
+                episode_reward += reward
+                steps += 1
+                    
+            except Exception as step_error:
+                print(f"Error during environment step: {str(step_error)}")
+                raise
+        
+        # Clean up
+        del policy_net
+        if device.type == 'cuda':
+            torch.cuda.empty_cache()
+            
+        return transitions, episode_reward, trades_info
+
+    except Exception as e:
+        print(f"Error in worker process: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise
+
+def store_transitions_worker(transitions_chunk):
+    """
+    Worker process to store transitions in memory
+    """
+    try:
+        memory_chunk = PrioritizedReplayBuffer(len(transitions_chunk))
+        memory_chunk.push_episode(transitions_chunk)
+        return transitions_chunk  # Return the transitions directly
+    except Exception as e:
+        print(f"Error in store transitions worker: {str(e)}")
+        return None
+
+def calculate_std(rewards):
+    """
+    Standalone function for calculating standard deviation
+    """
+    return np.std(rewards) if rewards else 0.0
+
+def parallel_store_transitions(all_transitions, num_workers):
+    """
+    Store transitions in parallel across multiple processes
+    """
+    if not all_transitions:
+        return []
+        
+    chunk_size = max(1, len(all_transitions) // num_workers)
+    chunks = [all_transitions[i:i + chunk_size] for i in range(0, len(all_transitions), chunk_size)]
+    
+    results = []
+    with create_process_pool(num_workers) as pool:
+        for chunk in chunks:
+            result = pool.apply_async(store_transitions_worker, (chunk,))
+            results.append(result)
+            
+        stored_transitions = []
+        for result in results:
+            try:
+                transitions = result.get(timeout=30.0)
+                if transitions is not None:
+                    stored_transitions.extend(transitions)
+            except Exception as e:
+                print(f"Error collecting stored transitions: {str(e)}")
+                
+    return stored_transitions
+
+def process_validation_worker(policy_net_state_dict, val_env, device_idx, input_size):
+    """
+    Worker process to run validation on a single environment
+    """
+    try:
+        device = torch.device(f'cuda:{device_idx}' if torch.cuda.is_available() else 'cpu')
+        policy_net = DQN(input_size).to(device)
+        policy_net.load_state_dict(policy_net_state_dict)
+        return validate_model(policy_net, val_env, device)
+    except Exception as e:
+        print(f"Error in validation worker: {str(e)}")
+        return None
+
+def parallel_validation(policy_net, val_envs, devices, input_size):
+    """
+    Run validation in parallel across multiple processes
+    """
+    results = []
+    with create_process_pool(len(devices)) as pool:
+        for idx, (val_ticker, val_env) in enumerate(val_envs.items()):
+            device_idx = idx % len(devices)
+            result = pool.apply_async(
+                process_validation_worker,
+                (policy_net.state_dict(), val_env, device_idx, input_size)
+            )
+            results.append((val_ticker, result))
+            
+        val_metrics_all = []
+        for val_ticker, result in results:
+            try:
+                metrics = result.get(timeout=30.0)
+                if metrics is not None:
+                    val_metrics_all.append((val_ticker, metrics))
+            except Exception as e:
+                print(f"Error collecting validation result: {str(e)}")
+                
+    return val_metrics_all
+
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, 
               initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
     
-    # Initialize logger
+    print("\nInitializing training...")
     logger = TrainingLogger()
     
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Set up multi-GPU if available
+    if torch.cuda.is_available():
+        n_gpus = torch.cuda.device_count()
+        print(f"Found {n_gpus} CUDA devices")
+        for i in range(n_gpus):
+            print(f"GPU {i}: {torch.cuda.get_device_name(i)}")
+            # Set device properties for better performance
+            torch.cuda.set_device(i)
+            torch.cuda.empty_cache()
+        devices = [torch.device(f'cuda:{i}') for i in range(n_gpus)]
+        main_device = devices[0]
+    else:
+        print("Using CPU for training")
+        devices = [torch.device('cpu')]
+        main_device = devices[0]
+        
     torch.backends.cudnn.benchmark = True
     
-    # Initialize networks and optimizer
-    policy_net = DQN(input_size).to(device)
-    target_net = DQN(input_size).to(device)
-    target_net.load_state_dict(policy_net.state_dict())
+    # Initialize networks for each GPU
+    print("Initializing networks...")
+    policy_nets = []
+    target_nets = []
+    optimizers = []
     
-    optimizer, scheduler = get_optimizer(policy_net, lr=3e-4)
+    for device in devices:
+        policy_net = DQN(input_size).to(device)
+        target_net = DQN(input_size).to(device)
+        
+        if len(policy_nets) > 0:  # Copy weights from first model
+            policy_net.load_state_dict(policy_nets[0].state_dict())
+            target_net.load_state_dict(target_nets[0].state_dict())
+            
+        target_net.load_state_dict(policy_net.state_dict())
+        optimizer, _ = get_optimizer(policy_net, lr=3e-4)
+        
+        policy_nets.append(policy_net)
+        target_nets.append(target_net)
+        optimizers.append(optimizer)
+        
+        print(f"Initialized network on {device}")
+    
     memory = PrioritizedReplayBuffer(50000)
     
     # Training state
@@ -203,185 +554,225 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     last_avg_loss = 0
     
     # Environment setup
+    print("Setting up environments...")
     train_envs = {ticker: SimpleTradeEnv(data, window_size=window_size) 
                   for ticker, data in train_data_dict.items()}
     val_envs = {ticker: SimpleTradeEnv(data, window_size=window_size)
                 for ticker, data in val_data_dict.items()}
+    print(f"Created {len(train_envs)} training environments and {len(val_envs)} validation environments")
     
     # Training loop state
     episodes_without_improvement = 0
     reset_count = 0
     max_resets = 30
     
-    for episode in range(n_episodes):
-        episode_start = time.time()
-        
-        # Sample tickers for this episode
-        episode_tickers = random.sample(list(train_envs.keys()), k=min(batch_size, len(train_envs)))
-        all_transitions = []
-        episode_reward = 0
-        trades_info = []
-        
-        # Collect experience
-        for ticker in episode_tickers:
-            env = train_envs[ticker]
-            state = env.reset()
-            done = False
-            steps = 0
-            max_steps = 1000
+    try:
+        print("\nStarting training loop...")
+        for episode in range(n_episodes):
+            print(f"\nEpisode {episode + 1}/{n_episodes}")
+            episode_start = time.time()
             
-            while not done and steps < max_steps:
-                # Epsilon-greedy with temperature
-                epsilon = epsilon_end + (epsilon_start - epsilon_end) * \
-                         math.exp(-1. * episode / epsilon_decay)
-                temperature = max(0.5, 1.0 - episode / n_episodes)
+            # Sample tickers for this episode
+            batch_size_env = min(len(devices) * 4, batch_size)  # Ensure each GPU gets at least 4 environments
+            episode_tickers = random.sample(list(train_envs.keys()), k=min(batch_size_env, len(train_envs)))
+            print(f"Selected tickers: {episode_tickers}")
+            
+            # Calculate epsilon and temperature
+            epsilon = epsilon_end + (epsilon_start - epsilon_end) * \
+                     math.exp(-1. * episode / epsilon_decay)
+            temperature = max(0.5, 1.0 - episode / n_episodes)
+            
+            # Distribute tickers across GPUs
+            all_transitions = []
+            episode_reward = 0
+            trades_info = []
+            
+            # Ensure even distribution across GPUs
+            tickers_per_device = math.ceil(len(episode_tickers) / len(devices))
+            device_tickers = [[] for _ in devices]
+            for i, ticker in enumerate(episode_tickers):
+                device_idx = i % len(devices)
+                device_tickers[device_idx].append(ticker)
+            
+            # Process environments in parallel
+            with create_process_pool(min(len(devices) * 2, mp.cpu_count())) as pool:
+                futures = []
                 
-                state_tensor = torch.from_numpy(np.array(state)).float().to(device)
+                # Submit environment processing jobs
+                for dev_idx, device_ticker_list in enumerate(device_tickers):
+                    for ticker in device_ticker_list:
+                        future = pool.apply_async(
+                            run_env_episode_worker,
+                            (train_envs[ticker], 
+                             policy_nets[dev_idx].state_dict(),
+                             epsilon, temperature, input_size, dev_idx)
+                        )
+                        futures.append(future)
                 
-                if random.random() < epsilon:
-                    action = random.choice(env.get_valid_actions())
-                else:
-                    with torch.no_grad():
-                        q_values, _ = policy_net(state_tensor)
-                        # Add unsqueeze to ensure proper dimensions
-                        if len(q_values.shape) == 1:
-                            q_values = q_values.unsqueeze(0)
-                        q_values = q_values.squeeze()  # Ensure shape is [num_actions]
-                        q_values = q_values / temperature
-                        valid_actions = env.get_valid_actions()
-                        # Create mask with correct size
-                        mask = torch.full((3,), float('-inf'), device=device)  # Assuming 3 actions: 0,1,2
-                        for a in valid_actions:
-                            mask[a] = q_values[a]
-                        action = torch.argmax(mask).item()
+                # Collect results
+                for future in futures:
+                    try:
+                        result = future.get(timeout=30.0)
+                        if result is not None:
+                            transitions, reward, trades = result
+                            all_transitions.extend(transitions)
+                            episode_reward += reward
+                            trades_info.extend(trades)
+                    except mp.TimeoutError:
+                        print(f"Timeout waiting for environment result")
+                        continue
+                    except Exception as e:
+                        print(f"Error collecting result: {str(e)}")
+                        continue
+            
+            print(f"Collected {len(all_transitions)} total transitions")
+            
+            # Store experience and train
+            if all_transitions:
+                print("Storing transitions in memory...")
+                num_workers = min(len(devices) * 2, mp.cpu_count())
+                stored_transitions = parallel_store_transitions(all_transitions, num_workers)
+                if stored_transitions:
+                    memory.push_episode(stored_transitions)
+
+            if len(memory) >= batch_size:
+                print("Training on collected experience...")
+                losses = []
                 
-                next_state, reward, done = env.step(action)
-                episode_reward += reward
-                
-                # Track trade information
-                if action in [1, 2]:  # Buy or Sell
-                    current_price = env.close_prices[env.idx]
-                    if action == 2 and env.position == 1:  # Sell
-                        profit = (current_price - env.entry_price) / env.entry_price * 100
-                        trades_info.append(profit)
-                
-                all_transitions.append((state, action, reward, next_state, done))
-                state = next_state
-                steps += 1
+                # Multiple training steps per episode
+                for step in range(4):
+                    print(f"Training step {step + 1}/4")
+                    loss = train_step_parallel(
+                        policy_nets,
+                        target_nets,
+                        optimizers,
+                        memory,
+                        batch_size,
+                        gamma,
+                        devices
+                    )
+                    if loss > 0:
+                        losses.append(loss)
+                        
+                if losses:
+                    last_avg_loss = np.mean(losses)
+                    print(f"Average loss: {last_avg_loss:.6f}")
             
-        # Store experience and train
-        if all_transitions:
-            memory.push_episode(all_transitions)
+            # Calculate episode statistics in parallel
+            episode_duration = time.time() - episode_start
+            with create_process_pool(min(4, mp.cpu_count())) as pool:
+                returns_std = pool.apply_async(
+                    calculate_std,
+                    ([t[2] for t in all_transitions],)
+                ).get(timeout=30.0)
             
-        if len(memory) >= batch_size:
-            losses = []
-            for _ in range(4):  # Multiple training steps per episode
-                loss = train_batch(policy_net, target_net, optimizer, memory, 
-                                 batch_size, gamma, device)
-                if loss > 0:  # Only track valid losses
-                    losses.append(loss)
-            if losses:
-                last_avg_loss = np.mean(losses)
-        
-        # Calculate episode statistics
-        episode_duration = time.time() - episode_start
-        returns_std = np.std([t[2] for t in all_transitions])  # Standard deviation of rewards
-        
-        # Log episode results
-        logger.log_episode(
-            episode_num=episode,
-            returns=episode_reward,
-            length=len(all_transitions),
-            std_dev=returns_std,
-            priority=memory.priorities[-1] if memory.priorities else 0,
-            epsilon=epsilon,
-            loss=last_avg_loss,
-            trades_info=trades_info
-        )
-        
-        # Periodic validation and model updates
-        if episode % 5 == 0:
-            target_net.load_state_dict(policy_net.state_dict())
-            policy_net.eval()
+            print(f"Episode completed in {episode_duration:.2f} seconds")
             
-            # Validate
-            val_metrics_all = []
-            for val_ticker, val_env in val_envs.items():
-                val_metrics = validate_model(policy_net, val_env, device)
-                val_metrics_all.append(val_metrics)
-            
-            # Calculate average metrics
-            avg_profit = np.mean([m['profit'] for m in val_metrics_all])
-            avg_win_rate = np.mean([m['win_rate'] for m in val_metrics_all])
-            avg_num_trades = np.mean([m['num_trades'] for m in val_metrics_all])
-            avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 
-                                       for m in val_metrics_all])
-            
-            # Log validation results
-            validation_metrics = {
-                'profit': avg_profit,
-                'win_rate': avg_win_rate,
-                'num_trades': int(avg_num_trades),
-                'excess_return': avg_excess_return,
-                'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
-            }
-            logger.log_validation(episode, validation_metrics)
-            
-            # Model selection and early stopping
-            if avg_excess_return > best_excess_return:
-                logger.log_model_save(episode, "checkpoints/best_model.pt", validation_metrics)
-                best_excess_return = avg_excess_return
-                best_val_profit = avg_profit
-                best_model = copy.deepcopy(policy_net)
-                episodes_without_improvement = 0
-                
-                # Save experiment
-                save_experiment(
-                    model=best_model,
-                    optimizer=optimizer,
-                    metrics=validation_metrics
-                )
-            else:
-                episodes_without_improvement += 1
-            
-            # Log learning rate
-            logger.log_training_update(
-                episode,
-                learning_rate=optimizer.param_groups[0]['lr'],
-                grad_norm=torch.nn.utils.clip_grad_norm_(policy_net.parameters(), max_norm=1.0).item()
+            # Log episode results
+            print("Logging episode results...")
+            logger.log_episode(
+                episode_num=episode,
+                returns=episode_reward,
+                length=len(all_transitions),
+                std_dev=returns_std,
+                priority=memory.priorities[-1] if memory.priorities else 0,
+                epsilon=epsilon,
+                loss=last_avg_loss,
+                trades_info=trades_info
             )
             
-            # Reset on plateau
-            if episodes_without_improvement >= 50:  # patience
-                reset_count += 1
-                if reset_count >= max_resets:
-                    print("Maximum resets reached. Stopping training.")
-                    break
+            # Periodic validation and model updates
+            if episode % 5 == 0:
+                target_nets[0].load_state_dict(policy_nets[0].state_dict())
+                policy_nets[0].eval()
                 
-                if best_model is not None:
-                    policy_net.load_state_dict(best_model.state_dict())
-                    target_net.load_state_dict(best_model.state_dict())
+                # Validate in parallel
+                val_metrics_results = parallel_validation(policy_nets[0], val_envs, devices, input_size)
                 
-                optimizer, scheduler = get_optimizer(policy_net, lr=3e-4 * (0.9 ** reset_count))
-                memory = PrioritizedReplayBuffer(50000)
-                epsilon = epsilon_start
-                episodes_without_improvement = 0
+                # Calculate average metrics
+                val_metrics_all = [metrics for _, metrics in val_metrics_results]
+                avg_profit = np.mean([m['profit'] for m in val_metrics_all])
+                avg_win_rate = np.mean([m['win_rate'] for m in val_metrics_all])
+                avg_num_trades = np.mean([m['num_trades'] for m in val_metrics_all])
+                avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 
+                                           for m in val_metrics_all])
                 
-                logger.log_training_update(episode, optimizer.param_groups[0]['lr'])
-                print(f"\nReset {reset_count}/{max_resets} complete.")
-                continue
-            
-            policy_net.train()
-            scheduler.step()
+                # Log validation results
+                validation_metrics = {
+                    'profit': avg_profit,
+                    'win_rate': avg_win_rate,
+                    'num_trades': int(avg_num_trades),
+                    'excess_return': avg_excess_return,
+                    'per_ticker_metrics': {t: m for t, m in val_metrics_results}
+                }
+                logger.log_validation(episode, validation_metrics)
+                
+                # Model selection and early stopping
+                if avg_excess_return > best_excess_return:
+                    logger.log_model_save(episode, "checkpoints/best_model.pt", validation_metrics)
+                    best_excess_return = avg_excess_return
+                    best_val_profit = avg_profit
+                    best_model = copy.deepcopy(policy_nets[0])
+                    episodes_without_improvement = 0
+                    
+                    # Save experiment
+                    save_experiment(
+                        model=best_model,
+                        optimizer=optimizers[0],
+                        metrics=validation_metrics
+                    )
+                else:
+                    episodes_without_improvement += 1
+                
+                # Log learning rate
+                logger.log_training_update(
+                    episode,
+                    learning_rate=optimizers[0].param_groups[0]['lr'],
+                    grad_norm=torch.nn.utils.clip_grad_norm_(policy_nets[0].parameters(), max_norm=1.0).item()
+                )
+                
+                # Reset on plateau
+                if episodes_without_improvement >= 50:  # patience
+                    reset_count += 1
+                    if reset_count >= max_resets:
+                        print("Maximum resets reached. Stopping training.")
+                        break
+                    
+                    if best_model is not None:
+                        for dev_idx in range(len(devices)):
+                            policy_nets[dev_idx].load_state_dict(best_model.state_dict())
+                            target_nets[dev_idx].load_state_dict(best_model.state_dict())
+                    
+                    optimizer, _ = get_optimizer(policy_nets[0], lr=3e-4 * (0.9 ** reset_count))
+                    memory = PrioritizedReplayBuffer(50000)
+                    epsilon = epsilon_start
+                    episodes_without_improvement = 0
+                    
+                    logger.log_training_update(episode, optimizer.param_groups[0]['lr'])
+                    print(f"\nReset {reset_count}/{max_resets} complete.")
+                    continue
+                
+                policy_nets[0].train()
+                optimizers[0].step()
     
-    # Generate final visualizations and report
-    visualizer = TrainingVisualizer(logger.metrics_file)
-    visualizer.plot_training_progress()
-    visualizer.plot_trade_distribution()
-    visualizer.generate_summary_report()
-    
-    return {
-        'final_model': policy_net,
-        'best_model': best_model,
-        'training_summary': logger.get_summary_stats()
-    }
+        # Generate final visualizations and report
+        visualizer = TrainingVisualizer(logger.metrics_file)
+        visualizer.plot_training_progress()
+        visualizer.plot_trade_distribution()
+        visualizer.generate_summary_report()
+        
+        return {
+            'final_model': policy_nets[0],
+            'best_model': best_model,
+            'training_summary': logger.get_summary_stats()
+        }
+
+    except Exception as e:
+        print(f"\nError in train_dqn: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'final_model': policy_nets[0],
+            'best_model': best_model,
+            'training_summary': logger.get_summary_stats()
+        }

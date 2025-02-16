@@ -1,0 +1,14 @@
+Experiment Log - 20250216_152451
+    ===============================
+
+    Model Performance Metrics
+    -----------------------
+    Excess Return: -21.64
+    Profit: 6.03%
+    Episode: 0
+    Epsilon: 0.0000
+
+    Training Parameters
+    ------------------
+    Learning Rate: 0.00030000
+    
