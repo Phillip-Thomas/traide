@@ -1,3 +1,0 @@
-[INFO] Found global best checkpoint with profit=24.911%, excess_return=3.394%
-Initial Best Profit: 24.91%
-Initial Best Excess Return: 3.39%
