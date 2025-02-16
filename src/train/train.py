@@ -148,14 +148,15 @@ def preprocess_batch_worker(memory, batch_size, seq_len, device_idx):
     Worker process to prepare batches for GPU training
     """
     try:
-        # Sample batch on CPU and ensure all tensors are CPU tensors
+        # Sample batch on CPU
         batch = memory.sample(batch_size, seq_len=seq_len, device='cpu')
         
-        # Verify all tensors are on CPU
+        # Ensure all tensors are on CPU and detached
         for key in batch:
             if isinstance(batch[key], torch.Tensor):
-                if batch[key].is_cuda:
-                    batch[key] = batch[key].cpu()
+                batch[key] = batch[key].detach().cpu()
+            elif isinstance(batch[key], np.ndarray):
+                batch[key] = torch.from_numpy(batch[key]).float()
         
         return device_idx, batch
     except Exception as e:
@@ -197,6 +198,7 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
                 try:
                     device_idx, batch = result.get(timeout=30.0)
                     if batch is None:
+                        print("Skipping None batch")
                         continue
                         
                     device = devices[device_idx]
@@ -677,15 +679,14 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 num_workers = min(len(devices) * 2, mp.cpu_count())
                 stored_transitions = parallel_store_transitions(all_transitions, num_workers, devices)
                 if stored_transitions:
-                    # Convert transitions to tensors on main device before pushing to memory
-                    device = devices[0]
+                    # Keep transitions on CPU in memory
                     processed_transitions = []
                     for state, action, reward, next_state, done in stored_transitions:
                         processed_transitions.append((
-                            torch.from_numpy(state).float().to(device),
+                            torch.from_numpy(state).float(),  # Store on CPU
                             action,
                             reward,
-                            torch.from_numpy(next_state).float().to(device),
+                            torch.from_numpy(next_state).float(),  # Store on CPU
                             done
                         ))
                     memory.push_episode(processed_transitions)
