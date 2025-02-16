@@ -424,7 +424,7 @@ def train_dqn(rank, world_size, train_data_dict, val_data_dict, input_size, wind
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 best_checkpoint = {
                     'episode': episode,
-                    'model_state_dict': policy_net.state_dict(),
+                    'model_state_dict': policy_net.module.state_dict() if is_distributed else policy_net.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'profit': best_profit,
                     'reward': pool_reward,

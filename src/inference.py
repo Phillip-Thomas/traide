@@ -14,27 +14,42 @@ from .utils import get_device
 
 def visualize_trades(model, env, device):
     """Run model inference and collect trading signals"""
-    state = env.reset(random_start=False)  # Start from beginning for visualization
+    state = env.reset()
     done = False
-    
     prices = []
-    signals = []
+    signals = []  # 0: Hold, 1: Buy, 2: Sell
     portfolio_values = []
     
     while not done:
-        # Get current price and portfolio value
-        current_price = env.raw_data['Close'][env.idx].item()
-        prices.append(current_price)
-        portfolio_values.append(env.calculate_portfolio_value().item())
+        # Handle state tensor creation based on type
+        if isinstance(state, torch.Tensor):
+            state_tensor = state.to(device)
+        else:
+            state_tensor = torch.tensor(state, dtype=torch.float32, device=device)
         
-        # Get model prediction
-        with torch.no_grad():
-            state_tensor = state.unsqueeze(0)  # Add batch dimension
-            q_values = model(state_tensor)
-            action = torch.argmax(q_values).item()
+        if len(state_tensor.shape) == 1:
+            state_tensor = state_tensor.unsqueeze(0)
         
-        signals.append(action)
-        state, _, done = env.step(action)
+        # Get Q-values and unpack tuple
+        q_values, _ = model(state_tensor)  # Unpack tuple, we only need q_values
+        action = torch.argmax(q_values).item()
+        
+        # Record state
+        current_price = env.raw_data['Close'][env.idx]
+        if isinstance(current_price, torch.Tensor):
+            current_price = current_price.cpu().numpy()
+        prices.append(float(current_price))
+        
+        signals.append(int(action))
+        
+        # Handle portfolio value calculation with potential CUDA tensors
+        cash = float(env.cash.cpu().numpy() if isinstance(env.cash, torch.Tensor) else env.cash)
+        shares = float(env.shares.cpu().numpy() if isinstance(env.shares, torch.Tensor) else env.shares)
+        portfolio_value = cash if env.position == 0 else cash + shares * float(current_price)
+        portfolio_values.append(portfolio_value)
+        
+        # Take action
+        state, reward, done = env.step(action)
     
     return np.array(prices), np.array(signals), np.array(portfolio_values)
 
