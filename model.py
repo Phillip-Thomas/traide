@@ -13,74 +13,10 @@ from datetime import datetime
 from typing import List, Tuple
 import random
 import copy
-
-def get_market_data_multi(tickers=None, period="730d", interval="1h"):
-    """
-    Fetch data for multiple tickers
-    """
-    if tickers is None:
-        tickers = [
-            # Core Tech/Growth Leaders (Strong consistent trends)
-            "QQQ",   # Nasdaq 100
-            "XLK",   # Technology Select SPDR
-            "VGT",   # Vanguard Info Tech
-            "SMH",   # Semiconductor ETF
-            "SOXX",  # iShares Semiconductor
-            "IGV",   # iShares Software ETF
-            "FTEC",  # Fidelity MSCI Info Tech
-            "IYW",   # iShares US Technology
-            "QTEC",  # First Trust NASDAQ-100 Tech
-            # "PSJ",   # Invesco Dynamic Software
-
-            # AI/Future Tech (Strong momentum)
-            "AIQ",   # Global X Artificial Intelligence
-            "BOTZ",  # Global X Robotics & AI
-            "ROBO",  # Robotics & Automation
-            # "IRBO",  # iShares Robotics and AI
-            # "THNQ",  # ROBO Global AI ETF
-
-            # Semiconductor Focus (Very strong trend)
-            "SOXQ",  # First Trust NASDAQ Semi
-            "PSI",   # Invesco Dynamic Semi
-            "XSD",   # SPDR S&P Semi
-            "USD",   # ProShares Ultra Semi
-            # "FTXL",  # First Trust Nasdaq Semi
-
-            # Cloud/Cybersecurity (Growing sectors)
-            "WCLD",  # WisdomTree Cloud Computing
-            "SKYY",  # First Trust Cloud Computing
-            "CLOU",  # Global X Cloud Computing
-            "CIBR",  # First Trust Cybersecurity
-            "BUG",   # Global X Cybersecurity
-
-            # Next-Gen Tech (Strong growth)
-            "ARKW",  # ARK Next Gen Internet
-            # "DTEC",  # ALPS Disruptive Tech
-            "KOMP",  # ProShares Genomics
-            # "PTF",   # Invesco DWA Technology
-            # "XITK",  # SPDR FactSet Innovative Tech
-
-            # Broad Tech/Growth (Stable uptrends)
-            "IWF",   # iShares Russell 1000 Growth
-            "VUG",   # Vanguard Growth ETF
-            "SPYG",  # SPDR Portfolio S&P 500 Growth
-            "VONG",  # Vanguard Russell 1000 Growth
-            "SCHG"   # Schwab US Large-Cap Growth
-        ]
-    
-    data_dict = {}
-    for symbol in tickers:
-        try:
-            df = yf.Ticker(symbol).history(period=period, interval=interval)
-            if not df.empty and len(df) > 100:  # Ensure sufficient data
-                print(f"Successfully fetched {len(df)} records for {symbol}")
-                data_dict[symbol] = df
-            else:
-                print(f"Insufficient data for {symbol}")
-        except Exception as e:
-            print(f"Error fetching {symbol}: {str(e)}")
-    
-    return data_dict
+import shutil
+import time
+from get_market_data_multi import get_market_data_multi
+from train_batch import train_batch
 
 class DQN(nn.Module):
     def __init__(self, input_size):
@@ -150,6 +86,7 @@ class SimpleTradeEnv:
         self.entry_price = None
         self.max_portfolio_value = self.cash
         self.baseline_price = self.open_prices[self.idx - self.window_size]
+        self.entry_idx = 0
         return self._get_state()
     
     def get_valid_actions(self):
@@ -178,7 +115,7 @@ class SimpleTradeEnv:
     def _get_reward(self, action):
         reward = 0
         if (action == 1 and self.position == 1) or (action == 2 and self.position == 0):
-            return -0.001
+            return -0.003
 
         current_price = self.close_prices[self.idx]
         buying_fee = 0.001
@@ -195,6 +132,7 @@ class SimpleTradeEnv:
         volatility = np.std(returns) if len(returns) > 0 else 0
         
         if action == 1 and self.position == 0:  # Buy
+            self.entry_idx = self.idx
             # Reward buying at lower prices
             buy_quality = 1 - price_position  # Higher reward for buying closer to recent lows
             reward = -buying_fee + (0.001 * buy_quality)
@@ -221,7 +159,7 @@ class SimpleTradeEnv:
             
             # Bonus for selling near peak
             if price_position > 0.9:
-                reward += 0.001
+                reward += 0.003
             
             # Scale with holding duration but cap it
             holding_duration = self.idx - self.entry_idx
@@ -232,11 +170,11 @@ class SimpleTradeEnv:
             if self.position == 1:
                 # Smaller penalty for holding near lows
                 if price_position < 0.2:
-                    reward = -0.0002
+                    reward = -0.002
             else:
                 # Smaller penalty for not buying near lows
                 if price_position < 0.1:
-                    reward = -0.0001
+                    reward = -0.001
                     
             # Add small positive reward for holding during trending moves
             if len(returns) > 0:
@@ -303,7 +241,7 @@ class ReplayBuffer:
             self.episodes.pop(0)
         self.episodes.append(episode)
     
-    def sample(self, batch_size, seq_len):
+    def sample(self, batch_size, seq_len, device):
         batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones = [], [], [], [], []
         
         # Keep sampling until we have batch_size sequences
@@ -342,79 +280,36 @@ class ReplayBuffer:
             batch_next_states.append(np.array(next_states))
             batch_dones.append(np.array(dones))
         
-        return (torch.FloatTensor(np.array(batch_states)),
-                torch.LongTensor(np.array(batch_actions)),
-                torch.FloatTensor(np.array(batch_rewards)),
-                torch.FloatTensor(np.array(batch_next_states)),
-                torch.FloatTensor(np.array(batch_dones)))
+        return (torch.tensor(np.array(batch_states), dtype=torch.float, device=device),
+            torch.tensor(np.array(batch_actions), dtype=torch.long, device=device),
+            torch.tensor(np.array(batch_rewards), dtype=torch.float, device=device),
+            torch.tensor(np.array(batch_next_states), dtype=torch.float, device=device),
+            torch.tensor(np.array(batch_dones), dtype=torch.float, device=device))
 
-
-
-def train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device):
-   # Track losses for averaging
-   losses = []
-   for _ in range(16):  # Do 16 training iterations
-       seq_states, seq_actions, seq_rewards, seq_next_states, seq_dones = \
-           memory.sample(batch_size, seq_len=4)
-       
-       seq_states = seq_states.to(device)
-       seq_actions = seq_actions.to(device)
-       seq_rewards = seq_rewards.to(device)
-       seq_next_states = seq_next_states.to(device)
-       seq_dones = seq_dones.to(device)
-
-       # produce Q-values for only the last step:
-       current_q_values, _ = policy_net(seq_states)  # shape [B, 3]
-       
-       # gather using the final action:
-       last_actions = seq_actions[:, -1]  # shape [B]
-       current_q_values = current_q_values.gather(1, last_actions.unsqueeze(1))
-       
-       with torch.no_grad():
-           # same logic for next_state Q
-           next_q_values, _ = policy_net(seq_next_states)
-           last_next_actions = next_q_values.max(1)[1].unsqueeze(1)
-           # or do the same with target_net
-           next_q_values_target, _ = target_net(seq_next_states)
-           max_q_of_next = next_q_values_target.gather(1, last_next_actions)
-           
-           last_dones = seq_dones[:, -1].unsqueeze(1)
-           max_q_of_next[last_dones.bool()] = 0.0
-           
-           last_rewards = seq_rewards[:, -1].unsqueeze(1)
-           target_q_values = last_rewards + gamma * max_q_of_next
-       
-       loss = F.smooth_l1_loss(current_q_values, target_q_values)
-       if torch.isnan(loss):
-           print('Warning: NaN loss, skipping update')
-           continue  # Skip this iteration entirely
-       
-       losses.append(loss.item())
-       optimizer.zero_grad()
-       loss.backward()
-       torch.nn.utils.clip_grad_norm_(policy_net.parameters(), .1)
-       optimizer.step()
-
-   if losses:  # Only calculate average if we have valid losses
-       avg_loss = sum(losses) / len(losses)
-       print(f"Average Loss: {avg_loss:.8f}")
-       return avg_loss
-   else:
-       print("Warning: No valid losses in batch")
-       return 0.0
-   
-
+def get_gpu_stats():
+    """Monitor GPU utilization and memory usage"""
+    print("\nGPU Statistics:")
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+    print(f"Memory Allocated: {torch.cuda.memory_allocated()/1024**2:.1f}MB")
+    print(f"Memory Reserved: {torch.cuda.memory_reserved()/1024**2:.1f}MB")
+    print(f"Max Memory Allocated: {torch.cuda.max_memory_allocated()/1024**2:.1f}MB")
 
 # Update the train_dqn function to use the new checkpoint saving
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, optimizer=None, initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
 
+    # Enable cuDNN benchmarking for faster training
+    torch.backends.cudnn.benchmark = True
+
+    # Enable automatic mixed precision
+    scaler = torch.cuda.amp.GradScaler()
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     policy_net = DQN(input_size).to(device)
     target_net = DQN(input_size).to(device)
     target_net.load_state_dict(policy_net.state_dict())
     if optimizer is None:
         print(f"optimizer: new")
-        optimizer = optim.Adam(policy_net.parameters(), lr=0.0000005)
+        optimizer = optim.Adam(policy_net.parameters(), lr=0.0001)
     else:
         print(f"optimizer: {optimizer}")
         optimizer = optimizer
@@ -443,6 +338,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     # Add at the start of train_dqn:
     current_file_path = os.path.abspath(__file__)
     last_avg_loss = 0.0  # To track the average loss
+    episode_times = []
 
     def quick_evaluate_seed(seed, train_data_dict, val_data_dict, input_size):
         random.seed(seed)
@@ -461,7 +357,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 for m in val_metrics_all])
         return avg_excess_return
 
-    def find_good_seed(threshold=0.0, max_attempts=100):
+    def find_good_seed(threshold=-20.0, max_attempts=1000):
         print("Searching for promising seed...")
         for attempt in range(max_attempts):
             seed = random.randint(0, 2**32)
@@ -475,65 +371,79 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         print(f"No seed found above threshold after {max_attempts} attempts")
         return None
     
-    good_seed = find_good_seed()
-    if good_seed:
-        random.seed(good_seed)
-        torch.manual_seed(good_seed)
-        np.random.seed(good_seed)
+    # good_seed = find_good_seed()
+    # if good_seed:
+    #     random.seed(good_seed)
+    #     torch.manual_seed(good_seed)
+    #     np.random.seed(good_seed)
 
     for episode in range(n_episodes):
+        episode_start_time = time.time()
         # Randomly select a ticker for this episode
-        ticker = random.choice(list(train_envs.keys()))
-        train_env = train_envs[ticker]
-                               
-        state = train_env.reset()
-        done = False
+        episode_tickers = random.sample(list(train_envs.keys()), k=batch_size)
+        all_transitions = []
 
-        episode_transitions = []
-        
-        while not done:
-            state_tensor = (
-                torch.from_numpy(np.array(state))  # shape (241,)
-                .float()
-                .unsqueeze(0)                      # -> (1, 241)
-                .unsqueeze(0)                      # -> (1, 1, 241)
-                .to(device)
-            )
+        for ticker in episode_tickers:
+            train_env = train_envs[ticker]
+                                
+            state = train_env.reset()
+            done = False
 
-            valid_actions = train_env.get_valid_actions()
-
-            if random.random() < epsilon:
-                # random among valid actions
-                action = random.choice(valid_actions)
-            else:
-                # mask out invalid actions from Q-values
-                q_values, _ = policy_net(state_tensor)  # shape [1,3]
-                q_values = q_values.squeeze(0)         # shape [3]
-                # Then apply your mask
-                mask = torch.full_like(q_values, float('-inf'))
-                for a in valid_actions:
-                    mask[a] = q_values[a]     
-
-                action = torch.argmax(mask).item()
+            episode_transitions = []
             
-            next_state, reward, done = train_env.step(action)
-            episode_transitions.append((state, action, reward, next_state, done))
-            state = next_state
+            while not done:
+                state_tensor = (
+                    torch.from_numpy(np.array(state))  # shape (241,)
+                    .float()
+                    .unsqueeze(0)                      # -> (1, 241)
+                    .unsqueeze(0)                      # -> (1, 1, 241)
+                    .to(device)
+                )
+
+                valid_actions = train_env.get_valid_actions()
+
+                if random.random() < epsilon:
+                    # random among valid actions
+                    action = random.choice(valid_actions)
+                else:
+                    # mask out invalid actions from Q-values
+                    q_values, _ = policy_net(state_tensor)  # shape [1,3]
+                    q_values = q_values.squeeze(0)         # shape [3]
+                    # Then apply your mask
+                    mask = torch.full_like(q_values, float('-inf'))
+                    for a in valid_actions:
+                        mask[a] = q_values[a]     
+
+                    action = torch.argmax(mask).item()
                 
-        memory.push_episode(episode_transitions)
+                next_state, reward, done = train_env.step(action)
+                episode_transitions.append((state, action, reward, next_state, done))
+                state = next_state
+
+            all_transitions.extend(episode_transitions)
+                
+        memory.push_episode(all_transitions)
 
         if len(memory) >= batch_size:
-                last_avg_loss = train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
+            last_avg_loss = train_batch(policy_net, target_net, optimizer, memory, batch_size, gamma, device)
 
-        
-        if episode % 1 == 0:
+
+        episode_duration = time.time() - episode_start_time
+        episode_times.append(episode_duration)
+
+
+        if episode % 10 == 0:
+            # get_gpu_stats()
 
             target_net.load_state_dict(policy_net.state_dict())
             policy_net.eval()
-            
+
             print(f"\nEpisode {episode + 1}")
+            print(f"Episode Duration: {episode_duration:.2f} seconds")
+            print(f"Average Episode Duration: {sum(episode_times)/len(episode_times):.2f} seconds")
 
             # Validate on all tickers
+            validation_start = time.time()
             val_metrics_all = []
             for val_ticker, val_env in val_envs.items():
                 val_metrics = validate_model(policy_net, val_env, device)
@@ -563,6 +473,16 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
             # Save this episode's avg excess retur
             episode_excess_returns.append(avg_excess_return)
 
+            save_last_checkpoint(policy_net, optimizer, episode, last_avg_loss,
+                    metrics={
+                        'profit': avg_profit,
+                        'win_rate': avg_win_rate,
+                        'excess_return': avg_excess_return,
+                        'num_trades': avg_num_trades,
+                        'accumulated_reward': avg_accumulated_reward,
+                        'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
+                    }
+            )
 
             if avg_excess_return > best_excess_return:
                 print(f"\nNew best model! Episode {episode + 1}, Excess Return: {avg_excess_return:.2f}%")
@@ -590,7 +510,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                         'accumulated_reward': avg_accumulated_reward,
                         'per_ticker_metrics': {t: m for t, m in zip(val_envs.keys(), val_metrics_all)}
                     },
-                    seed=good_seed,
+                    # seed=good_seed,
                     avg_loss=last_avg_loss,
                     current_file_path=current_file_path
                 )
@@ -614,31 +534,35 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 # Reset training components
                 epsilon = 1.0  # Reset exploration
                 memory = ReplayBuffer(100000)  # Fresh replay buffer
-                optimizer = optim.Adam(policy_net.parameters(), lr=0.0000005)  # Fresh optimizer
-                scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.9)
+                optimizer = optim.Adam(policy_net.parameters(), lr=0.0001)  # Fresh optimizer
+                scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.98)
                 
                 # Reset counter
                 episodes_without_improvement = 0
                 
-                # Change random seed
-                good_seed = find_good_seed()
-                if good_seed:
-                    random.seed(good_seed)
-                    torch.manual_seed(good_seed)
-                    np.random.seed(good_seed)
+                #random seed
+                random_seed = random.randint(0, 2**32)
+                random.seed(random_seed)
+                torch.manual_seed(random_seed)
+                np.random.seed(random_seed)
 
                 
-                print(f"Reset complete. New seed: {good_seed}")
+                print(f"Reset complete.")
                 continue
 
+
+            total_time = time.time() - validation_start
+            
+            print(f"Validation Timing:")
+            print(f"  Total Time: {total_time:.3f}s")
+    
+        
             policy_net.train()
 
 
         
         epsilon_start = 1.0
         epsilon_end = 0.01
-        epsilon_decay = 0.995  # More gradual decay
-
         # Replace the epsilon update logic with:
         if episode <10:  # Force more exploration in first few episodes
             epsilon = 1.0
@@ -660,7 +584,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
 
 
 
-def save_experiment(model, optimizer, metrics, seed, avg_loss, current_file_path):
+def save_experiment(model, optimizer, metrics, avg_loss, current_file_path):
     """
     Save experiment results including model checkpoint, current code state, and metrics log.
     
@@ -682,7 +606,7 @@ def save_experiment(model, optimizer, metrics, seed, avg_loss, current_file_path
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'metrics': metrics,
-        'seed': seed,
+        # 'seed': seed,
         'timestamp': timestamp,
     }
     checkpoint_path = os.path.join(experiment_dir, "checkpoint.pt")
@@ -708,7 +632,6 @@ def save_experiment(model, optimizer, metrics, seed, avg_loss, current_file_path
 
         Training Parameters
         ------------------
-        Initial Seed: {seed}
         Learning Rate: {optimizer.param_groups[0]['lr']:.8f}
         Average Loss: {avg_loss:.8f}
 
@@ -747,31 +670,36 @@ def validate_model(model, env, device):
     entry_price = None
     accumulated_reward = 0
     
-    # Calculate buy and hold return
+    inference_time = 0
+    env_step_time = 0
+    
     buy_and_hold_shares = initial_value / env.close_prices[env.window_size]
     buy_and_hold_value = buy_and_hold_shares * env.close_prices[-1]
     buy_and_hold_return = (buy_and_hold_value - initial_value) / initial_value
     
     while not done:
+        # Time the model inference
+        inference_start = time.time()
         state_tensor = (
-            torch.from_numpy(np.array(state))  # shape (241,)
+            torch.from_numpy(np.array(state))
             .float()
-            .unsqueeze(0)                      # -> (1, 241)
-            .unsqueeze(0)                      # -> (1, 1, 241)
+            .unsqueeze(0)
+            .unsqueeze(0)
             .to(device)
         )
-
+        
         valid_actions = env.get_valid_actions()
-        q_values = model(state_tensor)[0]
-
-        q_values, _ = model(state_tensor)  # shape = [1, 3]
-        q_values = q_values.squeeze(0)     # now shape = [3]
-
+        q_values, _ = model(state_tensor)
+        q_values = q_values.squeeze(0)
+        
         mask = torch.full_like(q_values, float('-inf'))
         for a in valid_actions:
             mask[a] = q_values[a]
         action = torch.argmax(mask).item()
+        inference_time += time.time() - inference_start
         
+        # Time the environment step
+        env_start = time.time()
         if action == 1 and env.position == 0:
             entry_price = env.close_prices[env.idx]
         elif action == 2 and env.position == 1:
@@ -781,8 +709,11 @@ def validate_model(model, env, device):
             
         state, reward, done = env.step(action)
         accumulated_reward += reward
+        env_step_time += time.time() - env_start
     
     final_value = env.cash if env.position == 0 else env.shares * env.close_prices[env.idx]
+
+    
     return {
         'profit': (final_value - initial_value) / initial_value,
         'num_trades': len(trades),
@@ -792,22 +723,12 @@ def validate_model(model, env, device):
         'buy_and_hold_return': buy_and_hold_return
     }
 
-def get_state_size(window_size):
-    """
-    With raw data and position:
-      - OHLC: window_size * 4
-      - Volume: window_size
-      - Position: 1
-    Total: window_size * 5 + 1
-    """
-    return window_size * 5 + 1
-
 
 
 # ---------------------------------------------
 # 1) Load the all-time best model at startup
 # ---------------------------------------------
-BEST_CHECKPOINT_FILE = os.path.join("checkpoints", "best_checkpoint.pt")
+BEST_CHECKPOINT_FILE = os.path.join("checkpoints", "LAST_checkpoint.pt")
 
 def load_global_best():
     if os.path.exists(BEST_CHECKPOINT_FILE):
@@ -850,6 +771,27 @@ def save_new_global_best(model, optimizer, metrics, global_best_profit):
 
     return ckpt_path
 
+def save_last_checkpoint(model, optimizer, scheduler, episode, metrics=None, filename="last_checkpoint.pt"):
+    checkpoint = {
+        "episode": episode,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        # "scheduler_state_dict": scheduler.state_dict(),
+        "metrics": metrics if metrics is not None else {},
+        "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S")
+    }
+    torch.save(checkpoint, filename)
+    print(f"[CHECKPOINT] Saved last checkpoint at episode {episode} to {filename}")
+
+def get_state_size(window_size):
+    """
+    With raw data and position:
+      - OHLC: window_size * 4
+      - Volume: window_size
+      - Position: 1
+    Total: window_size * 5 + 1
+    """
+    return window_size * 5 + 1
 
 def main():
     full_data_dict = get_market_data_multi()
@@ -892,21 +834,12 @@ def main():
         val_data_dict, 
         input_size,
         n_episodes=1000,
-        batch_size=1,
+        batch_size=4,
         gamma=0.99,
         optimizer=None,
         initial_best_profit=initial_best_profit,
         initial_best_excess=initial_best_excess  # Add this line
     )
-    
-    # print("\nFinal Results:")
-    # final_metrics = validate_model(results['final_model'], SimpleTradeEnv(val_data), device)
-    # best_metrics = validate_model(results['best_model'], SimpleTradeEnv(val_data), device)
-    
-    # print(f"Final Model - Profit: {final_metrics['profit']*100:.2f}%, Trades: {final_metrics['num_trades']}")
-    # print(f"Best Model  - Profit: {best_metrics['profit']*100:.2f}%, Trades: {best_metrics['num_trades']}")
-    # if initial_best_profit != float('-inf'):
-    #     print(f"Previous Best - Profit: {initial_best_profit*100:.2f}%")
 
 if __name__ == "__main__":
     main()

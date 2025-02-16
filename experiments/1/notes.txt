@@ -1,3 +1,0 @@
-best large scale model so far
-.33 average excess
-.000005 lr
