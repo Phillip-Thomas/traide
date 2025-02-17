@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-def get_market_data_multi(tickers=None, period="730d", interval="1h", cache_dir="cache"):
+def get_market_data_multi(tickers=None, period="2y", interval="1h", cache_dir="cache"):
     """
     Fetch data for multiple tickers with caching
     """

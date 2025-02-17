@@ -178,7 +178,7 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
     """
     try:
         # Use more CPU workers for preprocessing
-        num_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores
+        num_workers = min(mp.cpu_count(), 8)  # Use up to 8 CPU cores
         sub_batch_size = batch_size // (len(devices) * 2)  # Smaller batches for more parallelism
         
         # Process batches in parallel with more workers
