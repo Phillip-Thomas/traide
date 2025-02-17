@@ -1,5 +1,6 @@
 # environment/trading_env.py
 import numpy as np
+import pandas as pd
 
 def get_state_size(window_size):
     """
@@ -22,15 +23,21 @@ def get_state_size(window_size):
 
 class SimpleTradeEnv:
     def __init__(self, data, window_size=10):
-        self.data = data
+        # Convert data to pandas DataFrame if it's not already
+        self.data = pd.DataFrame(data) if not isinstance(data, pd.DataFrame) else data
         self.window_size = window_size
         
         # Store raw prices
-        self.raw_open = self.data['Open'].values
-        self.raw_high = self.data['High'].values
-        self.raw_low = self.data['Low'].values
-        self.raw_close = self.data['Close'].values
-        self.raw_volume = self.data['Volume'].values
+        self.raw_open = self.data['Open'].to_numpy() if 'Open' in self.data else self.data.iloc[:, 0].to_numpy()
+        self.raw_high = self.data['High'].to_numpy() if 'High' in self.data else self.data.iloc[:, 1].to_numpy()
+        self.raw_low = self.data['Low'].to_numpy() if 'Low' in self.data else self.data.iloc[:, 2].to_numpy()
+        self.raw_close = self.data['Close'].to_numpy() if 'Close' in self.data else self.data.iloc[:, 3].to_numpy()
+        self.raw_volume = self.data['Volume'].to_numpy() if 'Volume' in self.data else self.data.iloc[:, 4].to_numpy()
+        
+        # Ensure we have enough data
+        min_length = window_size + 1
+        if len(self.raw_close) < min_length:
+            raise ValueError(f"Data length must be at least {min_length} (window_size + 1)")
         
         # Normalize prices using the starting point
         scale = self.raw_close[window_size] if self.raw_close[window_size] != 0 else 1.0

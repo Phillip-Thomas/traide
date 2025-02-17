@@ -4,130 +4,140 @@ import numpy as np
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 class TrainingVisualizer:
+    """Visualizer for training metrics and results."""
+    
     def __init__(self, metrics_file):
-        self.metrics_file = metrics_file
+        """Initialize visualizer with metrics file."""
+        self.metrics_file = Path(metrics_file)
         self.metrics = self._load_metrics()
-        
+    
     def _load_metrics(self):
-        metrics = []
+        """Load metrics from file."""
+        if not self.metrics_file.exists():
+            return {}
         with open(self.metrics_file, 'r') as f:
-            for line in f:
-                metrics.append(json.loads(line))
-        return metrics
+            return json.load(f)
     
     def plot_training_progress(self, save_dir="plots"):
         """Generate training progress plots"""
+        if not self.metrics or not self.metrics.get('episodes'):
+            return None
+            
         os.makedirs(save_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # Extract episode metrics
-        episodes = [m['episode'] for m in self.metrics if 'validation' not in m]
-        returns = [m['returns'] for m in self.metrics if 'validation' not in m]
-        priorities = [m['priority'] for m in self.metrics if 'validation' not in m]
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 12))
         
-        # Extract validation metrics
-        val_episodes = [m['validation']['episode'] for m in self.metrics if 'validation' in m]
-        excess_returns = [m['validation']['excess_return'] for m in self.metrics if 'validation' in m]
-        profits = [m['validation']['profit']*100 for m in self.metrics if 'validation' in m]
-        
-        # Plot returns and priorities
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
-        
-        ax1.plot(episodes, returns, label='Episode Returns')
+        # Plot returns
+        episodes = self.metrics['episodes']
+        returns = self.metrics['returns']
+        ax1.plot(episodes, returns, label='Episode Return')
+        ax1.set_title('Training Returns')
         ax1.set_xlabel('Episode')
-        ax1.set_ylabel('Returns')
-        ax1.set_title('Training Returns Over Time')
+        ax1.set_ylabel('Return')
         ax1.grid(True)
         
-        ax2.plot(episodes, priorities, label='Priority', color='orange')
-        ax2.set_xlabel('Episode')
-        ax2.set_ylabel('Priority')
-        ax2.set_title('Sample Priorities Over Time')
-        ax2.grid(True)
-        
-        plt.tight_layout()
-        plt.savefig(os.path.join(save_dir, f'training_metrics_{timestamp}.png'))
-        plt.close()
+        # Plot loss
+        if 'losses' in self.metrics and self.metrics['losses']:
+            ax2.plot(episodes, self.metrics['losses'], label='Loss')
+            ax2.set_title('Training Loss')
+            ax2.set_xlabel('Episode')
+            ax2.set_ylabel('Loss')
+            ax2.grid(True)
         
         # Plot validation metrics
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
-        
-        ax1.plot(val_episodes, excess_returns, label='Excess Return', color='green')
-        ax1.set_xlabel('Episode')
-        ax1.set_ylabel('Excess Return (%)')
-        ax1.set_title('Validation Excess Returns')
-        ax1.grid(True)
-        
-        ax2.plot(val_episodes, profits, label='Profit', color='blue')
-        ax2.set_xlabel('Episode')
-        ax2.set_ylabel('Profit (%)')
-        ax2.set_title('Validation Profits')
-        ax2.grid(True)
+        if 'validations' in self.metrics and self.metrics['validations']:
+            # Extract validation metrics, handling missing episode keys
+            val_data = []
+            for i, v in enumerate(self.metrics['validations']):
+                episode = v.get('episode', episodes[min(i, len(episodes)-1)])
+                profit = v.get('profit', 0)
+                val_data.append((episode, profit))
+            
+            if val_data:
+                val_episodes, val_profits = zip(*val_data)
+                ax3.plot(val_episodes, val_profits, label='Validation Profit')
+                ax3.set_title('Validation Performance')
+                ax3.set_xlabel('Episode')
+                ax3.set_ylabel('Profit')
+                ax3.grid(True)
         
         plt.tight_layout()
-        plt.savefig(os.path.join(save_dir, f'validation_metrics_{timestamp}.png'))
+        save_path = os.path.join(save_dir, f'training_progress_{timestamp}.png')
+        plt.savefig(save_path)
         plt.close()
-    
-    def plot_trade_distribution(self, save_dir="plots"):
-        """Plot distribution of trade returns"""
-        trade_returns = []
-        for m in self.metrics:
-            if 'validation' in m:
-                for ticker_metrics in m['validation']['per_ticker_metrics'].values():
-                    if 'trades' in ticker_metrics:
-                        trade_returns.extend(ticker_metrics['trades'])
         
-        if trade_returns:
-            plt.figure(figsize=(10, 6))
-            plt.hist(trade_returns, bins=50, density=True, alpha=0.7)
-            plt.axvline(x=0, color='r', linestyle='--', alpha=0.5)
-            plt.xlabel('Trade Return (%)')
-            plt.ylabel('Density')
-            plt.title('Distribution of Trade Returns')
-            plt.grid(True)
-            
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            plt.savefig(os.path.join(save_dir, f'trade_distribution_{timestamp}.png'))
-            plt.close()
+        return fig
     
-    def generate_summary_report(self, save_dir="reports"):
+    def plot_trade_distribution(self):
+        """Plot distribution of trade returns"""
+        if not self.metrics or 'validations' not in self.metrics:
+            return None
+            
+        # Collect all trade returns from validations
+        all_trades = []
+        for validation in self.metrics['validations']:
+            if isinstance(validation.get('trades'), list):
+                all_trades.extend([trade['profit'] for trade in validation['trades']])
+        
+        if not all_trades:
+            return None
+            
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.hist(all_trades, bins=50, density=True, alpha=0.75)
+        ax.axvline(x=0, color='r', linestyle='--', label='Break Even')
+        
+        mean_return = np.mean(all_trades)
+        ax.axvline(x=mean_return, color='g', linestyle='--', 
+                  label=f'Mean Return ({mean_return:.2%})')
+        
+        ax.set_title('Trade Returns Distribution')
+        ax.set_xlabel('Return')
+        ax.set_ylabel('Density')
+        ax.legend()
+        ax.grid(True)
+        
+        return fig
+    
+    def generate_summary_report(self, save_dir="reports", output_file=None):
         """Generate a summary report of training"""
         os.makedirs(save_dir, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        report_file = os.path.join(save_dir, f'training_summary_{timestamp}.txt')
         
-        # Calculate summary statistics
-        episode_metrics = [m for m in self.metrics if 'validation' not in m]
-        validation_metrics = [m['validation'] for m in self.metrics if 'validation' in m]
+        if output_file is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_file = os.path.join(save_dir, f'training_summary_{timestamp}.txt')
         
-        with open(report_file, 'w') as f:
-            f.write(f"Training Summary Report - {datetime.now()}\n")
-            f.write("="*80 + "\n\n")
-            
-            f.write("Training Statistics:\n")
-            f.write("-"*50 + "\n")
-            f.write(f"Total Episodes: {len(episode_metrics)}\n")
-            f.write(f"Average Return: {np.mean([m['returns'] for m in episode_metrics]):.4f}\n")
-            f.write(f"Return Std Dev: {np.std([m['returns'] for m in episode_metrics]):.4f}\n")
-            f.write(f"Average Priority: {np.mean([m['priority'] for m in episode_metrics]):.4f}\n\n")
-            
-            f.write("Validation Statistics:\n")
-            f.write("-"*50 + "\n")
-            f.write(f"Number of Validations: {len(validation_metrics)}\n")
-            f.write(f"Best Excess Return: {max([m['excess_return'] for m in validation_metrics]):.2f}%\n")
-            f.write(f"Average Profit: {np.mean([m['profit'] for m in validation_metrics])*100:.2f}%\n")
-            
-            # Add per-ticker statistics
-            if validation_metrics and 'per_ticker_metrics' in validation_metrics[-1]:
-                f.write("\nPer-Ticker Performance (Last Validation):\n")
-                f.write("-"*50 + "\n")
-                for ticker, metrics in validation_metrics[-1]['per_ticker_metrics'].items():
-                    f.write(f"\n{ticker}:\n")
-                    f.write(f"  Profit: {metrics['profit']*100:.2f}%\n")
-                    f.write(f"  Win Rate: {metrics['win_rate']*100:.1f}%\n")
-                    f.write(f"  Trades: {metrics['num_trades']}\n")
+        report = ["Training Summary", "=" * 50, ""]
         
-        print(f"Summary report saved to: {report_file}")
-        return report_file
+        # Basic statistics
+        report.append(f"Total Episodes: {len(self.metrics['episodes'])}")
+        report.append(f"Average Return: {np.mean(self.metrics['returns']):.4f}")
+        report.append(f"Max Return: {max(self.metrics['returns']):.4f}")
+        
+        if 'losses' in self.metrics and self.metrics['losses']:
+            report.append(f"Final Loss: {self.metrics['losses'][-1]:.4f}")
+        
+        # Validation performance
+        if 'validations' in self.metrics and self.metrics['validations']:
+            best_validation = max(self.metrics['validations'], 
+                                key=lambda x: x.get('profit', float('-inf')))
+            report.extend([
+                "",
+                "Best Validation Performance",
+                "-" * 30,
+                f"Episode: {best_validation.get('episode', 'N/A')}",
+                f"Profit: {best_validation.get('profit', 0):.2%}",
+                f"Win Rate: {best_validation.get('win_rate', 0):.2%}",
+                f"Number of Trades: {best_validation.get('num_trades', 0)}"
+            ])
+        
+        report = "\n".join(report)
+        
+        with open(output_file, 'w') as f:
+            f.write(report)
+        
+        print(f"Summary report saved to: {output_file}")
+        return output_file

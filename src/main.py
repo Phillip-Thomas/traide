@@ -7,6 +7,9 @@ from train.train import train_dqn
 from utils.get_market_data_multi import get_market_data_multi
 from environments.trading_env import get_state_size
 
+# Configuration
+window_size = 48
+
 def main():
     # Load and preprocess data
     full_data_dict = get_market_data_multi()
@@ -23,7 +26,6 @@ def main():
         val_data_dict[ticker] = data[split_idx:].copy()
 
     # Setup training parameters
-    window_size = 48
     input_size = get_state_size(window_size)
     print(f"Input size: {input_size}")
     
