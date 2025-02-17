@@ -2,3 +2,7 @@
 *.pkl
 *.png
 __pycache__
+checkpoints
+logs
+reports
+*.egg-info

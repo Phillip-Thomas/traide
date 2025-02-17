@@ -178,7 +178,7 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
     """
     try:
         # Use more CPU workers for preprocessing
-        num_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores
+        num_workers = min(mp.cpu_count(), 8)  # Use up to 8 CPU cores
         sub_batch_size = batch_size // (len(devices) * 2)  # Smaller batches for more parallelism
         
         # Process batches in parallel with more workers
@@ -546,8 +546,21 @@ def create_trade_env(data, window_size):
     return SimpleTradeEnv(data, window_size=window_size)
 
 def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch_size=32, gamma=0.99, 
-              initial_best_profit=float('-inf'), initial_best_excess=float('-inf')):
+              initial_best_profit=float('-inf'), initial_best_excess=float('-inf'), checkpoint_dir="checkpoints"):
+    """
+    Train a DQN model on multiple trading environments.
     
+    Args:
+        train_data_dict: Dictionary of training data for each ticker
+        val_data_dict: Dictionary of validation data for each ticker
+        input_size: Size of the input state
+        n_episodes: Number of episodes to train for
+        batch_size: Batch size for training
+        gamma: Discount factor
+        initial_best_profit: Initial best profit for model comparison
+        initial_best_excess: Initial best excess return for model comparison
+        checkpoint_dir: Directory to save checkpoints
+    """
     print("\nInitializing training...")
     logger = TrainingLogger()
     
@@ -801,11 +814,11 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                     'excess_return': avg_excess_return,
                     'per_ticker_metrics': {t: m for t, m in val_metrics_results}
                 }
-                logger.log_validation(episode, validation_metrics)
+                logger.log_validation(validation_metrics)
                 
                 # Model selection and early stopping
                 if avg_excess_return > best_excess_return:
-                    logger.log_model_save(episode, "checkpoints/best_model.pt", validation_metrics)
+                    logger.log_model_save(episode, f"{checkpoint_dir}/best_model.pt", validation_metrics)
                     best_excess_return = avg_excess_return
                     best_val_profit = avg_profit
                     best_model = copy.deepcopy(policy_nets[0])
