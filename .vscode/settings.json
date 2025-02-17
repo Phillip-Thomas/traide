@@ -1,0 +1,16 @@
+{
+    "terminal.integrated.profiles.linux": {
+      "default": {
+        "path": "/bin/bash",
+        "args": ["--init-file", ".vscode/shell.sh"]
+      }
+    },
+    "terminal.integrated.profiles.osx": {
+      "default": {
+        "path": "/bin/zsh",
+        "args": ["-l", "-c", "source .vscode/shell.sh && exec zsh"]
+      }
+    },
+    "terminal.integrated.defaultProfile.linux": "default",
+    "terminal.integrated.defaultProfile.osx": "default"
+  }

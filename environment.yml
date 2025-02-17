@@ -4,6 +4,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  # Core dependencies
   - python=3.9
   - pandas
   - numpy
@@ -12,6 +13,27 @@ dependencies:
   - torchvision
   - torchaudio
   - cudatoolkit=11.7
+  - matplotlib
+  - requests
+  - setuptools
+  - filelock
+  - sympy
+  - networkx
+  - jinja2
+  - typing-extensions
   - pip
+
+  # Test dependencies
+  - pytest
+  - pytest-cov
+  - pytest-xdist
+  - psutil
+
   - pip:
+      # Production dependencies
       - yfinance
+      
+      # Test dependencies
+      - pytest-timeout
+      - pytest-mock
+
