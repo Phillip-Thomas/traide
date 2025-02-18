@@ -17,6 +17,7 @@ from functools import partial
 import torch.multiprocessing as tmp
 from queue import Empty
 from threading import Event
+import resource
 
 # Set multiprocessing start method to spawn for CUDA compatibility
 if __name__ == '__main__':
@@ -169,6 +170,12 @@ def create_process_pool(num_workers):
     """
     Create a process pool with proper CUDA initialization settings
     """
+    # Set a lower limit on file descriptors per process
+    soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+    # Set soft limit to min(hard limit, 2048) to prevent excessive file descriptors
+    new_soft = min(hard, 2048)
+    resource.setrlimit(resource.RLIMIT_NOFILE, (new_soft, hard))
+    
     ctx = mp.get_context('spawn')
     return ctx.Pool(num_workers)
 
@@ -570,7 +577,6 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         print(f"Found {n_gpus} CUDA devices")
         for i in range(n_gpus):
             print(f"GPU {i}: {torch.cuda.get_device_name(i)}")
-            # Set device properties for better performance
             torch.cuda.set_device(i)
             torch.cuda.empty_cache()
         devices = [torch.device(f'cuda:{i}') for i in range(n_gpus)]
@@ -579,10 +585,10 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         print("Using CPU for training")
         devices = [torch.device('cpu')]
         main_device = devices[0]
-        
+    
     # Enable cuDNN benchmarking and deterministic operations
     torch.backends.cudnn.benchmark = True
-    torch.backends.cudnn.deterministic = False  # Allow non-deterministic ops for better performance
+    torch.backends.cudnn.deterministic = False
     
     # Initialize networks for each GPU
     print("Initializing networks...")
@@ -594,7 +600,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         policy_net = DQN(input_size).to(device)
         target_net = DQN(input_size).to(device)
         
-        if len(policy_nets) > 0:  # Copy weights from first model
+        if len(policy_nets) > 0:
             policy_net.load_state_dict(policy_nets[0].state_dict())
             target_net.load_state_dict(target_nets[0].state_dict())
             
@@ -607,8 +613,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
         
         print(f"Initialized network on {device}")
     
-    # Use a larger memory buffer for better sampling
-    memory = PrioritizedReplayBuffer(100000)  # Increased from 50000
+    memory = PrioritizedReplayBuffer(100000)
     
     # Training state
     window_size = 48
@@ -620,81 +625,79 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
     best_model = None
     last_avg_loss = 0
     
-    # Environment setup with parallel initialization
-    print("Setting up environments...")
-    num_cpu_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores
-    with create_process_pool(num_cpu_workers) as pool:
-        # Initialize environments in parallel
+    # Create a single process pool for the entire training loop
+    num_workers = min(mp.cpu_count(), 8)  # Reduced from 16 to 8
+    print(f"Creating process pool with {num_workers} workers")
+    
+    with create_process_pool(num_workers) as main_pool:
+        # Environment setup
+        print("Setting up environments...")
         train_env_futures = [
-            pool.apply_async(create_trade_env, (data, window_size))
+            main_pool.apply_async(create_trade_env, (data, window_size))
             for data in train_data_dict.values()
         ]
         val_env_futures = [
-            pool.apply_async(create_trade_env, (data, window_size))
+            main_pool.apply_async(create_trade_env, (data, window_size))
             for data in val_data_dict.values()
         ]
         
         train_envs = {
-            ticker: future.get() 
+            ticker: future.get(timeout=30.0)
             for ticker, future in zip(train_data_dict.keys(), train_env_futures)
         }
         val_envs = {
-            ticker: future.get() 
+            ticker: future.get(timeout=30.0)
             for ticker, future in zip(val_data_dict.keys(), val_env_futures)
         }
-    
-    print(f"Created {len(train_envs)} training environments and {len(val_envs)} validation environments")
-    
-    # Training loop state
-    episodes_without_improvement = 0
-    reset_count = 0
-    max_resets = 30
-    
-    try:
-        print("\nStarting training loop...")
-        for episode in range(n_episodes):
-            print(f"\nEpisode {episode + 1}/{n_episodes}")
-            episode_start = time.time()
-            
-            # Sample tickers for this episode
-            batch_size_env = min(len(devices) * 4, batch_size)  # Ensure each GPU gets at least 4 environments
-            episode_tickers = random.sample(list(train_envs.keys()), k=min(batch_size_env, len(train_envs)))
-            print(f"Selected tickers: {episode_tickers}")
-            
-            # Calculate epsilon and temperature
-            epsilon = epsilon_end + (epsilon_start - epsilon_end) * \
-                     math.exp(-1. * episode / epsilon_decay)
-            temperature = max(0.5, 1.0 - episode / n_episodes)
-            
-            # Distribute tickers across GPUs
-            all_transitions = []
-            episode_reward = 0
-            trades_info = []
-            
-            # Ensure even distribution across GPUs
-            tickers_per_device = math.ceil(len(episode_tickers) / len(devices))
-            device_tickers = [[] for _ in devices]
-            for i, ticker in enumerate(episode_tickers):
-                device_idx = i % len(devices)
-                device_tickers[device_idx].append(ticker)
-            
-            # Process environments in parallel with better CPU utilization
-            num_env_workers = min(mp.cpu_count(), 32)  # Use up to 32 CPU cores for environment processing
-            with create_process_pool(num_env_workers) as pool:
-                futures = []
+        
+        print(f"Created {len(train_envs)} training environments and {len(val_envs)} validation environments")
+        
+        # Training loop state
+        episodes_without_improvement = 0
+        reset_count = 0
+        max_resets = 30
+        
+        try:
+            print("\nStarting training loop...")
+            for episode in range(n_episodes):
+                print(f"\nEpisode {episode + 1}/{n_episodes}")
+                episode_start = time.time()
                 
-                # Submit environment processing jobs in smaller batches
+                # Sample tickers for this episode
+                batch_size_env = min(len(devices) * 4, batch_size)
+                episode_tickers = random.sample(list(train_envs.keys()), k=min(batch_size_env, len(train_envs)))
+                print(f"Selected tickers: {episode_tickers}")
+                
+                # Calculate epsilon and temperature
+                epsilon = epsilon_end + (epsilon_start - epsilon_end) * \
+                         math.exp(-1. * episode / epsilon_decay)
+                temperature = max(0.5, 1.0 - episode / n_episodes)
+                
+                # Distribute tickers across GPUs
+                all_transitions = []
+                episode_reward = 0
+                trades_info = []
+                
+                # Ensure even distribution across GPUs
+                tickers_per_device = math.ceil(len(episode_tickers) / len(devices))
+                device_tickers = [[] for _ in devices]
+                for i, ticker in enumerate(episode_tickers):
+                    device_idx = i % len(devices)
+                    device_tickers[device_idx].append(ticker)
+                
+                # Process environments using main pool
+                futures = []
                 for dev_idx, device_ticker_list in enumerate(device_tickers):
                     for ticker in device_ticker_list:
-                        future = pool.apply_async(
+                        future = main_pool.apply_async(
                             run_env_episode_worker,
-                            (train_envs[ticker], 
+                            (train_envs[ticker],
                              policy_nets[dev_idx].state_dict(),
                              epsilon, temperature, input_size, dev_idx)
                         )
                         futures.append(future)
                 
-                # Collect results with better error handling
+                # Collect results
                 collected_transitions = []
                 collected_rewards = []
                 collected_trades = []
@@ -707,9 +710,6 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                             collected_transitions.extend(transitions)
                             collected_rewards.append(reward)
                             collected_trades.extend(trades)
-                    except mp.TimeoutError:
-                        print(f"Timeout waiting for environment result")
-                        continue
                     except Exception as e:
                         print(f"Error collecting result: {str(e)}")
                         continue
@@ -717,171 +717,175 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 all_transitions = collected_transitions
                 episode_reward = sum(collected_rewards)
                 trades_info = collected_trades
-            
-            print(f"Collected {len(all_transitions)} total transitions")
-            
-            # Store experience and train with parallel processing
-            if all_transitions:
-                print("Storing transitions in memory...")
-                num_store_workers = min(mp.cpu_count(), 16)  # Use up to 16 CPU cores for storage
-                stored_transitions = parallel_store_transitions(all_transitions, num_store_workers, devices)
-                if stored_transitions:
-                    # Process transitions in parallel batches
-                    batch_size = 1000  # Process in smaller batches
-                    for i in range(0, len(stored_transitions), batch_size):
-                        batch = stored_transitions[i:i + batch_size]
-                        processed_transitions = []
-                        for state, action, reward, next_state, done in batch:
-                            processed_transitions.append((
-                                torch.from_numpy(state).float(),  # Store on CPU
-                                action,
-                                reward,
-                                torch.from_numpy(next_state).float(),  # Store on CPU
-                                done
-                            ))
-                        memory.push_episode(processed_transitions)
-
-            if len(memory) >= batch_size:
-                print("Training on collected experience...")
-                losses = []
                 
-                # Multiple training steps per episode with parallel processing
-                num_train_workers = min(mp.cpu_count(), 8)  # Use up to 8 CPU cores for training
-                train_steps = 4
+                print(f"Collected {len(all_transitions)} total transitions")
                 
-                for step in range(train_steps):
-                    print(f"Training step {step + 1}/{train_steps}")
-                    loss = train_step_parallel(
-                        policy_nets,
-                        target_nets,
-                        optimizers,
-                        memory,
-                        batch_size,
-                        gamma,
-                        devices
-                    )
-                    if loss > 0:
-                        losses.append(loss)
-                        
-                if losses:
-                    last_avg_loss = np.mean(losses)
-                    print(f"Average loss: {last_avg_loss:.6f}")
-            
-            # Calculate episode statistics in parallel
-            episode_duration = time.time() - episode_start
-            with create_process_pool(min(4, mp.cpu_count())) as pool:
-                returns_std = pool.apply_async(
-                    calculate_std,
-                    ([t[2] for t in all_transitions],)
-                ).get(timeout=30.0)
-            
-            print(f"Episode completed in {episode_duration:.2f} seconds")
-            
-            # Log episode results
-            print("Logging episode results...")
-            logger.log_episode(
-                episode_num=episode,
-                returns=episode_reward,
-                length=len(all_transitions),
-                std_dev=returns_std,
-                priority=memory.priorities[-1] if memory.priorities else 0,
-                epsilon=epsilon,
-                loss=last_avg_loss,
-                trades_info=trades_info
-            )
-            
-            # Periodic validation and model updates
-            if episode % 5 == 0:
-                target_nets[0].load_state_dict(policy_nets[0].state_dict())
-                policy_nets[0].eval()
+                # Store experience and train
+                if all_transitions:
+                    print("Storing transitions in memory...")
+                    stored_transitions = parallel_store_transitions(all_transitions, num_workers, devices)
+                    if stored_transitions:
+                        batch_size = 1000
+                        for i in range(0, len(stored_transitions), batch_size):
+                            batch = stored_transitions[i:i + batch_size]
+                            processed_transitions = []
+                            for state, action, reward, next_state, done in batch:
+                                processed_transitions.append((
+                                    torch.from_numpy(state).float(),
+                                    action,
+                                    reward,
+                                    torch.from_numpy(next_state).float(),
+                                    done
+                                ))
+                            memory.push_episode(processed_transitions)
                 
-                # Validate in parallel
-                val_metrics_results = parallel_validation(policy_nets[0], val_envs, devices, input_size)
-                
-                # Calculate average metrics
-                val_metrics_all = [metrics for _, metrics in val_metrics_results]
-                avg_profit = np.mean([m['profit'] for m in val_metrics_all])
-                avg_win_rate = np.mean([m['win_rate'] for m in val_metrics_all])
-                avg_num_trades = np.mean([m['num_trades'] for m in val_metrics_all])
-                avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 
-                                           for m in val_metrics_all])
-                
-                # Log validation results
-                validation_metrics = {
-                    'profit': avg_profit,
-                    'win_rate': avg_win_rate,
-                    'num_trades': int(avg_num_trades),
-                    'excess_return': avg_excess_return,
-                    'per_ticker_metrics': {t: m for t, m in val_metrics_results}
-                }
-                logger.log_validation(validation_metrics)
-                
-                # Model selection and early stopping
-                if avg_excess_return > best_excess_return:
-                    logger.log_model_save(episode, f"{checkpoint_dir}/best_model.pt", validation_metrics)
-                    best_excess_return = avg_excess_return
-                    best_val_profit = avg_profit
-                    best_model = copy.deepcopy(policy_nets[0])
-                    episodes_without_improvement = 0
+                if len(memory) >= batch_size:
+                    print("Training on collected experience...")
+                    losses = []
+                    train_steps = 4
                     
-                    # Save experiment
-                    save_experiment(
-                        model=best_model,
-                        optimizer=optimizers[0],
-                        metrics=validation_metrics
-                    )
-                else:
-                    episodes_without_improvement += 1
+                    for step in range(train_steps):
+                        print(f"Training step {step + 1}/{train_steps}")
+                        loss = train_step_parallel(
+                            policy_nets,
+                            target_nets,
+                            optimizers,
+                            memory,
+                            batch_size,
+                            gamma,
+                            devices
+                        )
+                        if loss > 0:
+                            losses.append(loss)
+                    
+                    if losses:
+                        last_avg_loss = np.mean(losses)
+                        print(f"Average loss: {last_avg_loss:.6f}")
                 
-                # Log learning rate
-                logger.log_training_update(
-                    episode,
-                    learning_rate=optimizers[0].param_groups[0]['lr'],
-                    grad_norm=torch.nn.utils.clip_grad_norm_(policy_nets[0].parameters(), max_norm=1.0).item()
+                # Calculate episode statistics
+                episode_duration = time.time() - episode_start
+                returns_std = calculate_std([t[2] for t in all_transitions])
+                
+                print(f"Episode completed in {episode_duration:.2f} seconds")
+                
+                # Log episode results
+                print("Logging episode results...")
+                logger.log_episode(
+                    episode_num=episode,
+                    returns=episode_reward,
+                    length=len(all_transitions),
+                    std_dev=returns_std,
+                    priority=memory.priorities[-1] if memory.priorities else 0,
+                    epsilon=epsilon,
+                    loss=last_avg_loss,
+                    trades_info=trades_info
                 )
                 
-                # Reset on plateau
-                if episodes_without_improvement >= 50:  # patience
-                    reset_count += 1
-                    if reset_count >= max_resets:
-                        print("Maximum resets reached. Stopping training.")
-                        break
+                # Periodic validation and model updates
+                if episode % 5 == 0:
+                    target_nets[0].load_state_dict(policy_nets[0].state_dict())
+                    policy_nets[0].eval()
                     
-                    if best_model is not None:
-                        for dev_idx in range(len(devices)):
-                            policy_nets[dev_idx].load_state_dict(best_model.state_dict())
-                            target_nets[dev_idx].load_state_dict(best_model.state_dict())
+                    # Validate using main pool
+                    val_metrics_results = []
+                    for idx, (val_ticker, val_env) in enumerate(val_envs.items()):
+                        device_idx = idx % len(devices)
+                        result = main_pool.apply_async(
+                            process_validation_worker,
+                            (policy_nets[0].state_dict(), val_env, device_idx, input_size)
+                        )
+                        val_metrics_results.append((val_ticker, result))
                     
-                    optimizer, _ = get_optimizer(policy_nets[0], lr=3e-4 * (0.9 ** reset_count))
-                    memory = PrioritizedReplayBuffer(100000)
-                    epsilon = epsilon_start
-                    episodes_without_improvement = 0
+                    # Collect validation results
+                    val_metrics_all = []
+                    for val_ticker, result in val_metrics_results:
+                        try:
+                            metrics = result.get(timeout=30.0)
+                            if metrics is not None:
+                                val_metrics_all.append((val_ticker, metrics))
+                        except Exception as e:
+                            print(f"Error collecting validation result: {str(e)}")
                     
-                    logger.log_training_update(episode, optimizer.param_groups[0]['lr'])
-                    print(f"\nReset {reset_count}/{max_resets} complete.")
-                    continue
-                
-                policy_nets[0].train()
-                optimizers[0].step()
-    
-        # Generate final visualizations and report
-        visualizer = TrainingVisualizer(logger.metrics_file)
-        visualizer.plot_training_progress()
-        visualizer.plot_trade_distribution()
-        visualizer.generate_summary_report()
+                    # Calculate average metrics
+                    if val_metrics_all:
+                        metrics_list = [metrics for _, metrics in val_metrics_all]
+                        avg_profit = np.mean([m['profit'] for m in metrics_list])
+                        avg_win_rate = np.mean([m['win_rate'] for m in metrics_list])
+                        avg_num_trades = np.mean([m['num_trades'] for m in metrics_list])
+                        avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 
+                                                   for m in metrics_list])
+                        
+                        validation_metrics = {
+                            'profit': avg_profit,
+                            'win_rate': avg_win_rate,
+                            'num_trades': int(avg_num_trades),
+                            'excess_return': avg_excess_return,
+                            'per_ticker_metrics': dict(val_metrics_all)
+                        }
+                        logger.log_validation(validation_metrics)
+                        
+                        if avg_excess_return > best_excess_return:
+                            logger.log_model_save(episode, f"{checkpoint_dir}/best_model.pt", validation_metrics)
+                            best_excess_return = avg_excess_return
+                            best_val_profit = avg_profit
+                            best_model = copy.deepcopy(policy_nets[0])
+                            episodes_without_improvement = 0
+                            
+                            save_experiment(
+                                model=best_model,
+                                optimizer=optimizers[0],
+                                metrics=validation_metrics
+                            )
+                        else:
+                            episodes_without_improvement += 1
+                        
+                        if episodes_without_improvement >= 50:
+                            reset_count += 1
+                            if reset_count >= max_resets:
+                                print("Maximum resets reached. Stopping training.")
+                                break
+                            
+                            if best_model is not None:
+                                for dev_idx in range(len(devices)):
+                                    policy_nets[dev_idx].load_state_dict(best_model.state_dict())
+                                    target_nets[dev_idx].load_state_dict(best_model.state_dict())
+                            
+                            optimizer, _ = get_optimizer(policy_nets[0], lr=3e-4 * (0.9 ** reset_count))
+                            memory = PrioritizedReplayBuffer(100000)
+                            epsilon = epsilon_start
+                            episodes_without_improvement = 0
+                            
+                            logger.log_training_update(episode, optimizer.param_groups[0]['lr'])
+                            print(f"\nReset {reset_count}/{max_resets} complete.")
+                            continue
+                        
+                        policy_nets[0].train()
+                        optimizers[0].step()
         
-        return {
-            'final_model': policy_nets[0],
-            'best_model': best_model,
-            'training_summary': logger.get_summary_stats()
-        }
-
-    except Exception as e:
-        print(f"\nError in train_dqn: {type(e).__name__}: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return {
-            'final_model': policy_nets[0],
-            'best_model': best_model,
-            'training_summary': logger.get_summary_stats()
-        }
+        except Exception as e:
+            print(f"\nError in train_dqn: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+        
+        finally:
+            # Clean up
+            print("\nCleaning up resources...")
+            for policy_net in policy_nets:
+                del policy_net
+            for target_net in target_nets:
+                del target_net
+            for optimizer in optimizers:
+                del optimizer
+            torch.cuda.empty_cache()
+    
+    # Generate final visualizations and report
+    visualizer = TrainingVisualizer(logger.metrics_file)
+    visualizer.plot_training_progress()
+    visualizer.plot_trade_distribution()
+    visualizer.generate_summary_report()
+    
+    return {
+        'final_model': policy_nets[0] if policy_nets else None,
+        'best_model': best_model,
+        'training_summary': logger.get_summary_stats()
+    }

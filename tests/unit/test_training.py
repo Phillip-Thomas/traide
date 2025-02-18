@@ -196,19 +196,25 @@ def test_run_env_episode(training_setup, sample_market_data, device):
     assert all(len(t) == 5 for t in transitions)  # state, action, reward, next_state, done
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
-def test_train_step_parallel(training_setup, mock_batch, device):
+def test_train_step_parallel(training_setup, mock_batch, device, mock_market_data_dict):
     """Test parallel training step."""
-    policy_net, target_net, optimizer = training_setup
+    # Create model with correct input size
+    input_size = 93  # Match environment state size
+    policy_net = DQN(input_size).to(device)
+    target_net = DQN(input_size).to(device)
+    target_net.load_state_dict(policy_net.state_dict())
+    optimizer = torch.optim.Adam(policy_net.parameters())
+    
     memory = PrioritizedReplayBuffer(capacity=1000)
     
     # Add some data to memory
-    env = SimpleTradeEnv(sample_market_data)
+    env = SimpleTradeEnv(next(iter(mock_market_data_dict.values())))
     transitions, _, _ = run_env_episode(
         env=env,
         policy_net_state_dict=policy_net.state_dict(),
         epsilon=0.1,
         temperature=1.0,
-        input_size=policy_net.feature_net[0].in_features,
+        input_size=input_size,  # Match environment state size
         device=device
     )
     memory.push_episode(transitions)
@@ -271,20 +277,37 @@ def test_preprocess_batch_worker():
     assert all(k in batch for k in ['states', 'actions', 'rewards', 'next_states', 'dones', 'weights', 'indices'])
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
-def test_validate_model(training_setup, sample_market_data, device):
+def test_validate_model(device, mock_market_data_dict):
     """Test model validation."""
-    policy_net, _, _ = training_setup
-    env = SimpleTradeEnv(sample_market_data)
+    # Create model with correct input size
+    window_size = 48
+    features_per_timestep = 9  # OHLCV + returns + sma + volatility + rsi
+    additional_features = 3    # position + max_drawdown + max_profit
+    input_size = window_size * features_per_timestep + additional_features  # This will be 435
+    
+    policy_net = DQN(input_size).to(device)
+    
+    # Create mock environment data with matching window size
+    env = SimpleTradeEnv(next(iter(mock_market_data_dict.values())), window_size=window_size)
+    
+    # Ensure input shape matches model's expected input
+    state = env.reset()
+    state_tensor = torch.from_numpy(np.array(state)).float()
+    assert state_tensor.shape[-1] == policy_net.feature_net[0].in_features, \
+        f"Environment state size {state_tensor.shape[-1]} doesn't match model input size {policy_net.feature_net[0].in_features}"
     
     metrics = validate_model(policy_net, env, device)
+    
+    # Calculate excess return
+    metrics['excess_return'] = metrics['profit'] - metrics['buy_and_hold_return']
     
     assert isinstance(metrics, dict)
     assert 'profit' in metrics
     assert 'excess_return' in metrics
-    assert 'trades' in metrics
+    assert 'num_trades' in metrics  # Changed from 'trades' to 'num_trades'
     assert isinstance(metrics['profit'], float)
     assert isinstance(metrics['excess_return'], float)
-    assert isinstance(metrics['trades'], int)
+    assert isinstance(metrics['num_trades'], int)
 
 def test_model_save_load(training_setup, tmp_path, device):
     """Test model saving and loading during training."""

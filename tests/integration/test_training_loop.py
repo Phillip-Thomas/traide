@@ -110,25 +110,32 @@ def test_checkpoint_management(mock_training_state, mock_training_data, tmp_path
         assert 'training_summary' in results
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
-def test_multi_gpu_coordination(mock_training_state, tmp_path):
+def test_multi_gpu_coordination(training_data):
     """Test coordination between multiple GPUs during training."""
-    model, optimizer, metrics = mock_training_state
+    if not torch.cuda.is_available() or torch.cuda.device_count() < 2:
+        pytest.skip("Test requires at least 2 GPUs")
     
-    with patch('torch.cuda.is_available', return_value=True), \
-         patch('torch.cuda.device_count', return_value=2), \
-         patch('main.window_size', 10):
-        
-        results = train_dqn(
-            train_data_dict={'AAPL': np.random.randn(100, 5)},
-            val_data_dict={'AAPL': np.random.randn(50, 5)},
-            n_episodes=3,
-            batch_size=4,
-            gamma=0.99
-        )
-        
-        assert results is not None
-        assert 'final_model' in results
-        assert 'training_summary' in results
+    train_data, val_data = training_data
+    
+    # Calculate input size based on environment state
+    window_size = 48
+    features_per_timestep = 9  # OHLCV + returns + sma + volatility + rsi
+    additional_features = 3    # position + max_drawdown + max_profit
+    input_size = window_size * features_per_timestep + additional_features
+    
+    results = train_dqn(
+        train_data_dict=train_data,
+        val_data_dict=val_data,
+        input_size=input_size,
+        n_episodes=2,
+        batch_size=32,
+        gamma=0.99
+    )
+    
+    # Verify model synchronization
+    assert isinstance(results, dict)
+    assert 'final_model' in results
+    assert isinstance(results['final_model'], DQN)
 
 def test_error_recovery(mock_training_state, mock_training_data, tmp_path):
     """Test error recovery during training."""
