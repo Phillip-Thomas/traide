@@ -1,0 +1,50 @@
+name: actor_critic
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # Core dependencies
+  - python=3.12
+  - pandas
+  - numpy
+  - scikit-learn
+  - pytorch-cuda=12.1
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit
+  - matplotlib
+  - requests
+  - setuptools
+  - filelock
+  - sympy
+  - networkx
+  - jinja2
+  - typing-extensions
+  - pip
+  - optuna
+  - optuna-dashboard
+  - sqlalchemy
+  - psycopg2
+  - tensorboard
+  - ta-lib
+  - gymnasium
+
+  # Test dependencies
+  - pytest
+  - pytest-cov
+  - pytest-xdist
+  - psutil
+  - line_profiler
+  - memory_profiler
+
+  - pip:
+      # Production dependencies
+      - yfinance
+      
+      # Test dependencies
+      - pytest-timeout
+      - pytest-mock
+
