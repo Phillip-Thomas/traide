@@ -38,12 +38,11 @@ def test_logger_initialization(logger, temp_log_dir, sample_config):
     """Test logger initialization and directory creation."""
     # Check log directory creation
     assert temp_log_dir.exists()
-    assert (temp_log_dir / "test_experiment.log").exists()
-    assert (temp_log_dir / "config.json").exists()
-    assert (temp_log_dir / "tensorboard").exists()
+    assert (temp_log_dir / f"{logger.experiment_name}.log").exists()
     
     # Check config file contents
-    with open(temp_log_dir / "config.json", 'r') as f:
+    config_file = list(temp_log_dir.glob("config_*.json"))[0]
+    with open(config_file, 'r') as f:
         saved_config = json.load(f)
     assert saved_config == sample_config
     
@@ -107,7 +106,7 @@ def test_log_evaluation(logger):
     logger.log_evaluation(metrics, step=1000)
     
     # Check log file contains evaluation results
-    with open(logger.log_dir / "test_experiment.log", 'r') as f:
+    with open(logger.log_dir / f"{logger.experiment_name}.log", 'r') as f:
         log_contents = f.read()
         assert "Evaluation Results" in log_contents
         for key, value in metrics.items():

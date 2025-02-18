@@ -32,11 +32,22 @@ def test_replay_buffer_add(replay_buffer):
     # Check buffer state
     assert replay_buffer.ptr == 1
     assert replay_buffer.size == 1
-    assert np.allclose(replay_buffer.states[0], state)
-    assert np.allclose(replay_buffer.actions[0], action)
-    assert np.allclose(replay_buffer.rewards[0], reward)
-    assert np.allclose(replay_buffer.next_states[0], next_state)
-    assert np.allclose(replay_buffer.dones[0], done)
+    
+    # Move tensors to CPU for comparison
+    state_tensor = replay_buffer.states[0].cpu().numpy()
+    action_tensor = replay_buffer.actions[0].cpu().numpy()
+    reward_tensor = float(replay_buffer.rewards[0].cpu().numpy())
+    next_state_tensor = replay_buffer.next_states[0].cpu().numpy()
+    done_tensor = bool(replay_buffer.dones[0].cpu().numpy())
+    
+    # Compare with numpy allclose for floating point comparison
+    # Use higher rtol for float16 comparisons
+    rtol = 1e-2 if replay_buffer.use_cuda else 1e-7  # Larger tolerance for float16
+    assert np.allclose(state_tensor, state, rtol=rtol)
+    assert np.allclose(action_tensor, action, rtol=1e-7)  # Actions are still float32
+    assert np.allclose(reward_tensor, reward, rtol=1e-7)
+    assert np.allclose(next_state_tensor, next_state, rtol=rtol)
+    assert done_tensor == done
 
 def test_replay_buffer_wraparound(replay_buffer):
     """Test buffer wraparound behavior."""
@@ -76,9 +87,13 @@ def test_replay_buffer_sample(replay_buffer):
     assert batch["next_states"].shape == (batch_size, 10)
     assert batch["dones"].shape == (batch_size,)
     
-    # Check device and type
+    # Check device and types
     assert isinstance(batch["states"], torch.Tensor)
-    assert batch["states"].dtype == torch.float32
+    if replay_buffer.use_cuda:
+        assert batch["states"].dtype == torch.float16  # Half precision for states
+        assert batch["actions"].dtype == torch.float32  # Full precision for actions
+    else:
+        assert batch["states"].dtype == torch.float32  # Full precision on CPU
 
 def test_replay_buffer_empty_sample():
     """Test sampling from empty buffer raises error."""

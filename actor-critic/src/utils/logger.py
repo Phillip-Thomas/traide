@@ -26,21 +26,26 @@ class TrainingLogger:
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
-        # Set experiment name
+        # Set experiment name with unique timestamp
         if experiment_name is None:
             experiment_name = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.experiment_name = experiment_name
+        self.experiment_name = f"{experiment_name}_{datetime.now().strftime('%H%M%S_%f')}"
         
-        # Initialize logging
-        self.logger = logging.getLogger(experiment_name)
+        # Initialize logging with unique name
+        self.logger = logging.getLogger(self.experiment_name)
         self.logger.setLevel(logging.INFO)
         
-        # Remove any existing handlers
+        # Remove any existing handlers and close them
         if self.logger.hasHandlers():
-            self.logger.handlers.clear()
+            for handler in self.logger.handlers[:]:
+                handler.close()
+                self.logger.removeHandler(handler)
         
-        # Add file handler
-        fh = logging.FileHandler(self.log_dir / f"{experiment_name}.log")
+        # Add file handler with unique name
+        log_file = self.log_dir / f"{self.experiment_name}.log"
+        if log_file.exists():
+            log_file.unlink()  # Remove existing log file
+        fh = logging.FileHandler(log_file)
         fh.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
@@ -52,12 +57,13 @@ class TrainingLogger:
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
         
-        # Initialize tensorboard
-        self.writer = SummaryWriter(self.log_dir / "tensorboard")
+        # Initialize tensorboard with unique name
+        self.writer = SummaryWriter(self.log_dir / f"tensorboard_{self.experiment_name}")
         
         # Save config if provided
         if config is not None:
-            with open(self.log_dir / "config.json", 'w') as f:
+            config_file = self.log_dir / f"config_{self.experiment_name}.json"
+            with open(config_file, 'w') as f:
                 json.dump(config, f, indent=4)
         
         # Initialize metrics storage

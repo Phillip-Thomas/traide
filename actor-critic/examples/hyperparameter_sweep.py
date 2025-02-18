@@ -48,41 +48,53 @@ def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_
         gpu_id = gpu_queue.get()
         
     try:
+        # Clear CUDA cache at the start of each trial
+        if gpu_id is not None:
+            with torch.cuda.device(f"cuda:{gpu_id}"):
+                torch.cuda.empty_cache()
+        
         # Create modified config for this trial
         config = base_config.copy()
         
         # Sample hyperparameters with importance-weighted ranges
         config["risk_params"].update({
-            # More important parameters - tighter ranges around best values
-            "position_step": trial.suggest_float("position_step", 0.05, 0.06),  # Very tight around 0.053
-            "vol_target": trial.suggest_float("vol_target", 0.11, 0.12),  # Tight around 0.115
-            "max_position": trial.suggest_float("max_position", 0.35, 0.40),  # Centered on 0.379
+            # High impact parameters (tighter ranges)
+            "max_position": trial.suggest_float("max_position", 0.35, 0.40),  # Centered on 0.373
             
-            # Less important parameters - wider ranges
-            "max_leverage": trial.suggest_float("max_leverage", 0.3, 0.4),  # Wider range ok
+            # Medium impact parameters (moderate ranges)
+            "max_leverage": trial.suggest_float("max_leverage", 0.33, 0.38),  # Centered on 0.349
+            "vol_target": trial.suggest_float("vol_target", 0.11, 0.12),     # Centered on 0.117
+            
+            # Low impact parameters (wider ranges)
+            "position_step": trial.suggest_float("position_step", 0.04, 0.06),  # Allow more exploration
         })
         
         config["agent_params"].update({
-            # Most important parameter
-            "batch_size": trial.suggest_int("batch_size", 150, 162),  # Very tight around 156
+            # Highest impact parameters (very tight ranges)
+            "batch_size": trial.suggest_int("batch_size", 145, 160),        # Centered on best performing range
+            "learning_rate": trial.suggest_float("learning_rate", 5e-5, 8e-5, log=True),  # Tight around 6.58e-5
             
-            # Medium importance parameters
-            "hidden_dim": trial.suggest_int("hidden_dim", 96, 116),  # Centered on 106
-            "learning_rate": trial.suggest_float("learning_rate", 5e-5, 8e-5, log=True),  # Tight around 6.6e-5
-            "tau": trial.suggest_float("tau", 0.002, 0.003),  # Centered on 0.0027
+            # High impact parameter (tight range)
+            "gamma": trial.suggest_float("gamma", 0.94, 0.97),              # Centered on 0.952
             
-            # Less important parameters - wider ranges
-            "gamma": trial.suggest_float("gamma", 0.95, 0.97),  # Wider range ok
-            "alpha": trial.suggest_float("alpha", 0.2, 0.23),  # Wider range ok
+            # Medium impact parameters (moderate ranges)
+            "alpha": trial.suggest_float("alpha", 0.21, 0.23),              # Centered on 0.220
+            "tau": trial.suggest_float("tau", 0.002, 0.003),               # Centered on 0.0023
+            
+            # Low impact parameter (wider range)
+            "hidden_dim": trial.suggest_int("hidden_dim", 90, 110),         # Centered on 98
+            
+            # Memory optimization
+            "buffer_size": 100000,  # Reduced from 1M to 100K
         })
 
-        # Add training-specific parameters
+        # Training parameters tuned for better convergence
         config.update({
-            "num_episodes": 30,  # Increased from 20 for better convergence
-            "start_training_after_steps": 2000,  # Increased for more initial exploration
+            "num_episodes": 30,                    # Increased from 20 for better convergence
+            "start_training_after_steps": 2000,    # Increased for more initial exploration
             "save_interval": 5000,
             "eval_interval": 5,
-            "eval_episodes": 3,  # Increased for more stable evaluation
+            "eval_episodes": 3,                    # Increased for more stable evaluation
             "early_stopping_window": 10,
             "target_sharpe": 1.0,
             "window_size": 50,
@@ -136,6 +148,11 @@ def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_
         print(f"  Max Drawdown: {max_drawdown:.4f} (penalty: {drawdown_penalty:.4f})")
         print(f"  Final Objective: {objective_value:.4f}")
         
+        # Log hyperparameters
+        print("\nHyperparameters:")
+        for param_name, param_value in trial.params.items():
+            print(f"  {param_name}: {param_value}")
+        
         # Save trial results with detailed metrics
         results = {
             "final_sharpe": final_sharpe,
@@ -167,6 +184,11 @@ def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_
         return float("-inf")
         
     finally:
+        # Clean up CUDA memory
+        if gpu_id is not None:
+            with torch.cuda.device(f"cuda:{gpu_id}"):
+                torch.cuda.empty_cache()
+        
         # Return GPU to queue
         if gpu_queue is not None and gpu_id is not None:
             gpu_queue.put(gpu_id)
@@ -175,6 +197,9 @@ def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_
     """Run hyperparameter optimization with Optuna."""
     global global_progress
     
+    # Configure Optuna logging
+    optuna.logging.get_logger("optuna").addHandler(logging.StreamHandler(sys.stdout))
+    
     # Set up study
     study_name = create_study_name()
     storage = optuna.storages.RDBStorage(
@@ -182,21 +207,31 @@ def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_
         engine_kwargs={"pool_size": jobs_per_gpu * 4}
     )
     
+    # Create study with TPE sampler
     study = optuna.create_study(
         study_name=study_name,
         storage=storage,
         direction="maximize",
-        load_if_exists=True,
-        sampler=TPESampler(n_startup_trials=5)  # Added explicit sampler with fewer startup trials
+        sampler=TPESampler(n_startup_trials=5)
     )
     
-    # Get available GPUs
+    # Clear CUDA cache at the start
+    torch.cuda.empty_cache()
+    
+    # Get available GPUs and set memory limits
     n_gpus = torch.cuda.device_count()
     if n_gpus == 0:
         print("No GPUs available, using CPU")
         gpu_queue = None
     else:
         print(f"Found {n_gpus} GPUs")
+        # Set memory limits for each GPU
+        for gpu_id in range(n_gpus):
+            with torch.cuda.device(f"cuda:{gpu_id}"):
+                torch.cuda.empty_cache()
+                # Reserve some memory for PyTorch internal operations
+                torch.cuda.set_per_process_memory_fraction(0.9 / jobs_per_gpu, gpu_id)
+        
         gpu_queue = Queue()
         for gpu_id in range(n_gpus):
             for _ in range(jobs_per_gpu):
@@ -231,6 +266,12 @@ def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_
         print("\nParameter importance:")
         for key, value in importance.items():
             print(f"  {key}: {value:.4f}")
+        
+        # Print trial statistics
+        print("\nTrial Statistics:")
+        print(f"  Number of completed trials: {len(study.trials)}")
+        print(f"  Number of pruned trials: {len([t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED])}")
+        print(f"  Number of failed trials: {len([t for t in study.trials if t.state == optuna.trial.TrialState.FAIL])}")
         
         # Save best parameters and analysis
         results_dir = Path("optimization_results")
@@ -283,6 +324,9 @@ if __name__ == "__main__":
     parser.add_argument("--n-trials", type=int, default=100, help="Number of trials to run")
     parser.add_argument("--jobs-per-gpu", type=int, default=12, help="Number of jobs to run per GPU")
     args = parser.parse_args()
+    
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
     
     # Load base configuration
     with open("config/training_config.yaml", "r") as f:

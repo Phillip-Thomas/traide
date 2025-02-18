@@ -141,7 +141,7 @@ class SACAgent:
                 next_q1 = self.critic_1_target(batch['next_states'], next_actions)
                 next_q2 = self.critic_2_target(batch['next_states'], next_actions)
                 next_q = torch.min(next_q1, next_q2) - self.alpha * next_log_probs.unsqueeze(-1)
-                target_q = batch['rewards'].unsqueeze(-1) + (1 - batch['dones'].unsqueeze(-1)) * self.gamma * next_q
+                target_q = batch['rewards'].unsqueeze(-1) + (1 - batch['dones'].float().unsqueeze(-1)) * self.gamma * next_q
             
             # Compute both critics in parallel
             current_q1 = self.critic_1(batch['states'], batch['actions'])

@@ -12,37 +12,54 @@ class ReplayBuffer:
         self,
         state_dim: int,
         action_dim: int = 1,
-        max_size: int = 1_000_000,
-        device: str = "cpu"
+        max_size: int = 100_000,
+        device: str = "cuda"
     ):
         self.max_size = max_size
         self.ptr = 0
         self.size = 0
         self.device = device
+        self.state_dim = state_dim
+        self.action_dim = action_dim
         
-        # Use pinned memory if using CUDA
-        pin_memory = device.startswith("cuda")
+        # Always use CUDA for better performance
+        self.use_cuda = device.startswith("cuda")
         
-        # Initialize buffers directly as tensors
-        self.states = torch.zeros((max_size, state_dim), 
-                                dtype=torch.float32, 
-                                pin_memory=pin_memory)
-        self.actions = torch.zeros((max_size, action_dim), 
-                                 dtype=torch.float32, 
-                                 pin_memory=pin_memory)
-        self.rewards = torch.zeros(max_size, 
-                                 dtype=torch.float32, 
-                                 pin_memory=pin_memory)
-        self.next_states = torch.zeros((max_size, state_dim), 
-                                     dtype=torch.float32, 
-                                     pin_memory=pin_memory)
-        self.dones = torch.zeros(max_size, 
-                               dtype=torch.float32, 
-                               pin_memory=pin_memory)
+        # Initialize buffers directly on GPU if CUDA is available
+        if self.use_cuda:
+            with torch.cuda.device(device):
+                self._initialize_buffers()
+        else:
+            self._initialize_buffers()
         
-        # Pre-allocate sample indices buffer
-        self.sample_indices = torch.zeros(max_size, dtype=torch.long, pin_memory=pin_memory)
-        
+    def _initialize_buffers(self):
+        """Initialize buffers with mixed precision."""
+        # Use mixed precision for better memory efficiency
+        with torch.cuda.amp.autocast() if self.use_cuda else torch.no_grad():
+            # States and next_states in half precision
+            self.states = torch.zeros((self.max_size, self.state_dim),
+                                    dtype=torch.float16 if self.use_cuda else torch.float32,
+                                    device=self.device)
+            self.next_states = torch.zeros((self.max_size, self.state_dim),
+                                         dtype=torch.float16 if self.use_cuda else torch.float32,
+                                         device=self.device)
+            
+            # Other tensors in full precision
+            self.actions = torch.zeros((self.max_size, self.action_dim),
+                                     dtype=torch.float32,
+                                     device=self.device)
+            self.rewards = torch.zeros(self.max_size,
+                                     dtype=torch.float32,
+                                     device=self.device)
+            self.dones = torch.zeros(self.max_size,
+                                   dtype=torch.bool,
+                                   device=self.device)
+            
+            # Pre-allocate indices buffer on GPU
+            self.sample_indices = torch.zeros(self.max_size,
+                                            dtype=torch.long,
+                                            device=self.device)
+    
     def add(
         self,
         state: np.ndarray,
@@ -51,45 +68,53 @@ class ReplayBuffer:
         next_state: np.ndarray,
         done: bool
     ) -> None:
-        """Add a transition to the buffer."""
-        # Convert numpy arrays to tensors if necessary
-        if isinstance(state, np.ndarray):
-            state = torch.from_numpy(state)
-        if isinstance(action, np.ndarray):
-            action = torch.from_numpy(action)
-        if isinstance(next_state, np.ndarray):
-            next_state = torch.from_numpy(next_state)
+        """Add a transition directly to GPU memory."""
+        with torch.cuda.amp.autocast() if self.use_cuda else torch.no_grad():
+            # Convert to tensors and move to GPU in one operation
+            if isinstance(state, np.ndarray):
+                state = torch.from_numpy(state).to(device=self.device, 
+                                                 dtype=torch.float16 if self.use_cuda else torch.float32,
+                                                 non_blocking=True)
+            if isinstance(action, np.ndarray):
+                action = torch.from_numpy(action).to(device=self.device,
+                                                   dtype=torch.float32,
+                                                   non_blocking=True)
+            if isinstance(next_state, np.ndarray):
+                next_state = torch.from_numpy(next_state).to(device=self.device,
+                                                           dtype=torch.float16 if self.use_cuda else torch.float32,
+                                                           non_blocking=True)
             
-        with torch.no_grad():
-            self.states[self.ptr].copy_(state)
-            self.actions[self.ptr].copy_(action)
+            # Efficient in-place operations
+            self.states[self.ptr].copy_(state, non_blocking=True)
+            self.actions[self.ptr].copy_(action, non_blocking=True)
             self.rewards[self.ptr] = reward
-            self.next_states[self.ptr].copy_(next_state)
-            self.dones[self.ptr] = float(done)
-        
-        self.ptr = (self.ptr + 1) % self.max_size
-        self.size = min(self.size + 1, self.max_size)
-        
+            self.next_states[self.ptr].copy_(next_state, non_blocking=True)
+            self.dones[self.ptr] = done
+            
+            self.ptr = (self.ptr + 1) % self.max_size
+            self.size = min(self.size + 1, self.max_size)
+    
     def sample(self, batch_size: int) -> Dict[str, torch.Tensor]:
-        """Sample a batch of transitions using efficient indexing."""
+        """Sample a batch efficiently on GPU."""
         if self.size < batch_size:
             raise ValueError(f"Not enough transitions ({self.size}) to sample batch of {batch_size}")
+        
+        with torch.cuda.amp.autocast() if self.use_cuda else torch.no_grad():
+            # Generate random indices directly on GPU
+            ind = torch.randint(0, self.size, (batch_size,),
+                              device=self.device,
+                              dtype=torch.long)
             
-        # Generate random indices on CPU
-        ind = torch.randint(0, self.size, (batch_size,))
-        
-        # Sample and move only the batch to device
-        with torch.no_grad():
+            # Efficient indexing on GPU
             batch = {
-                'states': self.states[ind].to(self.device),
-                'actions': self.actions[ind].to(self.device),
-                'rewards': self.rewards[ind].to(self.device),
-                'next_states': self.next_states[ind].to(self.device),
-                'dones': self.dones[ind].to(self.device)
+                'states': self.states[ind],  # Already in FP16
+                'actions': self.actions[ind],
+                'rewards': self.rewards[ind],
+                'next_states': self.next_states[ind],  # Already in FP16
+                'dones': self.dones[ind]
             }
-        
-        return batch
-        
+            
+            return batch
+    
     def __len__(self) -> int:
-        """Return the current size of the buffer."""
         return self.size 

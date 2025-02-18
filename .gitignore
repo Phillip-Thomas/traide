@@ -6,3 +6,4 @@ checkpoints
 logs
 reports
 *.egg-info
+optimizaton_results
