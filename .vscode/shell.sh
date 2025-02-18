@@ -1,21 +1,5 @@
 #!/bin/bash
 
-# Detect shell
-USER_SHELL=$(basename "$SHELL")
-
-case "$USER_SHELL" in
-    "bash")
-        if [[ -f ~/.bashrc ]]; then
-            source ~/.bashrc
-        fi
-        ;;
-    "zsh")
-        if [[ -f ~/.zshrc ]]; then
-            source ~/.zshrc
-        fi
-        ;;
-esac
-
 # Detect OS
 OS_TYPE=$(uname -s)
 HOSTNAME=$(hostname)
