@@ -3,8 +3,54 @@ import json
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, List, Tuple
 from torch.utils.tensorboard import SummaryWriter
+from queue import Queue
+from threading import Thread, Event
+import time
+
+class AsyncTensorBoardWriter:
+    """Asynchronous TensorBoard writer that processes events in a background thread."""
+    
+    def __init__(self, log_dir: Union[str, Path], flush_secs: int = 10):
+        """
+        Initialize async writer.
+        
+        Args:
+            log_dir: Directory for TensorBoard logs
+            flush_secs: How often to flush events to disk
+        """
+        self.writer = SummaryWriter(log_dir, flush_secs=flush_secs)
+        self.queue: Queue = Queue()
+        self.stop_event = Event()
+        self.worker_thread = Thread(target=self._worker, daemon=True)
+        self.worker_thread.start()
+    
+    def _worker(self):
+        """Background thread that processes TensorBoard events."""
+        while not self.stop_event.is_set() or not self.queue.empty():
+            try:
+                if not self.queue.empty():
+                    event_type, args, kwargs = self.queue.get(timeout=1)
+                    if event_type == "scalar":
+                        self.writer.add_scalar(*args, **kwargs)
+                    # Add other event types as needed
+                    self.queue.task_done()
+                else:
+                    time.sleep(0.1)  # Prevent busy waiting
+            except Exception as e:
+                logging.error(f"Error in TensorBoard worker: {e}")
+    
+    def add_scalar(self, *args, **kwargs):
+        """Queue a scalar event to be written."""
+        self.queue.put(("scalar", args, kwargs))
+    
+    def close(self):
+        """Stop the worker thread and close the writer."""
+        self.stop_event.set()
+        if self.worker_thread.is_alive():
+            self.worker_thread.join(timeout=5)
+        self.writer.close()
 
 class TrainingLogger:
     """Logger for training metrics and evaluation results."""
@@ -13,7 +59,8 @@ class TrainingLogger:
         self,
         log_dir: Union[str, Path],
         experiment_name: Optional[str] = None,
-        config: Optional[Dict] = None
+        config: Optional[Dict] = None,
+        flush_secs: int = 10
     ):
         """
         Initialize logger.
@@ -22,6 +69,7 @@ class TrainingLogger:
             log_dir: Directory to save logs
             experiment_name: Name of experiment
             config: Training configuration
+            flush_secs: How often to flush TensorBoard events
         """
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
@@ -57,8 +105,11 @@ class TrainingLogger:
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
         
-        # Initialize tensorboard with unique name
-        self.writer = SummaryWriter(self.log_dir / f"tensorboard_{self.experiment_name}")
+        # Initialize async tensorboard writer
+        self.writer = AsyncTensorBoardWriter(
+            self.log_dir / f"tensorboard_{self.experiment_name}",
+            flush_secs=flush_secs
+        )
         
         # Save config if provided
         if config is not None:
@@ -107,7 +158,7 @@ class TrainingLogger:
         metric_str = " | ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
         self.logger.info(f"Episode {episode} - {metric_str}")
         
-        # Log to tensorboard
+        # Log to tensorboard asynchronously
         for key, value in metrics.items():
             self.writer.add_scalar(f"episode/{key}", value, episode)
         
