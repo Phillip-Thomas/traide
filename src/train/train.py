@@ -185,74 +185,82 @@ def train_step_parallel(policy_nets, target_nets, optimizers, memory, batch_size
     """
     try:
         # Use more CPU workers for preprocessing
-        num_workers = min(mp.cpu_count(), 8)  # Use up to 8 CPU cores
-        sub_batch_size = batch_size // (len(devices) * 2)  # Smaller batches for more parallelism
+        num_workers = min(mp.cpu_count(), 4)  # Reduced workers to limit file descriptors
+        # Much larger batch size per GPU to better utilize V100s (16GB memory)
+        sub_batch_size = min(8192, batch_size // len(devices))
         
         # Process batches in parallel with more workers
         with create_process_pool(num_workers) as pool:
-            # Submit more preprocessing jobs for better CPU utilization
-            preprocessing_results = []
-            for dev_idx in range(len(devices) * 2):  # Double the number of batches
-                result = pool.apply_async(
-                    preprocess_batch_worker,
-                    (memory, sub_batch_size, 10, dev_idx % len(devices))
-                )
-                preprocessing_results.append(result)
-            
-            # Process results as they become available
+            # Process in smaller chunks to avoid too many open files
+            chunks_per_gpu = 2  # Reduced from 8 to limit concurrent shared memory objects
+            total_chunks = len(devices) * chunks_per_gpu
             gpu_losses = []
-            for result in preprocessing_results:
-                try:
-                    device_idx, batch = result.get(timeout=30.0)
-                    if batch is None:
-                        print("Skipping None batch")
-                        continue
-                        
-                    device = devices[device_idx]
-                    torch.cuda.set_device(device)
-                    
-                    # Move batch to GPU with non-blocking transfers
-                    gpu_batch = {
-                        k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v
-                        for k, v in batch.items()
-                    }
-                    
-                    # Ensure models are on correct device
-                    policy_nets[device_idx] = policy_nets[device_idx].to(device)
-                    target_nets[device_idx] = target_nets[device_idx].to(device)
-                    
-                    policy_nets[device_idx].train()
-                    target_nets[device_idx].train()
-                    
-                    loss = train_batch(
-                        policy_nets[device_idx],
-                        target_nets[device_idx],
-                        optimizers[device_idx],
-                        gpu_batch,
-                        sub_batch_size,
-                        gamma,
-                        device,
-                        memory
+            
+            # Process chunks sequentially to limit open file descriptors
+            for chunk_idx in range(total_chunks):
+                device_idx = chunk_idx % len(devices)
+                device = devices[device_idx]
+                torch.cuda.set_device(device)
+                
+                # Get model for this device
+                policy_net = policy_nets[device_idx].to(device)
+                target_net = target_nets[device_idx].to(device)
+                optimizer = optimizers[device_idx]
+                
+                policy_net.train()
+                target_net.train()
+                
+                # Process one chunk at a time
+                preprocessing_results = []
+                for _ in range(4):  # 4 batches per chunk
+                    result = pool.apply_async(
+                        preprocess_batch_worker,
+                        (memory, sub_batch_size, 20, device_idx)
                     )
-                    
-                    if loss > 0:
-                        gpu_losses.append(loss)
-                    
-                    # Asynchronous GPU operations
-                    torch.cuda.current_stream(device).synchronize()
-                    
-                    # Clean up GPU memory
-                    del gpu_batch
-                    torch.cuda.empty_cache()
-                    
-                except mp.TimeoutError:
-                    print(f"Timeout waiting for preprocessing result")
-                    continue
-                except Exception as e:
-                    print(f"Error processing batch: {str(e)}")
-                    import traceback
-                    traceback.print_exc()
-                    continue
+                    preprocessing_results.append(result)
+                
+                # Process results for this chunk
+                for result in preprocessing_results:
+                    try:
+                        _, batch = result.get(timeout=30.0)
+                        if batch is None:
+                            continue
+                            
+                        # Move batch to GPU
+                        gpu_batch = {
+                            k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v
+                            for k, v in batch.items()
+                        }
+                        
+                        loss = train_batch(
+                            policy_net,
+                            target_net,
+                            optimizer,
+                            gpu_batch,
+                            sub_batch_size,
+                            gamma,
+                            device,
+                            memory
+                        )
+                        
+                        if loss > 0:
+                            gpu_losses.append(loss)
+                        
+                        # Clean up batch immediately
+                        del gpu_batch
+                        
+                    except Exception as e:
+                        print(f"Error processing batch: {str(e)}")
+                        continue
+                
+                # Synchronize after each chunk
+                torch.cuda.current_stream(device).synchronize()
+                torch.cuda.empty_cache()
+            
+            # Clean up GPU memory after all chunks are processed
+            for device in devices:
+                torch.cuda.set_device(device)
+                torch.cuda.empty_cache()
 
         # Average losses and synchronize models
         if gpu_losses:
@@ -664,7 +672,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 episode_start = time.time()
                 
                 # Sample tickers for this episode
-                batch_size_env = min(len(devices) * 4, batch_size)
+                batch_size_env = min(len(devices) * 8, len(train_envs))  # Increased from 4 to 8 tickers per GPU
                 episode_tickers = random.sample(list(train_envs.keys()), k=min(batch_size_env, len(train_envs)))
                 print(f"Selected tickers: {episode_tickers}")
                 
@@ -720,6 +728,9 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 
                 print(f"Collected {len(all_transitions)} total transitions")
                 
+                # Initialize losses list
+                losses = []
+                
                 # Store experience and train
                 if all_transitions:
                     print("Storing transitions in memory...")
@@ -741,8 +752,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                 
                 if len(memory) >= batch_size:
                     print("Training on collected experience...")
-                    losses = []
-                    train_steps = 4
+                    train_steps = 16  # Increased from 8
                     
                     for step in range(train_steps):
                         print(f"Training step {step + 1}/{train_steps}")
@@ -751,7 +761,7 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                             target_nets,
                             optimizers,
                             memory,
-                            batch_size,
+                            32768,  # Increased from 4096 to better utilize V100s
                             gamma,
                             devices
                         )
@@ -777,9 +787,21 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                     std_dev=returns_std,
                     priority=memory.priorities[-1] if memory.priorities else 0,
                     epsilon=epsilon,
-                    loss=last_avg_loss,
+                    loss=last_avg_loss if losses else 0,
                     trades_info=trades_info
                 )
+                
+                # Print episode summary
+                avg_return = episode_reward / len(episode_tickers) if episode_tickers else 0
+                win_rate = np.mean([t > 0 for t in trades_info]) if trades_info else 0
+                print(f"\nEpisode {episode + 1} Summary:")
+                print(f"Average Return: {avg_return:.4f}")
+                print(f"Number of Trades: {len(trades_info)}")
+                print(f"Win Rate: {win_rate:.2%}")
+                print(f"Epsilon: {epsilon:.4f}")
+                if losses:
+                    print(f"Average Loss: {last_avg_loss:.6f}")
+                print("-" * 50)
                 
                 # Periodic validation and model updates
                 if episode % 5 == 0:
@@ -814,6 +836,14 @@ def train_dqn(train_data_dict, val_data_dict, input_size, n_episodes=1000, batch
                         avg_num_trades = np.mean([m['num_trades'] for m in metrics_list])
                         avg_excess_return = np.mean([(m['profit'] - m['buy_and_hold_return']) * 100 
                                                    for m in metrics_list])
+                        
+                        # Log learning rate and gradient norm before validation metrics
+                        grad_norm = torch.nn.utils.clip_grad_norm_(policy_nets[0].parameters(), max_norm=1.0).item()
+                        logger.log_training_update(
+                            episode,
+                            learning_rate=optimizers[0].param_groups[0]['lr'],
+                            grad_norm=grad_norm
+                        )
                         
                         validation_metrics = {
                             'profit': avg_profit,
