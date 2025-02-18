@@ -2,92 +2,136 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Tuple
+import numpy as np
 
 class SACActorNetwork(nn.Module):
     """
-    Actor network for SAC, implementing a squashed Gaussian policy.
-    Outputs mean and log_std for position sizing between -1 and 1.
+    Actor network for SAC, outputs mean and log_std of action distribution.
+    Handles multi-dimensional continuous actions with improved stability.
     """
     def __init__(
         self,
         state_dim: int,
+        action_dim: int,
         hidden_dim: int = 256,
         log_std_min: float = -20,
         log_std_max: float = 2,
+        use_batch_norm: bool = False
     ):
         super().__init__()
         
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
+        self.action_dim = action_dim
         
-        # Feature extraction layers with LayerNorm instead of BatchNorm
-        self.feature_net = nn.Sequential(
-            nn.LayerNorm(state_dim),
+        # Shared feature layers with layer norm and dropout for regularization
+        layers = []
+        
+        # Input layer
+        layers.extend([
             nn.Linear(state_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),  # Always use LayerNorm for better single-sample performance
             nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.LayerNorm(hidden_dim),
+            nn.Dropout(0.1)
+        ])
+        
+        # Hidden layer
+        layers.extend([
             nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),  # Always use LayerNorm for better single-sample performance
             nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.LayerNorm(hidden_dim),
-        )
+            nn.Dropout(0.1)
+        ])
         
-        # Mean and log_std heads
-        self.mean_head = nn.Linear(hidden_dim, 1)
-        self.log_std_head = nn.Linear(hidden_dim, 1)
+        self.feature_net = nn.Sequential(*layers)
         
-        # Initialize weights
+        # Mean and log_std heads with proper initialization
+        self.mean_net = nn.Linear(hidden_dim, action_dim)
+        self.log_std_net = nn.Linear(hidden_dim, action_dim)
+        
+        # Initialize weights with orthogonal initialization
         self.apply(self._init_weights)
     
-    def _init_weights(self, module):
+    @staticmethod
+    def _init_weights(module):
         if isinstance(module, nn.Linear):
-            torch.nn.init.xavier_uniform_(module.weight, gain=1)
-            torch.nn.init.constant_(module.bias, 0)
+            nn.init.orthogonal_(module.weight, gain=np.sqrt(2))
+            module.bias.data.zero_()
     
     def forward(self, state: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Forward pass to compute action distribution parameters.
-        
-        Args:
-            state: Current state tensor (batch_size, state_dim)
+        """Forward pass through the network with improved stability."""
+        # Ensure input is at least 2D for LayerNorm
+        if state.dim() == 1:
+            state = state.unsqueeze(0)
             
-        Returns:
-            mean: Mean of the policy distribution
-            log_std: Log standard deviation of the policy distribution
-        """
         features = self.feature_net(state)
         
-        mean = self.mean_head(features)
-        log_std = self.log_std_head(features)
-        log_std = torch.clamp(log_std, self.log_std_min, self.log_std_max)
+        # Get mean and log_std
+        mean = self.mean_net(features)
+        log_std = torch.clamp(self.log_std_net(features), 
+                            self.log_std_min, 
+                            self.log_std_max)
         
-        return mean, log_std
+        if self.training:
+            # Sample action using reparameterization trick with improved numerical stability
+            std = torch.exp(log_std)
+            eps = torch.randn_like(mean)
+            eps = torch.clamp(eps, -5, 5)  # Clip noise for stability
+            action_raw = mean + eps * std
+        else:
+            # Use mean action in eval mode
+            action_raw = mean
+        
+        # Apply tanh with improved numerical stability
+        action = torch.tanh(action_raw)
+        
+        # Calculate log probability with improved stability
+        log_prob = self._compute_log_prob(mean, log_std, action, action_raw)
+        
+        return action, log_prob
     
-    def sample(self, state: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Sample actions from the policy given the current state.
-        
-        Args:
-            state: Current state tensor (batch_size, state_dim)
+    def get_mean(self, state: torch.Tensor) -> torch.Tensor:
+        """Get mean action with improved efficiency."""
+        # Ensure input is at least 2D for LayerNorm
+        if state.dim() == 1:
+            state = state.unsqueeze(0)
             
-        Returns:
-            action: Sampled action from the policy
-            log_prob: Log probability of the sampled action
-        """
-        mean, log_std = self.forward(state)
-        std = log_std.exp()
+        features = self.feature_net(state)
+        mean = self.mean_net(features)
+        return torch.tanh(mean)
+    
+    def log_prob(self, state: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
+        """Compute log probability with improved efficiency."""
+        # Ensure input is at least 2D for LayerNorm
+        if state.dim() == 1:
+            state = state.unsqueeze(0)
+            
+        features = self.feature_net(state)
+        mean = self.mean_net(features)
+        log_std = torch.clamp(self.log_std_net(features), 
+                            self.log_std_min, 
+                            self.log_std_max)
         
-        # Sample from normal distribution
-        normal = torch.distributions.Normal(mean, std)
-        x_t = normal.rsample()  # Reparameterization trick
+        return self._compute_log_prob(mean, log_std, action, action)
+    
+    def _compute_log_prob(
+        self,
+        mean: torch.Tensor,
+        log_std: torch.Tensor,
+        action: torch.Tensor,
+        action_raw: torch.Tensor
+    ) -> torch.Tensor:
+        """Compute log probability with improved numerical stability."""
+        # Calculate log probability under Gaussian with improved stability
+        std = torch.exp(log_std)
+        log_prob = -0.5 * (
+            ((action_raw - mean) / (std + 1e-8)).pow(2) + 
+            2 * log_std + 
+            np.log(2 * np.pi)
+        )
         
-        # Squash sample using tanh to bound between -1 and 1
-        action = torch.tanh(x_t)
+        # Account for tanh transformation with improved stability
+        log_prob -= torch.log(1 - action.pow(2) + 1e-8)
         
-        # Compute log probability, using change of variables formula
-        log_prob = normal.log_prob(x_t)
-        # Account for tanh squashing
-        log_prob -= torch.log(1 - action.pow(2) + 1e-6)
-        
-        return action, log_prob 
+        # Sum across action dimensions and clip for stability
+        return torch.clamp(log_prob.sum(-1), -100, 20) 

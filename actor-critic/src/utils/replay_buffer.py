@@ -4,127 +4,92 @@ from typing import Dict, Tuple
 
 class ReplayBuffer:
     """
-    Replay buffer for storing and sampling trading experiences.
-    Implements efficient numpy-based storage with prioritized sampling.
+    Replay buffer for storing and sampling transitions.
+    Handles multi-dimensional states and actions.
+    Uses pinned memory for faster GPU transfer.
     """
     def __init__(
         self,
         state_dim: int,
-        buffer_size: int = 1_000_000,
-        device: str = "cuda" if torch.cuda.is_available() else "cpu"
+        action_dim: int = 1,
+        max_size: int = 1_000_000,
+        device: str = "cpu"
     ):
-        self.buffer_size = buffer_size
-        self.device = torch.device(device)  # Convert to torch.device object
-        
-        # Initialize buffers with float32 dtype
-        self.states = np.zeros((buffer_size, state_dim), dtype=np.float32)
-        self.actions = np.zeros((buffer_size, 1), dtype=np.float32)
-        self.rewards = np.zeros((buffer_size, 1), dtype=np.float32)
-        self.next_states = np.zeros((buffer_size, state_dim), dtype=np.float32)
-        self.dones = np.zeros((buffer_size, 1), dtype=np.float32)
-        
-        # Priority variables
-        self.priorities = np.ones(buffer_size, dtype=np.float32)  # Initialize with 1s for stability
-        self.max_priority = 1.0
-        
+        self.max_size = max_size
         self.ptr = 0
         self.size = 0
+        self.device = device
         
-    def __len__(self) -> int:
-        """Return the current size of the buffer."""
-        return self.size
+        # Use pinned memory if using CUDA
+        pin_memory = device.startswith("cuda")
+        
+        # Initialize buffers directly as tensors
+        self.states = torch.zeros((max_size, state_dim), 
+                                dtype=torch.float32, 
+                                pin_memory=pin_memory)
+        self.actions = torch.zeros((max_size, action_dim), 
+                                 dtype=torch.float32, 
+                                 pin_memory=pin_memory)
+        self.rewards = torch.zeros(max_size, 
+                                 dtype=torch.float32, 
+                                 pin_memory=pin_memory)
+        self.next_states = torch.zeros((max_size, state_dim), 
+                                     dtype=torch.float32, 
+                                     pin_memory=pin_memory)
+        self.dones = torch.zeros(max_size, 
+                               dtype=torch.float32, 
+                               pin_memory=pin_memory)
+        
+        # Pre-allocate sample indices buffer
+        self.sample_indices = torch.zeros(max_size, dtype=torch.long, pin_memory=pin_memory)
         
     def add(
         self,
         state: np.ndarray,
-        action: float,
+        action: np.ndarray,
         reward: float,
         next_state: np.ndarray,
         done: bool
     ) -> None:
-        """
-        Add a new experience to the buffer.
-        
-        Args:
-            state: Current state array
-            action: Action taken
-            reward: Reward received
-            next_state: Next state array
-            done: Whether episode ended
-        """
-        # Convert inputs to float32
-        state = np.asarray(state, dtype=np.float32)
-        action = np.asarray([action], dtype=np.float32)
-        reward = np.asarray([reward], dtype=np.float32)
-        next_state = np.asarray(next_state, dtype=np.float32)
-        done = np.asarray([done], dtype=np.float32)
-        
-        self.states[self.ptr] = state
-        self.actions[self.ptr] = action
-        self.rewards[self.ptr] = reward
-        self.next_states[self.ptr] = next_state
-        self.dones[self.ptr] = done
-        
-        # Set max priority for new experience
-        self.priorities[self.ptr] = self.max_priority
-        
-        self.ptr = (self.ptr + 1) % self.buffer_size
-        self.size = min(self.size + 1, self.buffer_size)
-        
-    def sample(self, batch_size: int, alpha: float = 0.6, beta: float = 0.4) -> Dict[str, torch.Tensor]:
-        """
-        Sample a batch of experiences with prioritized replay.
-        
-        Args:
-            batch_size: Number of experiences to sample
-            alpha: Priority exponent (0 = uniform, 1 = fully prioritized)
-            beta: Importance sampling exponent
+        """Add a transition to the buffer."""
+        # Convert numpy arrays to tensors if necessary
+        if isinstance(state, np.ndarray):
+            state = torch.from_numpy(state)
+        if isinstance(action, np.ndarray):
+            action = torch.from_numpy(action)
+        if isinstance(next_state, np.ndarray):
+            next_state = torch.from_numpy(next_state)
             
-        Returns:
-            Dictionary containing batch tensors on specified device
-        """
+        with torch.no_grad():
+            self.states[self.ptr].copy_(state)
+            self.actions[self.ptr].copy_(action)
+            self.rewards[self.ptr] = reward
+            self.next_states[self.ptr].copy_(next_state)
+            self.dones[self.ptr] = float(done)
+        
+        self.ptr = (self.ptr + 1) % self.max_size
+        self.size = min(self.size + 1, self.max_size)
+        
+    def sample(self, batch_size: int) -> Dict[str, torch.Tensor]:
+        """Sample a batch of transitions using efficient indexing."""
         if self.size < batch_size:
-            raise ValueError("Not enough experiences in buffer")
+            raise ValueError(f"Not enough transitions ({self.size}) to sample batch of {batch_size}")
             
-        # Compute sampling probabilities
-        probs = self.priorities[:self.size] ** alpha
-        probs /= probs.sum()
+        # Generate random indices on CPU
+        ind = torch.randint(0, self.size, (batch_size,))
         
-        # Sample indices and compute importance weights
-        indices = np.random.choice(self.size, batch_size, p=probs)
-        weights = (self.size * probs[indices]) ** -beta
-        weights /= weights.max()
-        
-        # Get batch tensors
-        batch = {
-            "states": torch.FloatTensor(self.states[indices]).to(self.device),
-            "actions": torch.FloatTensor(self.actions[indices]).to(self.device),
-            "rewards": torch.FloatTensor(self.rewards[indices]).to(self.device),
-            "next_states": torch.FloatTensor(self.next_states[indices]).to(self.device),
-            "dones": torch.FloatTensor(self.dones[indices]).to(self.device),
-            "weights": torch.FloatTensor(weights).to(self.device),
-            "indices": indices
-        }
+        # Sample and move only the batch to device
+        with torch.no_grad():
+            batch = {
+                'states': self.states[ind].to(self.device),
+                'actions': self.actions[ind].to(self.device),
+                'rewards': self.rewards[ind].to(self.device),
+                'next_states': self.next_states[ind].to(self.device),
+                'dones': self.dones[ind].to(self.device)
+            }
         
         return batch
-    
-    def update_priorities(self, indices: np.ndarray, priorities: np.ndarray) -> None:
-        """
-        Update priorities for experiences based on TD errors.
         
-        Args:
-            indices: Indices of experiences to update
-            priorities: New priority values
-        """
-        # Ensure inputs are float32 numpy arrays
-        indices = np.asarray(indices, dtype=np.int64)
-        priorities = np.asarray(priorities, dtype=np.float32)
-        
-        # Add small constant for stability and ensure positive values
-        priorities = np.abs(priorities) + 1e-6
-        
-        # Update priorities
-        self.priorities[indices] = priorities
-        
-        # Update max priority
-        self.max_priority = max(self.max_priority, priorities.max()) 
+    def __len__(self) -> int:
+        """Return the current size of the buffer."""
+        return self.size 

@@ -22,6 +22,10 @@ dependencies:
   - jinja2
   - typing-extensions
   - pip
+  - optuna
+  - optuna-dashboard
+  - sqlalchemy
+  - psycopg2
 
   # Test dependencies
   - pytest

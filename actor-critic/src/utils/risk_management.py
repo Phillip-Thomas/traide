@@ -91,14 +91,21 @@ class RiskManager:
         # Clamp position within limits
         target_position = np.clip(target_position, min_pos, max_pos)
         
-        # Quantize position changes to reduce trading frequency
+        # Calculate position change
         position_change = target_position - current_position
+        
+        # If change is smaller than step size, only apply if it's a complete exit
         if abs(position_change) < self.params.position_step:
-            return current_position
+            if abs(target_position) < self.params.position_step:
+                return 0.0  # Complete exit
+            return current_position  # No change
             
         # Round to position step size
         steps = round(position_change / self.params.position_step)
-        return current_position + steps * self.params.position_step
+        adjusted_position = current_position + steps * self.params.position_step
+        
+        # Ensure we don't exceed limits
+        return np.clip(adjusted_position, min_pos, max_pos)
     
     def calculate_transaction_cost(
         self,

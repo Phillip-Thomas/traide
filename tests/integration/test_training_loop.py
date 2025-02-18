@@ -117,17 +117,17 @@ def test_multi_gpu_coordination(mock_training_state, tmp_path):
     with patch('torch.cuda.is_available', return_value=True), \
          patch('torch.cuda.device_count', return_value=2), \
          patch('main.window_size', 10):
-        
-        results = train_dqn(
+    
+    results = train_dqn(
             train_data_dict={'AAPL': np.random.randn(100, 5)},
             val_data_dict={'AAPL': np.random.randn(50, 5)},
             n_episodes=3,
             batch_size=4,
-            gamma=0.99
-        )
-        
+        gamma=0.99
+    )
+    
         assert results is not None
-        assert 'final_model' in results
+    assert 'final_model' in results
         assert 'training_summary' in results
 
 def test_error_recovery(mock_training_state, mock_training_data, tmp_path):
