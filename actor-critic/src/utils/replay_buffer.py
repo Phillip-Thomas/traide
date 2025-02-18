@@ -35,7 +35,7 @@ class ReplayBuffer:
     def _initialize_buffers(self):
         """Initialize buffers with mixed precision."""
         # Use mixed precision for better memory efficiency
-        with torch.cuda.amp.autocast() if self.use_cuda else torch.no_grad():
+        with torch.amp.autocast('cuda') if self.use_cuda else torch.no_grad():
             # States and next_states in half precision
             self.states = torch.zeros((self.max_size, self.state_dim),
                                     dtype=torch.float16 if self.use_cuda else torch.float32,
@@ -69,7 +69,7 @@ class ReplayBuffer:
         done: bool
     ) -> None:
         """Add a transition directly to GPU memory."""
-        with torch.cuda.amp.autocast() if self.use_cuda else torch.no_grad():
+        with torch.amp.autocast('cuda') if self.use_cuda else torch.no_grad():
             # Convert to tensors and move to GPU in one operation
             if isinstance(state, np.ndarray):
                 state = torch.from_numpy(state).to(device=self.device, 
@@ -99,7 +99,7 @@ class ReplayBuffer:
         if self.size < batch_size:
             raise ValueError(f"Not enough transitions ({self.size}) to sample batch of {batch_size}")
         
-        with torch.cuda.amp.autocast() if self.use_cuda else torch.no_grad():
+        with torch.amp.autocast('cuda') if self.use_cuda else torch.no_grad():
             # Generate random indices directly on GPU
             ind = torch.randint(0, self.size, (batch_size,),
                               device=self.device,

@@ -86,7 +86,7 @@ class SACAgent:
         Returns:
             action: Selected action array
         """
-        with torch.no_grad():
+        with torch.amp.autocast('cuda'):
             if isinstance(state, np.ndarray):
                 state = torch.from_numpy(state)
             state = state.to(self.device, non_blocking=True).unsqueeze(0)
@@ -135,7 +135,7 @@ class SACAgent:
     
     def _update_critics(self, batch: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
         """Update critic networks with improved stability."""
-        with torch.cuda.amp.autocast():
+        with torch.amp.autocast('cuda'):
             with torch.no_grad():
                 next_actions, next_log_probs = self.actor(batch['next_states'])
                 next_q1 = self.critic_1_target(batch['next_states'], next_actions)
@@ -168,7 +168,7 @@ class SACAgent:
     
     def _update_actor(self, batch: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
         """Update actor network with improved stability."""
-        with torch.cuda.amp.autocast():
+        with torch.amp.autocast('cuda'):
             actions, log_probs = self.actor(batch['states'])
             
             # Compute Q-values in parallel
@@ -190,7 +190,7 @@ class SACAgent:
     
     def _update_alpha(self, log_probs: torch.Tensor) -> torch.Tensor:
         """Update temperature parameter with improved stability."""
-        with torch.cuda.amp.autocast():
+        with torch.amp.autocast('cuda'):
             alpha_loss = -(self.log_alpha * (log_probs + self.target_entropy).detach()).mean()
             
             self.alpha_optimizer.zero_grad(set_to_none=True)
@@ -216,18 +216,19 @@ class SACAgent:
     
     def save(self, path: str) -> None:
         """Save model state dictionaries."""
-        torch.save({
-            'actor': self.actor.state_dict(),
-            'critic_1': self.critic_1.state_dict(),
-            'critic_2': self.critic_2.state_dict(),
-            'critic_1_target': self.critic_1_target.state_dict(),
-            'critic_2_target': self.critic_2_target.state_dict(),
-            'actor_optimizer': self.actor_optimizer.state_dict(),
-            'critic_1_optimizer': self.critic_1_optimizer.state_dict(),
-            'critic_2_optimizer': self.critic_2_optimizer.state_dict(),
-            'log_alpha': self.log_alpha if self.automatic_entropy_tuning else None,
-            'alpha_optimizer': self.alpha_optimizer.state_dict() if self.automatic_entropy_tuning else None
-        }, path)
+        with torch.amp.autocast('cuda'):
+            torch.save({
+                'actor': self.actor.state_dict(),
+                'critic_1': self.critic_1.state_dict(),
+                'critic_2': self.critic_2.state_dict(),
+                'critic_1_target': self.critic_1_target.state_dict(),
+                'critic_2_target': self.critic_2_target.state_dict(),
+                'actor_optimizer': self.actor_optimizer.state_dict(),
+                'critic_1_optimizer': self.critic_1_optimizer.state_dict(),
+                'critic_2_optimizer': self.critic_2_optimizer.state_dict(),
+                'log_alpha': self.log_alpha if self.automatic_entropy_tuning else None,
+                'alpha_optimizer': self.alpha_optimizer.state_dict() if self.automatic_entropy_tuning else None
+            }, path)
     
     def load(self, path: str) -> None:
         """Load model state dictionaries."""

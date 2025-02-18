@@ -21,6 +21,9 @@ from tqdm.auto import tqdm
 import multiprocessing as mp
 from functools import partial
 from multiprocessing import Queue
+import cProfile
+import pstats
+from torch.profiler import profile, record_function, ProfilerActivity
 
 # Add project root to Python path
 project_root = Path(__file__).resolve().parent.parent
@@ -38,7 +41,25 @@ def create_study_name():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"sac_trading_optimization_{timestamp}"
 
-def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_gpu=12, gpu_queue=None):
+def profile_trial(func, trial_dir, *args, **kwargs):
+    """Profile a single trial using cProfile."""
+    profiler = cProfile.Profile()
+    try:
+        result = profiler.runcall(func, *args, **kwargs)
+        # Save profiling stats
+        stats_path = trial_dir / "profile_stats.prof"
+        profiler.dump_stats(str(stats_path))
+        
+        # Create readable stats file
+        stats = pstats.Stats(str(stats_path))
+        with open(trial_dir / "profile_stats.txt", 'w') as f:
+            stats.sort_stats('cumulative').stream = f
+            stats.print_stats()
+        return result
+    finally:
+        profiler.disable()
+
+def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_gpu=12, gpu_queue=None, enable_profiling=False):
     """Optuna objective function for hyperparameter optimization."""
     global global_progress
     
@@ -114,15 +135,77 @@ def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_
         device = f"cuda:{gpu_id}" if gpu_id is not None else "cuda"
         print(f"\nTrial {trial.number} running on device: {device}")
         
-        # Train agent with these hyperparameters
-        metrics = train_agent(
-            config_path=str(config_path),
-            price_data=price_data,
-            features=features,
-            save_dir=trial_dir,
-            device=device,
-            disable_progress=True
-        )
+        if enable_profiling:
+            # First run with cProfile
+            profiler = cProfile.Profile()
+            profiler.enable()
+            
+            metrics = train_agent(
+                config_path=str(config_path),
+                price_data=price_data,
+                features=features,
+                save_dir=trial_dir,
+                device=device,
+                disable_progress=True
+            )
+            
+            profiler.disable()
+            # Save cProfile results
+            stats_path = trial_dir / "profile_stats.prof"
+            profiler.dump_stats(str(stats_path))
+            stats = pstats.Stats(str(stats_path))
+            with open(trial_dir / "profile_stats.txt", 'w') as f:
+                stats.sort_stats('cumulative').stream = f
+                stats.print_stats()
+            
+            # Then run with PyTorch profiler for a shorter duration
+            with torch.profiler.profile(
+                activities=[
+                    torch.profiler.ProfilerActivity.CPU,
+                    torch.profiler.ProfilerActivity.CUDA,
+                ],
+                with_stack=True,
+                profile_memory=True,
+                record_shapes=True,
+                with_modules=True,
+                # Only profile for a few steps to avoid overhead
+                schedule=torch.profiler.schedule(
+                    wait=1,
+                    warmup=1,
+                    active=3,
+                ),
+            ) as prof:
+                # Run a shorter training session for PyTorch profiling
+                temp_config = config.copy()
+                temp_config["num_episodes"] = 2  # Reduced episodes for profiling
+                with open(trial_dir / "temp_config.yaml", "w") as f:
+                    yaml.dump(temp_config, f)
+                
+                train_agent(
+                    config_path=str(trial_dir / "temp_config.yaml"),
+                    price_data=price_data,
+                    features=features,
+                    save_dir=trial_dir / "torch_profile",
+                    device=device,
+                    disable_progress=True
+                )
+            
+            # Save PyTorch profiler results
+            prof.export_chrome_trace(str(trial_dir / "pytorch_trace.json"))
+            with open(trial_dir / "pytorch_profile.txt", "w") as f:
+                f.write(prof.key_averages().table(sort_by="cuda_time_total", row_limit=50))
+                f.write("\n\nDetailed GPU Memory Stats:\n")
+                f.write(prof.key_averages().table(sort_by="self_cuda_memory_usage", row_limit=20))
+        else:
+            # Normal run without profiling
+            metrics = train_agent(
+                config_path=str(config_path),
+                price_data=price_data,
+                features=features,
+                save_dir=trial_dir,
+                device=device,
+                disable_progress=True
+            )
         
         # Calculate objective metrics
         final_sharpe = metrics["sharpe_ratios"][-1] if metrics["sharpe_ratios"] else -10.0
@@ -193,7 +276,7 @@ def objective(trial, base_config, price_data, features, n_episodes=50, jobs_per_
         if gpu_queue is not None and gpu_id is not None:
             gpu_queue.put(gpu_id)
 
-def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_gpu=12):
+def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_gpu=12, enable_profiling=False):
     """Run hyperparameter optimization with Optuna."""
     global global_progress
     
@@ -241,17 +324,33 @@ def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_
     global_progress = tqdm(total=n_trials, desc="Optimization Progress", position=0)
     
     try:
-        # Run optimization
-        study.optimize(
-            lambda trial: objective(
-                trial, base_config, market_data, features,
-                jobs_per_gpu=jobs_per_gpu, gpu_queue=gpu_queue
-            ),
-            n_trials=n_trials,
-            n_jobs=jobs_per_gpu * max(n_gpus, 1),
-            gc_after_trial=True,
-            show_progress_bar=False
-        )
+        if enable_profiling:
+            # Run single trial with profiling
+            print("Running single trial with profiling enabled...")
+            study.optimize(
+                lambda trial: objective(
+                    trial, base_config, market_data, features,
+                    jobs_per_gpu=jobs_per_gpu, gpu_queue=gpu_queue,
+                    enable_profiling=True
+                ),
+                n_trials=1,  # Only run one trial when profiling
+                n_jobs=1,    # Disable parallel execution for profiling
+                gc_after_trial=True,
+                show_progress_bar=False
+            )
+        else:
+            # Run normal optimization with parallel execution
+            study.optimize(
+                lambda trial: objective(
+                    trial, base_config, market_data, features,
+                    jobs_per_gpu=jobs_per_gpu, gpu_queue=gpu_queue,
+                    enable_profiling=False
+                ),
+                n_trials=n_trials,
+                n_jobs=jobs_per_gpu * max(n_gpus, 1),
+                gc_after_trial=True,
+                show_progress_bar=False
+            )
         
         # Calculate parameter importance
         importance = optuna.importance.get_param_importances(study)
@@ -267,63 +366,27 @@ def run_optimization(base_config, market_data, features, n_trials=100, jobs_per_
         for key, value in importance.items():
             print(f"  {key}: {value:.4f}")
         
-        # Print trial statistics
-        print("\nTrial Statistics:")
-        print(f"  Number of completed trials: {len(study.trials)}")
-        print(f"  Number of pruned trials: {len([t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED])}")
-        print(f"  Number of failed trials: {len([t for t in study.trials if t.state == optuna.trial.TrialState.FAIL])}")
+        return study
         
-        # Save best parameters and analysis
-        results_dir = Path("optimization_results")
-        results_dir.mkdir(exist_ok=True)
-        
-        results = {
-            "study_name": study_name,
-            "best_value": study.best_value,
-            "best_params": study.best_params,
-            "parameter_importance": importance,
-            "n_trials": n_trials,
-            "completed_trials": len(study.trials),
-            "datetime": datetime.now().isoformat(),
-            "optimization_history": [
-                {
-                    "number": trial.number,
-                    "value": trial.value,
-                    "params": trial.params,
-                    "state": trial.state.name
-                }
-                for trial in study.trials
-            ]
-        }
-        
-        with open(results_dir / f"{study_name}_results.json", "w") as f:
-            json.dump(results, f, indent=4)
-            
     except KeyboardInterrupt:
-        print("\nOptimization interrupted by user")
-        
-    except Exception as e:
-        print(f"\nOptimization failed with error: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        print("\nOptimization interrupted by user.")
+        return study
         
     finally:
         if global_progress is not None:
             global_progress.close()
-        
-        # Clean up GPU queue
-        if gpu_queue is not None:
-            while not gpu_queue.empty():
-                gpu_queue.get()
-                
-    return study
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Run hyperparameter optimization for SAC trading agent")
     parser.add_argument("--n-trials", type=int, default=100, help="Number of trials to run")
     parser.add_argument("--jobs-per-gpu", type=int, default=12, help="Number of jobs to run per GPU")
+    parser.add_argument("--enable-profiling", action="store_true", help="Enable profiling (will run only one trial)")
     args = parser.parse_args()
+    
+    if args.enable_profiling:
+        print("Profiling mode: Will run only one trial with detailed profiling enabled")
+        args.n_trials = 1  # Override n_trials in profiling mode
     
     # Configure logging
     logging.basicConfig(level=logging.INFO)
@@ -371,4 +434,5 @@ if __name__ == "__main__":
     
     study = run_optimization(base_config, market_data, features, 
                            n_trials=args.n_trials, 
-                           jobs_per_gpu=args.jobs_per_gpu) 
+                           jobs_per_gpu=args.jobs_per_gpu,
+                           enable_profiling=args.enable_profiling) 
