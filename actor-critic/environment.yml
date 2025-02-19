@@ -31,6 +31,7 @@ dependencies:
   - tensorboard
   - ta-lib
   - gymnasium
+  - tenacity
 
   # Test dependencies
   - pytest

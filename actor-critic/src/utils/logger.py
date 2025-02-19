@@ -60,7 +60,8 @@ class TrainingLogger:
         log_dir: Union[str, Path],
         experiment_name: Optional[str] = None,
         config: Optional[Dict] = None,
-        flush_secs: int = 10
+        flush_secs: int = 10,
+        log_level: str = "INFO"
     ):
         """
         Initialize logger.
@@ -70,6 +71,7 @@ class TrainingLogger:
             experiment_name: Name of experiment
             config: Training configuration
             flush_secs: How often to flush TensorBoard events
+            log_level: Logging level (e.g. "INFO", "WARNING", "ERROR")
         """
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
@@ -79,9 +81,9 @@ class TrainingLogger:
             experiment_name = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.experiment_name = f"{experiment_name}_{datetime.now().strftime('%H%M%S_%f')}"
         
-        # Initialize logging with unique name
+        # Initialize logging with unique name and specified level
         self.logger = logging.getLogger(self.experiment_name)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(getattr(logging, log_level.upper()))
         
         # Remove any existing handlers and close them
         if self.logger.hasHandlers():
@@ -94,14 +96,14 @@ class TrainingLogger:
         if log_file.exists():
             log_file.unlink()  # Remove existing log file
         fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.INFO)
+        fh.setLevel(getattr(logging, log_level.upper()))
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         fh.setFormatter(formatter)
         self.logger.addHandler(fh)
         
         # Add console handler
         ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
+        ch.setLevel(getattr(logging, log_level.upper()))
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
         
