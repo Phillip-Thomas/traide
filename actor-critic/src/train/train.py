@@ -105,6 +105,17 @@ def train_agent(
             episode_reward = 0
             episode_steps = 0
             
+            # Add debugging information every 10 episodes
+            if episode % 10 == 0:
+                print(f"\nEpisode {episode} Debug Info:")
+                print(f"Portfolio Value: {env.portfolio_value:.4f}")
+                print(f"Current Positions: {env.current_positions}")
+                # Store the action we're about to take instead of looking for last_action
+                with torch.no_grad():
+                    action = agent.select_action(state, evaluate=False)
+                print(f"Next Action: {action}")
+                print(f"Recent Rewards: {env.recent_rewards[-5:] if hasattr(env, 'recent_rewards') else 'N/A'}")
+            
             # Collect initial batch of random transitions
             if episode == 0:
                 logger.logger.info("Collecting initial random transitions...")
@@ -160,9 +171,16 @@ def train_agent(
                 with torch.no_grad():
                     action = agent.select_action(state, evaluate=False)
                 
+                # Debugging: Print the selected action
+                # print(f"Selected Action: {action}")
+                
                 # Take step in environment
                 try:
                     next_state, reward, done, _, info = env.step(action)
+                    
+                    # Debugging: Print the reward and portfolio value after taking the action
+                    # print(f"Action Taken: {action}, Reward: {reward:.4f}, New Portfolio Value: {info['portfolio_value']:.4f}")
+                    
                 except Exception as e:
                     logger.logger.error(f"Error during environment step: {str(e)}")
                     break

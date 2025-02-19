@@ -84,26 +84,6 @@ def profile_trial(func, trial_dir, *args, **kwargs):
     finally:
         profiler.disable()
 
-def suggest_hyperparameters(trial, base_config):
-    """Suggest hyperparameters for the trial."""
-    config = base_config.copy()
-    
-    # Risk parameters
-    config["risk_params"]["max_position"] = trial.suggest_float("max_position", 0.3, 1.0)
-    config["risk_params"]["max_leverage"] = trial.suggest_float("max_leverage", 0.5, 1.0)
-    config["risk_params"]["position_step"] = trial.suggest_float("position_step", 0.05, 0.2)
-    config["risk_params"]["vol_target"] = trial.suggest_float("vol_target", 0.1, 0.2)
-    
-    # Agent parameters
-    config["agent_params"]["hidden_dim"] = trial.suggest_int("hidden_dim", 64, 256)
-    config["agent_params"]["learning_rate"] = trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True)
-    config["agent_params"]["batch_size"] = trial.suggest_int("batch_size", 128, 512)
-    config["agent_params"]["gamma"] = trial.suggest_float("gamma", 0.95, 0.99)
-    config["agent_params"]["tau"] = trial.suggest_float("tau", 0.001, 0.01)
-    config["agent_params"]["alpha"] = trial.suggest_float("alpha", 0.1, 0.5)
-    
-    return config
-
 def save_trial_results(trial_dir, metrics, objective_value):
     """Save trial results and metrics."""
     results = {
@@ -120,12 +100,12 @@ def save_trial_results(trial_dir, metrics, objective_value):
 def generate_data_and_features():
     """Generate synthetic market data and calculate features."""
     print("Generating synthetic market data...")
-    # Generate synthetic data for a single asset
     n_samples = 1000
     np.random.seed(42)
     
-    # Generate price series
-    close_prices = 100 * np.exp(np.random.randn(n_samples) * 0.02).cumprod()
+    # Generate more volatile price series
+    returns = np.random.normal(0.0002, 0.02, n_samples)  # Increased volatility
+    close_prices = 100 * np.exp(np.cumsum(returns))
     
     # Create DataFrame with OHLCV data
     price_data = pd.DataFrame({
@@ -135,6 +115,12 @@ def generate_data_and_features():
         'close': close_prices,
         'volume': np.random.lognormal(10, 1, n_samples)
     })
+    
+    # Print data statistics
+    print("\nPrice Data Statistics:")
+    print(f"Close Price Range: [{price_data['close'].min():.2f}, {price_data['close'].max():.2f}]")
+    print(f"Daily Returns Mean: {price_data['close'].pct_change().mean():.4f}")
+    print(f"Daily Returns Std: {price_data['close'].pct_change().std():.4f}")
     
     # Add datetime index
     price_data.index = pd.date_range(end=pd.Timestamp.now(), periods=n_samples, freq='D')
@@ -172,7 +158,7 @@ def objective(trial, price_data, features, device, gpu_queue):
     trial_dir = os.path.join("results", f"trial_{trial.number}")
     os.makedirs(trial_dir, exist_ok=True)
 
-    # Create config file for this trial
+    # Simple, direct config with hyperparameter ranges
     config = {
         "risk_params": {
             "max_position": trial.suggest_float("max_position", 0.3, 0.9),
@@ -183,7 +169,7 @@ def objective(trial, price_data, features, device, gpu_queue):
         "agent_params": {
             "hidden_dim": trial.suggest_int("hidden_dim", 64, 256),
             "learning_rate": trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True),
-            "batch_size": trial.suggest_int("batch_size", 128, 512),
+            "batch_size": trial.suggest_int("batch_size", 128, 1024, step=128),
             "gamma": trial.suggest_float("gamma", 0.95, 0.99),
             "tau": trial.suggest_float("tau", 0.001, 0.01),
             "alpha": trial.suggest_float("alpha", 0.1, 0.5)
@@ -219,10 +205,20 @@ def objective(trial, price_data, features, device, gpu_queue):
             save_dir=trial_dir,
             device=device,
             disable_progress=False,
-            log_level="ERROR"
+            log_level="INFO"
         )
         
+        # Add debugging prints
+        print(f"\nTrial {trial.number} Results:")
+        print(f"Portfolio values: {results.get('portfolio_values', [])[-5:]}")  # Last 5 values
+        print(f"Returns: {results.get('returns', [])[-5:]}")  # Last 5 values
+        print(f"Sharpe ratios: {results.get('sharpe_ratios', [])[-5:]}")  # Last 5 values
+        
         # Calculate objective value (mean of last 10 Sharpe ratios)
+        if not results.get('sharpe_ratios'):
+            print("Warning: No Sharpe ratios found in results")
+            return 0.0
+            
         objective_value = np.mean(results["sharpe_ratios"][-10:])
         
         # Save results
@@ -237,8 +233,8 @@ def objective(trial, price_data, features, device, gpu_queue):
         return objective_value
 
     except Exception as e:
-        logging.error(f"Trial {trial.number} failed: {str(e)}")
-        raise e
+        print(f"Error in trial {trial.number}: {str(e)}")
+        raise
 
     finally:
         # Clean up
