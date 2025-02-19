@@ -354,7 +354,7 @@ def evaluate_agent(
             
             state = next_state
             episode_portfolio.append(info["portfolio_value"])
-            episode_positions.append(info["positions"])
+            episode_positions.append(info["current_positions"])
         
         portfolio_values.extend(episode_portfolio)
         positions.extend(episode_positions)
