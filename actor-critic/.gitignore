@@ -20,22 +20,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-env/
-ENV/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-.project
-.pydevproject
-.settings/
-
-# Jupyter Notebook
-.ipynb_checkpoints
 *.ipynb
 
 # Training artifacts
@@ -47,7 +31,6 @@ checkpoints/
 *.ckpt
 
 # Data
-data/
 *.csv
 *.json
 *.h5
