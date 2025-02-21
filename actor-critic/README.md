@@ -146,3 +146,126 @@ The agent is designed to achieve:
 - Sharpe Ratio > 1.5
 - Maximum Drawdown < 15%
 - Transaction costs < 0.1% per trade
+
+# Technical Analysis Visualization System
+
+A comprehensive visualization system for technical analysis indicators, built with Python and Cairo graphics.
+
+## Features
+
+### Core Components
+- Base chart system with configurable dimensions and scales
+- Candlestick chart for price visualization
+- Volume bars with color coding
+- Multiple overlay types for technical indicators
+
+### Overlay Types
+1. **Line Overlay**
+   - Simple moving averages
+   - Exponential moving averages
+   - Custom line-based indicators
+
+2. **Band Overlay**
+   - Bollinger Bands
+   - Keltner Channels
+   - Custom band-based indicators
+
+3. **Histogram Overlay**
+   - MACD histogram
+   - Volume profile
+   - Custom histogram-based indicators
+
+4. **Oscillator Overlay**
+   - Relative Strength Index (RSI)
+   - Stochastic Oscillator
+   - Custom oscillator-based indicators
+
+### Styling Options
+- Configurable colors, line styles, and widths
+- Fill opacity for bands and oscillators
+- Smooth or straight line rendering
+- Point markers
+- Custom level lines and labels
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/username/technical-analysis-visualization.git
+cd technical-analysis-visualization
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+### Basic Example
+```python
+from marketdata.visualization.components import BaseChart, ChartDimensions
+from marketdata.visualization.overlays import LineOverlay, LineStyle
+from marketdata.indicators import SimpleMovingAverage
+
+# Create chart
+dimensions = ChartDimensions(width=800, height=600)
+chart = BaseChart(dimensions)
+
+# Add moving average overlay
+sma = SimpleMovingAverage(period=20)
+style = LineStyle(color=(0.0, 0.0, 0.8))  # Blue
+overlay = LineOverlay(sma, style)
+chart.overlays.add_overlay(overlay)
+
+# Update with data
+overlay.update(data)
+
+# Render chart
+chart.render(renderer)
+```
+
+### AAPL Example
+See `examples/aapl_visualization.py` for a comprehensive example that demonstrates:
+- Fetching AAPL data from Yahoo Finance
+- Creating a candlestick chart
+- Adding multiple technical indicators:
+  - Bollinger Bands
+  - RSI with overbought/oversold levels
+  - MACD with histogram
+  - Volume bars
+
+To run the example:
+```bash
+python examples/aapl_visualization.py
+```
+
+## Development
+
+### Project Structure
+```
+src/
+  marketdata/
+    visualization/
+      components/     # Chart components
+      overlays/      # Technical indicator overlays
+      utils/         # Utility functions and classes
+    indicators/      # Technical indicators
+tests/              # Unit tests
+examples/           # Example scripts
+```
+
+### Running Tests
+```bash
+pytest tests/
+```
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests
+5. Submit a pull request
+
+## License
+MIT License - see LICENSE file for details
