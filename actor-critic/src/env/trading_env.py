@@ -4,6 +4,7 @@ from gymnasium import spaces
 from typing import Dict, Tuple, Optional
 import pandas as pd
 import logging
+from collections import deque
 
 from ..utils.risk_management import RiskManager, RiskParams
 
@@ -58,7 +59,7 @@ class TradingEnvironment(gym.Env):
         self.current_step = window_size
         self.current_positions = np.zeros(self.n_assets, dtype=np.float32)
         self.portfolio_value = 1.0
-        self.returns_history = []
+        self.returns_history = deque(maxlen=20)
         
         # Initialize logger
         self.logger = logging.getLogger(__name__)
@@ -100,13 +101,11 @@ class TradingEnvironment(gym.Env):
             
             # Need at least 2 returns to calculate meaningful statistics
             if len(self.returns_history) < 2:
-                return 0.0  # Return 0 initially to avoid unstable learning
+                return 0.0
             
-            # Calculate daily statistics using recent returns
-            lookback = min(len(self.returns_history), 20)  # Use last 20 returns
-            recent_returns = self.returns_history[-lookback:]
-            daily_mean = np.mean(recent_returns)
-            daily_std = np.std(recent_returns, ddof=1)
+            # Now we can use the entire deque since it's bounded
+            daily_mean = np.mean(self.returns_history)
+            daily_std = np.std(list(self.returns_history), ddof=1)
             
             # Handle low volatility case
             if daily_std < 1e-6:
@@ -290,7 +289,7 @@ class TradingEnvironment(gym.Env):
             self.current_step = self.window_size
             self.current_positions = np.zeros(self.n_assets, dtype=np.float32)
             self.portfolio_value = 1.0
-            self.returns_history = []
+            self.returns_history = deque(maxlen=20)
             
             state = self._calculate_state()
             

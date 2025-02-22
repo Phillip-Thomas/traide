@@ -33,6 +33,35 @@ from optuna.exceptions import ExperimentalWarning
 import tempfile
 import argparse
 
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.trace import Status, StatusCode
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+
+# Configure OpenTelemetry
+resource = Resource.create({
+    "service.name": os.environ.get("OTEL_RESOURCE_ATTRIBUTES", "actor-critic-sweep"),
+    "service.version": "1.0.0"  # Add version for better tracing
+})
+tracer_provider = TracerProvider(resource=resource)
+otlp_exporter = OTLPSpanExporter(
+    endpoint=os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otelcollector.whiskey.works:4317"),
+    insecure=True,
+    timeout=30  # Add timeout configuration
+)
+span_processor = BatchSpanProcessor(otlp_exporter)
+tracer_provider.add_span_processor(span_processor)
+trace.set_tracer_provider(tracer_provider)
+
+# Initialize tracer
+tracer = trace.get_tracer(__name__)
+
+# Initialize SQLAlchemy instrumentation
+SQLAlchemyInstrumentor().instrument()
+
 # Add project root to Python path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
@@ -147,163 +176,191 @@ def generate_data_and_features():
     print(f"Generated data shapes - Price data: {price_data.shape}, Features: {features.shape}")
     return price_data, features
 
-def objective(trial, price_data, features, device, gpu_queue):
-    try:
-        gpu_id = gpu_queue.get(timeout=1)
-        device = f"cuda:{gpu_id}" if gpu_id is not None else "cpu"
-    except:
-        device = "cpu"
-        gpu_id = None
+def objective(trial, price_data, features, device, gpu_queue, tracer):
+    with tracer.start_as_current_span("objective") as span:
+        try:
+            span.set_attribute("trial_number", trial.number)
+            span.set_attribute("trial.state", "started")
 
-    trial_dir = os.path.join("results", f"trial_{trial.number}")
-    os.makedirs(trial_dir, exist_ok=True)
+            try:
+                gpu_id = gpu_queue.get(timeout=1)
+                device = f"cuda:{gpu_id}" if gpu_id is not None else "cpu"
+            except:
+                device = "cpu"
+                gpu_id = None
 
-    # Simple, direct config with hyperparameter ranges
-    config = {
-        "risk_params": {
-            "max_position": trial.suggest_float("max_position", 0.3, 0.9),
-            "max_leverage": trial.suggest_float("max_leverage", 0.6, 1.0),
-            "position_step": trial.suggest_float("position_step", 0.05, 0.2),
-            "vol_target": trial.suggest_float("vol_target", 0.1, 0.2)
-        },
-        "agent_params": {
-            "hidden_dim": trial.suggest_int("hidden_dim", 64, 256),
-            "learning_rate": trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True),
-            "batch_size": trial.suggest_int("batch_size", 128, 1024, step=128),
-            "gamma": trial.suggest_float("gamma", 0.95, 0.99),
-            "tau": trial.suggest_float("tau", 0.001, 0.01),
-            "alpha": trial.suggest_float("alpha", 0.1, 0.5)
-        },
-        "window_size": trial.suggest_int("window_size", 20, 100),
-        "commission": 0.001,
-        "num_episodes": 50,
-        "start_training_after_steps": 1000,
-        "save_interval": 10000,
-        "eval_interval": 10,
-        "eval_episodes": 5,
-        "early_stopping_window": 10,
-        "target_sharpe": 2.0
-    }
-    
-    config_path = os.path.join(trial_dir, "config.json")
-    with open(config_path, "w") as f:
-        json.dump(config, f, indent=4)
+            trial_dir = os.path.join("results", f"trial_{trial.number}")
+            os.makedirs(trial_dir, exist_ok=True)
 
-    # Configure logging
-    logging.basicConfig(
-        filename=os.path.join(trial_dir, "trial.log"),
-        level=logging.ERROR,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+            span.set_attribute("trial_dir", trial_dir)
+            span.set_attribute("device", device)
 
-    try:
-        # Train the agent
-        results = train_agent(
-            config_path=config_path,
-            price_data=price_data,
-            features=features,
-            save_dir=trial_dir,
-            device=device,
-            disable_progress=False,
-            log_level="INFO"
-        )
-        
-        # Add debugging prints
-        print(f"\nTrial {trial.number} Results:")
-        print(f"Portfolio values: {results.get('portfolio_values', [])[-5:]}")  # Last 5 values
-        print(f"Returns: {results.get('returns', [])[-5:]}")  # Last 5 values
-        print(f"Sharpe ratios: {results.get('sharpe_ratios', [])[-5:]}")  # Last 5 values
-        
-        # Calculate objective value (mean of last 10 Sharpe ratios)
-        if not results.get('sharpe_ratios'):
-            print("Warning: No Sharpe ratios found in results")
-            return 0.0
+            # Simple, direct config with hyperparameter ranges
+            config = {
+                "risk_params": {
+                    "max_position": trial.suggest_float("max_position", 0.3, 0.9),
+                    "max_leverage": trial.suggest_float("max_leverage", 0.6, 1.0),
+                    "position_step": trial.suggest_float("position_step", 0.05, 0.2),
+                    "vol_target": trial.suggest_float("vol_target", 0.1, 0.2)
+                },
+                "agent_params": {
+                    "hidden_dim": trial.suggest_int("hidden_dim", 64, 64),
+                    "learning_rate": trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True),
+                    "batch_size": trial.suggest_int("batch_size", 128, 128, step=128),
+                    "gamma": trial.suggest_float("gamma", 0.95, 0.99),
+                    "tau": trial.suggest_float("tau", 0.001, 0.01),
+                    "alpha": trial.suggest_float("alpha", 0.1, 0.5)
+                },
+                "window_size": trial.suggest_int("window_size", 20, 100),
+                "commission": 0.001,
+                "num_episodes": 60,
+                "start_training_after_steps": 1000,
+                "save_interval": 10000,
+                "eval_interval": 20,
+                "eval_episodes": 2,
+                "early_stopping_window": 10,
+                "target_sharpe": 2.0
+            }
             
-        objective_value = np.mean(results["sharpe_ratios"][-10:])
-        
-        # Save results
-        with open(os.path.join(trial_dir, "results.json"), "w") as f:
-            json.dump({
-                "objective_value": float(objective_value),
-                "sharpe_ratios": [float(x) for x in results["sharpe_ratios"]],
-                "returns": [float(x) for x in results["returns"]],
-                "config": config
-            }, f, indent=4)
-            
-        return objective_value
+            config_path = os.path.join(trial_dir, "config.json")
+            with open(config_path, "w") as f:
+                json.dump(config, f, indent=4)
 
-    except Exception as e:
-        print(f"Error in trial {trial.number}: {str(e)}")
-        raise
+            span.set_attribute("config_path", config_path)
+            span.set_attribute("config", config)
 
-    finally:
-        # Clean up
-        if gpu_id is not None:
-            gpu_queue.put(gpu_id)
-        for handler in logging.root.handlers[:]:
-            logging.root.removeHandler(handler)
+            # Configure logging
+            logging.basicConfig(
+                filename=os.path.join(trial_dir, "trial.log"),
+                level=logging.ERROR,
+                format="%(asctime)s - %(levelname)s - %(message)s"
+            )
 
-def run_optimization(market_data=None, features=None, n_trials=100, jobs_per_gpu=12):
+            try:
+                # Create child span for training
+                with tracer.start_as_current_span("train_agent") as training_span:
+                    training_span.set_attribute("trial_number", trial.number)
+                    training_span.set_attribute("device", device)
+                    
+                    results = train_agent(
+                        config_path=config_path,
+                        price_data=price_data,
+                        features=features,
+                        save_dir=trial_dir,
+                        device=device,
+                        disable_progress=False,
+                        log_level="WARN",
+                        tracer=tracer
+                    )
+                    
+                    # Add results to span
+                    training_span.set_attribute("portfolio_final_value", float(results.get('portfolio_values', [])[-1]))
+                    training_span.set_attribute("sharpe_final", float(results.get('sharpe_ratios', [])[-1]))
+
+                # Add debugging prints
+                print(f"\nTrial {trial.number} Results:")
+                print(f"Portfolio values: {results.get('portfolio_values', [])[-5:]}")  # Last 5 values
+                print(f"Returns: {results.get('returns', [])[-5:]}")  # Last 5 values
+                print(f"Sharpe ratios: {results.get('sharpe_ratios', [])[-5:]}")  # Last 5 values
+                
+                # Calculate objective value (mean of last 10 Sharpe ratios)
+                if not results.get('sharpe_ratios'):
+                    print("Warning: No Sharpe ratios found in results")
+                    return 0.0
+                    
+                objective_value = np.mean(results["sharpe_ratios"][-10:])
+                
+                # Save results
+                with open(os.path.join(trial_dir, "results.json"), "w") as f:
+                    json.dump({
+                        "objective_value": float(objective_value),
+                        "sharpe_ratios": [float(x) for x in results["sharpe_ratios"]],
+                        "returns": [float(x) for x in results["returns"]],
+                        "config": config
+                    }, f, indent=4)
+                    
+                return objective_value
+
+            except Exception as e:
+                print(f"Error in trial {trial.number}: {str(e)}")
+                raise
+
+        except Exception as e:
+            span.set_status(Status(StatusCode.ERROR, str(e)))
+            span.record_exception(e)
+            raise
+        finally:
+            # Clean up
+            if gpu_id is not None:
+                gpu_queue.put(gpu_id)
+            for handler in logging.root.handlers[:]:
+                logging.root.removeHandler(handler)
+
+def run_optimization(market_data=None, features=None, n_trials=100, jobs_per_gpu=12, tracer=None):
     """Run hyperparameter optimization."""
-    # Suppress Optuna warnings
-    warnings.filterwarnings('ignore', category=ExperimentalWarning)
-    
-    # Configure logging
-    logging.basicConfig(
-        filename="optimization.log",
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    
-    # Generate data if needed
-    if market_data is None or features is None:
-        market_data, features = generate_data_and_features()
-    
-    # Create study
-    storage = get_storage()
-    study_name = f"sac_trading_optimization_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    study = optuna.create_study(
-        study_name=study_name,
-        storage=storage,
-        direction="maximize",
-        load_if_exists=True
-    )
-    
-    # Create GPU queue
-    n_gpus = torch.cuda.device_count()
-    gpu_queue = Queue()
-    for i in range(n_gpus):
-        for _ in range(jobs_per_gpu):
-            gpu_queue.put(i)
-    
-    try:
-        # Run optimization
-        study.optimize(
-            lambda trial: objective(
-                trial, market_data, features, None, gpu_queue
-            ),
-            n_trials=n_trials,
-            n_jobs=n_gpus * jobs_per_gpu if n_gpus > 0 else 1,
-            gc_after_trial=True
+    with tracer.start_as_current_span("run_optimization") as span:
+        # Suppress Optuna warnings
+        warnings.filterwarnings('ignore', category=ExperimentalWarning)
+        
+        # Configure logging
+        logging.basicConfig(
+            filename="optimization.log",
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s - %(message)s"
         )
         
-        print(f"\nOptimization completed!")
-        print(f"Best trial value: {study.best_value:.3f}")
-        print("\nBest trial parameters:")
-        for key, value in study.best_trial.params.items():
-            print(f"  {key}: {value}")
-            
-    except KeyboardInterrupt:
-        print("\nOptimization interrupted by user.")
-    except Exception as e:
-        print(f"\nOptimization failed: {str(e)}")
-        raise
-    finally:
-        # Clean up
-        while not gpu_queue.empty():
-            gpu_queue.get()
-    
-    return study
+        # Generate data if needed
+        with tracer.start_as_current_span("generate_data_and_features") as span:
+            if market_data is None or features is None:
+                market_data, features = generate_data_and_features()
+        
+        # Create study
+        with tracer.start_as_current_span("create_study") as span:
+            storage = get_storage()
+            study_name = f"sac_trading_optimization_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            study = optuna.create_study(
+                study_name=study_name,
+                storage=storage,
+                direction="maximize",
+                load_if_exists=True
+            )
+        
+        # Create GPU queue
+        n_gpus = torch.cuda.device_count()
+        gpu_queue = Queue()
+        for i in range(n_gpus):
+            for _ in range(jobs_per_gpu):
+                gpu_queue.put(i)
+        
+        with tracer.start_as_current_span("optimize") as span:
+            try:
+                # Run optimization
+                study.optimize(
+                    lambda trial: objective(
+                        trial, market_data, features, None, gpu_queue, tracer
+                    ),
+                    n_trials=n_trials,
+                    n_jobs=n_gpus * jobs_per_gpu if n_gpus > 0 else 1,
+                    gc_after_trial=True
+                )
+                
+                print(f"\nOptimization completed!")
+                print(f"Best trial value: {study.best_value:.3f}")
+                print("\nBest trial parameters:")
+                for key, value in study.best_trial.params.items():
+                    print(f"  {key}: {value}")
+                    
+            except KeyboardInterrupt:
+                print("\nOptimization interrupted by user.")
+            except Exception as e:
+                print(f"\nOptimization failed: {str(e)}")
+                raise
+            finally:
+                # Clean up
+                while not gpu_queue.empty():
+                    gpu_queue.get()
+        
+        return study
 
 def main():
     """Main entry point for hyperparameter optimization."""
@@ -313,34 +370,45 @@ def main():
     args = parser.parse_args()
     
     # Run optimization
-    study = run_optimization(
-        market_data=None,
-        features=None,
-        n_trials=args.n_trials,
-        jobs_per_gpu=args.jobs_per_gpu
-    )
-    
-    # Print results
-    print("\nOptimization Results:")
-    try:
-        best_trial = study.best_trial
-        print("\nBest trial:")
-        print(f"  Value: {best_trial.value:.3f}")
-        print("\nBest hyperparameters:")
-        for key, value in best_trial.params.items():
-            print(f"  {key}: {value}")
-    except ValueError as e:
-        print("No completed trials found.")
-        print("\nTrials in progress:")
-        for trial in study.trials:
-            if trial.state == optuna.trial.TrialState.RUNNING:
-                print(f"  Trial {trial.number}: Running")
-            elif trial.state == optuna.trial.TrialState.COMPLETE:
-                print(f"  Trial {trial.number}: Complete (value: {trial.value:.3f})")
-            elif trial.state == optuna.trial.TrialState.FAIL:
-                print(f"  Trial {trial.number}: Failed")
-            elif trial.state == optuna.trial.TrialState.PRUNED:
-                print(f"  Trial {trial.number}: Pruned")
+    with tracer.start_as_current_span("main") as span:
+        span.set_attribute("n_trials", args.n_trials)
+        span.set_attribute("jobs_per_gpu", args.jobs_per_gpu)
+
+        with tracer.start_as_current_span("run_optimization") as span:
+            study = run_optimization(
+                market_data=None,
+                features=None,
+                n_trials=args.n_trials,
+                jobs_per_gpu=args.jobs_per_gpu,
+                tracer=tracer
+            )
+        
+        # Print results
+        print("\nOptimization Results:")
+        try:
+            best_trial = study.best_trial
+            print("\nBest trial:")
+            print(f"  Value: {best_trial.value:.3f}")
+            print("\nBest hyperparameters:")
+            for key, value in best_trial.params.items():
+                print(f"  {key}: {value}")
+        except ValueError as e:
+            print("No completed trials found.")
+            print("\nTrials in progress:")
+            for trial in study.trials:
+                if trial.state == optuna.trial.TrialState.RUNNING:
+                    print(f"  Trial {trial.number}: Running")
+                elif trial.state == optuna.trial.TrialState.COMPLETE:
+                    print(f"  Trial {trial.number}: Complete (value: {trial.value:.3f})")
+                elif trial.state == optuna.trial.TrialState.FAIL:
+                    print(f"  Trial {trial.number}: Failed")
+                elif trial.state == optuna.trial.TrialState.PRUNED:
+                    print(f"  Trial {trial.number}: Pruned")
 
 if __name__ == "__main__":
-    main() 
+    try:
+        main()
+    finally:
+        # Ensure spans are flushed before exit
+        tracer_provider.force_flush()
+        tracer_provider.shutdown() 
