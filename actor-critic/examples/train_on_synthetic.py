@@ -187,6 +187,7 @@ def main():
                 print(f"Total steps completed: {len(metrics['portfolio_values'])}")
                 print(f"Average steps per episode: {len(metrics['portfolio_values']) / len(metrics['episode_rewards']):.1f}")
                 
+                # Save episode metrics
                 episode_metrics = pd.DataFrame({
                     "episode": range(len(metrics["episode_rewards"])),
                     "reward": metrics["episode_rewards"],
@@ -195,20 +196,22 @@ def main():
                 })
                 episode_metrics.to_csv(os.path.join(results_dir, "episode_metrics.csv"), index=False)
                 
-                # Save step metrics separately
+                # Save step metrics
                 step_metrics = pd.DataFrame({
                     "step": range(len(metrics["portfolio_values"])),
                     "portfolio_value": metrics["portfolio_values"]
                 })
                 step_metrics.to_csv(os.path.join(results_dir, "step_metrics.csv"), index=False)
                 
-                # Save training metrics separately if they exist
-                if metrics["critic_losses"]:
+                # Save training metrics if available
+                if all(key in metrics for key in ["critic_losses", "actor_losses", "alpha_losses", "alphas"]):
                     # Get the minimum length of all arrays to ensure they match
-                    min_length = min(len(metrics["critic_losses"]), 
-                                   len(metrics["actor_losses"]),
-                                   len(metrics["alpha_losses"]),
-                                   len(metrics["alphas"]))
+                    min_length = min(
+                        len(metrics["critic_losses"]), 
+                        len(metrics["actor_losses"]),
+                        len(metrics["alpha_losses"]),
+                        len(metrics["alphas"])
+                    )
                     
                     training_metrics = pd.DataFrame({
                         "step": range(min_length),
@@ -224,6 +227,8 @@ def main():
                     print(f"Final critic loss: {metrics['critic_losses'][-1]:.4f}")
                     print(f"Final actor loss: {metrics['actor_losses'][-1]:.4f}")
                     print(f"Final alpha: {metrics['alphas'][-1]:.4f}")
+                else:
+                    print("\nNote: No training metrics (losses) were recorded during training")
 
             # Print final metrics
             print("\nFinal Performance Metrics:")
