@@ -17,7 +17,7 @@ class TradingEnvironment(gym.Env):
         price_data: pd.DataFrame,
         features: pd.DataFrame,
         window_size: int = 100,
-        commission: float = 0.0005,
+        commission: float = 0.001,
         reward_scaling: float = 1.0,
         risk_aversion: float = 0.1,
         vol_lookback: int = 20
@@ -117,27 +117,30 @@ class TradingEnvironment(gym.Env):
     
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict]:
         """Execute one environment step with realistic trading mechanics."""
-        # Store current values
+        # Store current values and implement proper order of operations
         old_value = self.portfolio_value
-        current_price = self.price_data.iloc[self.current_step, 0]
-        next_price = self.price_data.iloc[self.current_step + 1, 0]
         old_position = self.current_position
         
-        # Calculate price change and new position
-        price_change_pct = (next_price - current_price) / current_price
+        # Get current price (known at decision time)
+        current_price = self.price_data.iloc[self.current_step, 0]
         
-        # Calculate P&L using old position with increased impact
-        position_pnl = old_position * price_change_pct * old_value * 1.5  # Increased position impact
-        
-        # More aggressive position sizing with minimum size
-        new_position = float(np.clip(action[0] * 0.6, -0.6, 0.6))  # Increased from 0.4 to 0.6
-        if abs(new_position) < 0.2:  # Minimum position size
-            new_position = 0.0  # Force either meaningful positions or no position
-        
-        # Further reduce transaction costs
+        # Calculate new position based on action (this happens at current price)
+        new_position = float(np.clip(action[0] * 0.6, -0.6, 0.6))
+        if abs(new_position) < 0.1:
+            new_position = 0.0
+            
+        # Calculate transaction costs for position change at current price
         costs = self._calculate_transaction_costs(
             old_position, new_position, current_price, old_value
-        ) * 0.5  # 50% reduction in costs
+        )
+
+        # Move to next step to get the price where P&L is realized
+        self.current_step += 1
+        next_price = self.price_data.iloc[self.current_step, 0]
+        
+        # Calculate P&L using price change after position was taken
+        price_change_pct = (next_price - current_price) / current_price
+        position_pnl = new_position * price_change_pct * old_value  # P&L from new position
         
         # Update portfolio value with minimum value constraint
         self.portfolio_value = max(old_value + position_pnl - costs, 0.01)
@@ -156,10 +159,9 @@ class TradingEnvironment(gym.Env):
             portfolio_value=self.portfolio_value
         )
         
-        # Update state
-        self.current_step += 1
+        # Check if done
         done = (self.current_step >= len(self.price_data) - 2 or 
-                self.portfolio_value <= 0.90)  # More lenient bankruptcy threshold
+                self.portfolio_value <= 0.90)
         
         info = {
             'portfolio_value': float(self.portfolio_value),
@@ -168,6 +170,7 @@ class TradingEnvironment(gym.Env):
             'pnl': float(position_pnl),
             'costs': float(costs),
             'price_change': price_change_pct * 100.0,
+            'current_price': float(current_price),
             'volatility': float(np.std(self.returns_history[-self.vol_lookback:]) if len(self.returns_history) >= self.vol_lookback else 0)
         }
         

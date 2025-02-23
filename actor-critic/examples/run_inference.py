@@ -189,14 +189,14 @@ def run_inference(
         down = trading_data[trading_data['close'] < trading_data['open']]
         
         # Plot up candles
-        ax1.bar(up.index, up['close']-up['open'], width, bottom=up['open'], color='g', alpha=0.6)
-        ax1.bar(up.index, up['high']-up['close'], width2, bottom=up['close'], color='g', alpha=0.6)
-        ax1.bar(up.index, up['low']-up['open'], width2, bottom=up['open'], color='g', alpha=0.6)
+        ax1.bar(up.index, up['close']-up['open'], width, bottom=up['open'], color='g', alpha=1)
+        ax1.bar(up.index, up['high']-up['close'], width2, bottom=up['close'], color='g', alpha=1)
+        ax1.bar(up.index, up['low']-up['open'], width2, bottom=up['open'], color='g', alpha=1)
         
         # Plot down candles
-        ax1.bar(down.index, down['close']-down['open'], width, bottom=down['open'], color='r', alpha=0.6)
-        ax1.bar(down.index, down['high']-down['open'], width2, bottom=down['open'], color='r', alpha=0.6)
-        ax1.bar(down.index, down['low']-down['close'], width2, bottom=down['close'], color='r', alpha=0.6)
+        ax1.bar(down.index, down['close']-down['open'], width, bottom=down['open'], color='r', alpha=1)
+        ax1.bar(down.index, down['high']-down['open'], width2, bottom=down['open'], color='r', alpha=1)
+        ax1.bar(down.index, down['low']-down['close'], width2, bottom=down['close'], color='r', alpha=1)
         
         # Plot positions as a heatmap overlay
         for i, pos in enumerate(positions[1:]):  # Skip initial position
