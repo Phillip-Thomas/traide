@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 from typing import Dict, Tuple, Optional
+import logging
 
 from .sac_actor import SACActorNetwork
 from .sac_critic import SACCriticNetwork
@@ -18,7 +19,7 @@ class SACAgent:
         action_dim: int,
         device: str = "cuda" if torch.cuda.is_available() else "cpu",
         hidden_dim: int = 256,
-        buffer_size: int = 1_000_000,
+        buffer_size: int = 2_000_000,
         batch_size: int = 256,
         gamma: float = 0.99,
         tau: float = 0.005,
@@ -28,6 +29,7 @@ class SACAgent:
         gradient_clip: float = 1.0,
         use_batch_norm: bool = True
     ):
+        """Initialize SAC agent with all networks and parameters."""
         self.device = device
         self.gamma = gamma
         self.tau = tau
@@ -35,6 +37,11 @@ class SACAgent:
         self.batch_size = batch_size
         self.automatic_entropy_tuning = automatic_entropy_tuning
         self.gradient_clip = gradient_clip
+        self.action_dim = action_dim
+        
+        # Add training tracking
+        self.total_steps = 0
+        self.logger = logging.getLogger(__name__)
         
         # Initialize networks with batch norm
         self.actor = SACActorNetwork(
@@ -76,35 +83,57 @@ class SACAgent:
             self.alpha_optimizer = torch.optim.Adam([self.log_alpha], lr=learning_rate)
         
     def select_action(self, state: np.ndarray, evaluate: bool = False) -> np.ndarray:
-        """
-        Select an action using the policy network.
-        
-        Args:
-            state: Current state array
-            evaluate: Whether to evaluate deterministically
-            
-        Returns:
-            action: Selected action array
-        """
-        with torch.amp.autocast('cuda'):
-            if isinstance(state, np.ndarray):
-                state = torch.from_numpy(state)
-            state = state.to(self.device, non_blocking=True).unsqueeze(0)
-            
-            if evaluate:
-                _, mean = self.actor(state)
-                return mean.cpu().numpy()[0]
-            else:
-                action, _ = self.actor(state)
-                return action.cpu().numpy()[0]
+        """Select action with improved exploration/exploitation balance."""
+        try:
+            with torch.no_grad():
+                if state.ndim == 1:
+                    state = state.reshape(1, -1)
+                
+                state = torch.FloatTensor(state).to(self.device)
+                
+                if evaluate:
+                    # Pure exploitation during evaluation
+                    action = self.actor.get_mean(state)
+                    return action.cpu().numpy().flatten()
+                
+                # More aggressive initial exploration schedule
+                warmup_steps = 2000  # Reduced warmup for faster learning
+                ramp_steps = 20000   # Faster ramp to normal exploration
+                
+                if self.total_steps < warmup_steps:
+                    # Start with moderate positions during warmup
+                    exploration_factor = 1.0
+                    action_scale = 0.3  # Start with larger positions
+                elif self.total_steps < (warmup_steps + ramp_steps):
+                    # Gradually increase action scale and reduce exploration
+                    progress = (self.total_steps - warmup_steps) / ramp_steps
+                    exploration_factor = max(0.2, 1.0 - progress)  # More exploitation
+                    action_scale = 0.3 + 0.7 * progress  # Ramp up to full scale faster
+                else:
+                    # Normal exploration phase with higher minimum scale
+                    exploration_factor = max(0.2, 0.8 - (self.total_steps / 100000))
+                    action_scale = 1.0
+                
+                # Get both mean action and sampled action
+                mean_action = self.actor.get_mean(state)
+                sampled_action, _ = self.actor(state)
+                
+                # Interpolate between mean and sampled action
+                action = exploration_factor * sampled_action + (1 - exploration_factor) * mean_action
+                
+                # Apply action scaling and bias towards larger positions
+                action = action * action_scale
+                # Add bias towards larger absolute positions
+                action = torch.sign(action) * (torch.abs(action) + 0.2)
+                
+                return action.cpu().numpy().flatten()
+                
+        except Exception as e:
+            self.logger.error(f"Error in select_action: {str(e)}")
+            return np.zeros(self.action_dim)
     
     def update_parameters(self) -> Dict[str, float]:
-        """
-        Update the parameters of all networks using SAC update rules.
-        
-        Returns:
-            metrics: Dictionary of training metrics
-        """
+        """Update the parameters of all networks using SAC update rules."""
         if len(self.replay_buffer) < self.batch_size:
             return {}
             
@@ -124,6 +153,9 @@ class SACAgent:
         
         # Update target networks
         self._update_targets()
+        
+        # Increment total steps
+        self.total_steps += 1
         
         return {
             "critic_1_loss": critic_loss_1.item(),

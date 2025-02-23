@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Tuple, Optional
 from dataclasses import dataclass
+import logging
 
 @dataclass
 class RiskParams:
@@ -156,3 +157,39 @@ class RiskManager:
             return False, f"Maximum drawdown exceeded: {self.current_drawdown:.2%}"
             
         return True, None 
+
+    def adjust_positions(
+        self,
+        current_positions: np.ndarray,
+        target_positions: np.ndarray,
+        portfolio_value: float
+    ) -> np.ndarray:
+        """Adjust positions with improved risk management."""
+        try:
+            # Calculate position changes
+            position_changes = target_positions - current_positions
+            
+            # Dynamic position size limits based on portfolio value
+            max_position = min(0.4, 0.2 * np.sqrt(portfolio_value))
+            
+            # Limit individual position sizes
+            target_positions = np.clip(target_positions, -max_position, max_position)
+            
+            # Calculate portfolio risk metrics
+            current_risk = np.sum(np.abs(current_positions))
+            target_risk = np.sum(np.abs(target_positions))
+            
+            # Apply stricter limits when underwater
+            if portfolio_value < 1.0:
+                target_positions *= 0.5
+            
+            # Prevent excessive leverage
+            if target_risk > self.params.max_leverage:
+                scale_factor = self.params.max_leverage / target_risk
+                target_positions *= scale_factor
+            
+            return target_positions.astype(np.float32)
+            
+        except Exception as e:
+            logging.error(f"Error in adjust_positions: {str(e)}")
+            return current_positions 

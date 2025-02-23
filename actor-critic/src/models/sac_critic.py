@@ -24,7 +24,7 @@ class SACCriticNetwork(nn.Module):
             nn.Linear(state_dim + action_dim, hidden_dim),
             nn.BatchNorm1d(hidden_dim) if use_batch_norm else nn.LayerNorm(hidden_dim),
             nn.ReLU(),
-            nn.Dropout(0.1)
+            # nn.Dropout(0.1)
         ])
         
         # Hidden layer 1
@@ -32,7 +32,7 @@ class SACCriticNetwork(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.BatchNorm1d(hidden_dim) if use_batch_norm else nn.LayerNorm(hidden_dim),
             nn.ReLU(),
-            nn.Dropout(0.1)
+            # nn.Dropout(0.1)
         ])
         
         # Output layer

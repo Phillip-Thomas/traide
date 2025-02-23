@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from typing import Dict, Tuple
+import logging
 
 class ReplayBuffer:
     """
@@ -12,7 +13,7 @@ class ReplayBuffer:
         self,
         state_dim: int,
         action_dim: int = 1,
-        max_size: int = 100_000,
+        max_size: int = 1000000,
         device: str = "cuda"
     ):
         self.max_size = max_size
@@ -68,31 +69,29 @@ class ReplayBuffer:
         next_state: np.ndarray,
         done: bool
     ) -> None:
-        """Add a transition directly to GPU memory."""
-        with torch.amp.autocast('cuda') if self.use_cuda else torch.no_grad():
-            # Convert to tensors and move to GPU in one operation
-            if isinstance(state, np.ndarray):
-                state = torch.from_numpy(state).to(device=self.device, 
-                                                 dtype=torch.float16 if self.use_cuda else torch.float32,
-                                                 non_blocking=True)
-            if isinstance(action, np.ndarray):
-                action = torch.from_numpy(action).to(device=self.device,
-                                                   dtype=torch.float32,
-                                                   non_blocking=True)
-            if isinstance(next_state, np.ndarray):
-                next_state = torch.from_numpy(next_state).to(device=self.device,
-                                                           dtype=torch.float16 if self.use_cuda else torch.float32,
-                                                           non_blocking=True)
+        """Add a new experience to memory."""
+        try:
+            # Convert all inputs to tensors
+            state_tensor = torch.FloatTensor(state).to(self.device)
+            action_tensor = torch.FloatTensor(action).to(self.device)
+            reward_tensor = torch.FloatTensor([reward]).to(self.device)
+            next_state_tensor = torch.FloatTensor(next_state).to(self.device)
+            done_tensor = torch.BoolTensor([done]).to(self.device)  # Convert bool to tensor
             
-            # Efficient in-place operations
-            self.states[self.ptr].copy_(state, non_blocking=True)
-            self.actions[self.ptr].copy_(action, non_blocking=True)
-            self.rewards[self.ptr] = reward
-            self.next_states[self.ptr].copy_(next_state, non_blocking=True)
-            self.dones[self.ptr] = done
+            # Store experience
+            self.states[self.ptr] = state_tensor
+            self.actions[self.ptr] = action_tensor
+            self.rewards[self.ptr] = reward_tensor
+            self.next_states[self.ptr] = next_state_tensor
+            self.dones[self.ptr] = done_tensor
             
+            # Update pointer
             self.ptr = (self.ptr + 1) % self.max_size
             self.size = min(self.size + 1, self.max_size)
+            
+        except Exception as e:
+            logging.error(f"Error adding to replay buffer: {str(e)}")
+            raise
     
     def sample(self, batch_size: int) -> Dict[str, torch.Tensor]:
         """Sample a batch efficiently on GPU."""

@@ -32,7 +32,7 @@ class SACActorNetwork(nn.Module):
             nn.Linear(state_dim, hidden_dim),
             nn.LayerNorm(hidden_dim),  # Always use LayerNorm for better single-sample performance
             nn.ReLU(),
-            nn.Dropout(0.1)
+            # nn.Dropout(0.1)
         ])
         
         # Hidden layer
@@ -40,7 +40,7 @@ class SACActorNetwork(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.LayerNorm(hidden_dim),  # Always use LayerNorm for better single-sample performance
             nn.ReLU(),
-            nn.Dropout(0.1)
+            # nn.Dropout(0.1)
         ])
         
         self.feature_net = nn.Sequential(*layers)
@@ -91,7 +91,7 @@ class SACActorNetwork(nn.Module):
         return action, log_prob
     
     def get_mean(self, state: torch.Tensor) -> torch.Tensor:
-        """Get mean action with improved efficiency."""
+        """Get deterministic mean action for exploitation."""
         # Ensure input is at least 2D for LayerNorm
         if state.dim() == 1:
             state = state.unsqueeze(0)

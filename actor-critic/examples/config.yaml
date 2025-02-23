@@ -10,17 +10,10 @@ agent_params:
   tau: 0.005
   use_batch_norm: false
 commission: 0.001
-early_stopping_window: 50
+env_params:
+  reward_scaling: 1.0
+  risk_aversion: 0.1
+  vol_lookback: 20
 num_episodes: 200
-risk_params:
-  max_drawdown: 0.15
-  max_leverage: 0.8
-  max_position: 0.5
-  position_step: 0.05
-  transaction_cost: 0.001
-  vol_lookback: 50
-  vol_target: 0.1
 save_interval: 10000
-start_training_after_steps: 5000
-target_sharpe: 1.0
 window_size: 50
