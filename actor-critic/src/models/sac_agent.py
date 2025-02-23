@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import numpy as np
 from typing import Dict, Tuple, Optional
 import logging
+from contextlib import nullcontext
 
 from .sac_actor import SACActorNetwork
 from .sac_critic import SACCriticNetwork
@@ -276,4 +277,65 @@ class SACAgent:
         
         if self.automatic_entropy_tuning:
             self.log_alpha = checkpoint['log_alpha']
-            self.alpha_optimizer.load_state_dict(checkpoint['alpha_optimizer']) 
+            self.alpha_optimizer.load_state_dict(checkpoint['alpha_optimizer'])
+
+    def train(self, replay_buffer: ReplayBuffer, batch_size: int = 256) -> Dict[str, float]:
+        """Train the agent efficiently with memory optimizations."""
+        # Skip if not enough samples
+        if replay_buffer.size < batch_size:
+            return {}
+            
+        # Sample efficiently from replay buffer
+        batch = replay_buffer.sample(batch_size)
+        
+        with torch.cuda.amp.autocast() if self.device.startswith('cuda') else nullcontext():
+            # Compute Q-values
+            current_q1, current_q2 = self.critic_1(batch['states'], batch['actions']), self.critic_2(batch['states'], batch['actions'])
+            
+            # Compute target actions and Q-values
+            with torch.no_grad():
+                next_actions, next_log_pi = self.actor.sample(batch['next_states'])
+                target_q1, target_q2 = self.critic_1_target(batch['next_states'], next_actions), self.critic_2_target(batch['next_states'], next_actions)
+                target_q = torch.min(target_q1, target_q2) - self.alpha * next_log_pi
+                target_q = batch['rewards'] + (1 - batch['dones']) * self.gamma * target_q
+            
+            # Compute critic loss
+            critic_loss = F.mse_loss(current_q1, target_q) + F.mse_loss(current_q2, target_q)
+            
+            # Update critics
+            self.critic_1_optimizer.zero_grad(set_to_none=True)
+            self.critic_2_optimizer.zero_grad(set_to_none=True)
+            critic_loss.backward()
+            self.critic_1_optimizer.step()
+            self.critic_2_optimizer.step()
+            
+            # Clear unnecessary tensors
+            del current_q1, current_q2, target_q1, target_q2, target_q
+            
+            # Actor and alpha loss
+            actions, log_pi = self.actor.sample(batch['states'])
+            q1, q2 = self.critic_1(batch['states'], actions), self.critic_2(batch['states'], actions)
+            q = torch.min(q1, q2)
+            
+            actor_loss = (self.alpha * log_pi - q).mean()
+            
+            # Update actor
+            self.actor_optimizer.zero_grad(set_to_none=True)
+            actor_loss.backward()
+            self.actor_optimizer.step()
+            
+            # Clear more unnecessary tensors
+            del q1, q2, q, actions, log_pi
+            
+            # Update target networks
+            self._update_targets()
+            
+            # Increment total steps
+            self.total_steps += 1
+            
+            # Return metrics
+            return {
+                'critic_loss': float(critic_loss.item()),
+                'actor_loss': float(actor_loss.item()),
+                'alpha': float(self.alpha)
+            } 

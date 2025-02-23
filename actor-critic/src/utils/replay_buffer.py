@@ -26,6 +26,10 @@ class ReplayBuffer:
         # Always use CUDA for better performance
         self.use_cuda = device.startswith("cuda")
         
+        # Track memory usage
+        self.samples_since_cleanup = 0
+        self.cleanup_frequency = 1000  # Cleanup every 1000 samples
+        
         # Initialize buffers directly on GPU if CUDA is available
         if self.use_cuda:
             with torch.cuda.device(device):
@@ -93,10 +97,27 @@ class ReplayBuffer:
             logging.error(f"Error adding to replay buffer: {str(e)}")
             raise
     
+    def _cleanup_memory(self):
+        """Perform memory cleanup operations."""
+        if self.use_cuda:
+            # Force garbage collection
+            import gc
+            gc.collect()
+            # Clear CUDA cache
+            torch.cuda.empty_cache()
+        self.samples_since_cleanup = 0
+    
     def sample(self, batch_size: int) -> Dict[str, torch.Tensor]:
-        """Sample a batch efficiently on GPU."""
+        """Sample a batch efficiently on GPU with periodic cleanup."""
         if self.size < batch_size:
             raise ValueError(f"Not enough transitions ({self.size}) to sample batch of {batch_size}")
+        
+        # Increment samples counter
+        self.samples_since_cleanup += 1
+        
+        # Perform cleanup if needed
+        if self.samples_since_cleanup >= self.cleanup_frequency:
+            self._cleanup_memory()
         
         with torch.amp.autocast('cuda') if self.use_cuda else torch.no_grad():
             # Generate random indices directly on GPU
@@ -106,10 +127,10 @@ class ReplayBuffer:
             
             # Efficient indexing on GPU
             batch = {
-                'states': self.states[ind],  # Already in FP16
+                'states': self.states[ind].to(dtype=torch.float32),  # Convert to full precision for training
                 'actions': self.actions[ind],
                 'rewards': self.rewards[ind],
-                'next_states': self.next_states[ind],  # Already in FP16
+                'next_states': self.next_states[ind].to(dtype=torch.float32),  # Convert to full precision for training
                 'dones': self.dones[ind]
             }
             
